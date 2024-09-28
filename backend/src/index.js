@@ -1,11 +1,32 @@
 import express from "express";
+import { dirname } from "path";
+import { fileURLToPath } from "url";
+import bodyParser from "body-parser";
+import pg from 'pg';
+
+// connect to my database
+const db = new pg.Client({
+    user: 'postgres',      
+    host: 'localhost',
+    database: 'TicketSystem',       
+    password: '1234',
+    port: 5432,
+});
+db.connect()
+.then(() => console.log('Connected to PostgreSQL'));
+
 const app = express();
 const port = 3000;
+db.query("INSERT INTO users (name, age) VALUES ($1, $2)",
+        ["Rayna",6]);
 
-app.get("/", (req, res) => {
-    res.send("<h1>Hello, World!</h1>");
-});
+db.query("INSERT INTO ticket (title , category,description, deadline, owner_id) VALUES ($1, $2, $3, $4, $5)",
+        ["The first ticket", "cleaning", "I want someone to clean my room","2024-10-31 23:59:59", 1 ]);
 
-app.listen(port, () => {
-    console.log(`Server started on port ${port}`);
-});
+app.get("/", (req, res)=>{
+    //res.send("Hello world");
+    res.send("<h1>Hello world</h1>"); // sending back html 
+})
+app.listen(port, () =>{
+    console.log(`Server started on port ${port} `);
+})
