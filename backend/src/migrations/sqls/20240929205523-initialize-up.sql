@@ -1,7 +1,3 @@
-/* Replace with your SQL commands */
--- Table: public.users
-
---DROP TABLE IF EXISTS public.users;
 CREATE TABLE IF NOT EXISTS public.users (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100),
