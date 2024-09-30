@@ -21,10 +21,14 @@ We are looking to create a Hopkins specific errand ticketing app where users can
 4. As a user, I want to be able to assign a task to myself so that I can pickup the ticket and know that I am responsible for the task.
 5. As a user, I want to be able to assign a payment value for the task which corresponds to an agreed-upon amount which describes the difficulty and length of the task.
 6. As a user, I want to be able to view all tickets that are assigned to me, so that I can easily see which tasks I am responsible for.
-7. As a user, I want to be able to view all of my tickets, which are tickets I have created and are open to other users to pickup, so that I can easily see my created tickets and their corresponding status. 
-8. As a user, I want to be able to mark a task as complete once I have finished the task and it is ready for review by the task owner.
-9. As a user, I want to be able to review my tasks and mark complete tasks as “DONE” once I have verified that the ticket/chore is finished which will send the assignee the payment amount. 
-10. As a user, I would like to have the option for all CRUD operations on a given task. If I am the owner, I may want to delete/edit tasks I have made to modify descriptions, category, and/or payment amount.
+7. As a user, I want to be able to view all of my created tickets's information, so that I can easily see my created tickets and their corresponding status.
+8. As a user, I want to be able to send a review request to the task owner once I have finished the task and it is ready for review by the task owner.
+9. As a task owner, I want to be able to edit tasks I have made, so that I can modify descriptions, category, and/or payment amount.
+11. As a task owner, I want to be able to review the ticket task, so that I can verify and check if the ticket is completed.
+12. As a task owner, I want to be able to mark complete tasks as “DONE”, so that other users won't pick up the ticket that is already in progress.
+13. As a task owner, I want to be able to delete the ticket I created, so that no user could see this anymore.
+14. As a task owner, I want to be able to send the payment to the assignee, so that the user that completed this task could get paid.
+
 
 **Nice to have**
 
