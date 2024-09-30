@@ -25,7 +25,7 @@ We are looking to create a Hopkins specific errand ticketing app where users can
 8. As a user, I want to be able to send a review request to the task owner once I have finished the task and it is ready for review by the task owner.
 9. As a task owner, I want to be able to edit tasks I have made, so that I can modify descriptions, category, and/or payment amount.
 11. As a task owner, I want to be able to review the ticket task, so that I can verify and check if the ticket is completed.
-12. As a task owner, I want to be able to mark complete tasks as “DONE”, so that other users won't pick up the ticket that is already in progress.
+12. As a task owner, I want to be able to mark complete tasks as “Completed”, so that other users won't pick up the ticket that is already in progress.
 13. As a task owner, I want to be able to delete the ticket I created, so that no user could see this anymore.
 14. As a task owner, I want to be able to send the payment to the assignee, so that the user that completed this task could get paid.
 
