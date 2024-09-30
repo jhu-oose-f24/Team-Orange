@@ -50,23 +50,19 @@ app.post("/tickets", (req, res) => {
         if (err) {
             return res.status(500).json({ error: "Database insert failed" });
         }
-        res.status(201).json(result.rows[0]);  // Return the newly created ticket
+        res.status(201).json(result.rows[0]); 
     });
 });
 
-// Example query to insert a user (you can remove this if not needed)
 db.query("INSERT INTO users (name, age) VALUES ($1, $2)", ["Rayna", 6]);
 
-// Example query to insert a ticket (you can remove this if not needed)
 db.query("INSERT INTO ticket (title, category, description, deadline, owner_id) VALUES ($1, $2, $3, $4, $5)",
     ["The first ticket", "cleaning", "I want someone to clean my room", "2024-10-31 23:59:59", 1]);
 
-// Basic endpoint to return HTML content
 app.get("/", (req, res) => {
     res.send("<h1>Hello world</h1>");  // sending back HTML
 });
 
-// Start the server
 app.listen(port, () => {
     console.log(`Server started on port ${port}`);
 });
