@@ -2,11 +2,14 @@ const express = require("express");
 const path = require("path");
 const bodyParser = require("body-parser");
 const pg = require('pg');
+const cors = require('cors');
 
 const app = express();
 const port = 3000;
 
 app.use(bodyParser.json());
+// Enable CORS for all routes
+app.use(cors());
 
 // connect to PostgreSQL database
 const db = new pg.Client({
