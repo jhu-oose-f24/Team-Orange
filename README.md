@@ -1,7 +1,7 @@
 # Team-Orange
-# Starting the Backend
 
-# Start DB
+# Starting the Backend
+Start Database
 ```
 Navigate to the backend/src directory 
 npm install -g db-migrate
@@ -9,14 +9,14 @@ npm install -g db-migrate-pg
 npx db-migrate up initialize
 ```
 
-# Run BE
+Run Backend
 ```
 Navigate to the backend/src directory
 npm install
 node index.js
 ```
 
-# To Test
+Testing Backend
 ```
 #Test Get
 http://localhost:3000/tickets
@@ -37,5 +37,5 @@ http://localhost:3000/tickets
 Navigate to the frontend directory
 npm install
 npm start 
-Click the link printed in the console or go to http://localhost:3001 
+Click the link printed in the console or go to http://localhost:3001 to start adding tickets!
 ```
