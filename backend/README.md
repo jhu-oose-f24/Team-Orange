@@ -1,21 +1,32 @@
-# Running the Server
 
-- Navigate to the project directory
-cd [repository name]/backend/src
+# Start DB
+```
+# go to backend->src
+npm install -g db-migrate
+npm install -g db-migrate-pg
+db-migrate up initialize
+```
+
+# Run BE
+```
+go to backend/src
 npm install
+node index.js
+```
 
-Once the dependencies are installed, you can start the server:
-`node index.js`
-The server will start on port 3000.
+# To Test
+```
+#Test Get
+http://localhost:3000/tickets
 
-## Test the POST /tickets Endpoint (Add a new ticket):
+#Test Post
+http://localhost:3000/tickets
 
-In Postman, create a POST request to http://localhost:3000/tickets.
-In the Body tab, select raw and then JSON as the format.
-Add the following JSON payload:
 {
-  "title": "My First Ticket"
+  "title": "Test the server",
+  "category": "maintenance",
+  "description": "test01",
+  "deadline": "2024-10-10 23:59:59",
+  "owner_id": 1
 }
-
-## Test the GET /tickets Endpoint (Retrieve all tickets):
-Create a GET request to http://localhost:3000/tickets
+```

@@ -1,34 +1,69 @@
 import express from "express";
+import { dirname } from "path";
+import { fileURLToPath } from "url";
+import bodyParser from "body-parser";
+import pg from 'pg';
+
 const app = express();
 const port = 3000;
 
-app.use(express.json());
+app.use(bodyParser.json());
 
-// ! I will update this once our database is ready
-let tickets = [];
+// connect to PostgreSQL database
+const db = new pg.Client({
+    user: 'postgres',
+    host: 'localhost',
+    database: 'TicketSystem',
+    password: '1234',
+    port: 5432,
+});
+db.connect()
+    .then(() => console.log('Connected to PostgreSQL'))
+    .catch(err => console.error('Connection error', err.stack));
 
-// Send back the list of tickets as JSON
+// GET endpoint to retrieve all tickets
 app.get("/tickets", (req, res) => {
-    res.json(tickets);  
+    db.query("SELECT * FROM ticket", (err, result) => {
+        if (err) {
+            return res.status(500).json({ error: "Database query failed" });
+        }
+        res.json(result.rows);
+    });
 });
 
 // POST endpoint to create a new ticket
 app.post("/tickets", (req, res) => {
-    const { title } = req.body;
+    const { title, category, description, deadline, owner_id } = req.body;
 
-    if (!title) {
-        return res.status(400).json({ error: "Title is required" });
+    if (!title || !category || !description || !deadline || !owner_id) {
+        return res.status(400).json({ error: "All fields are required" });
     }
 
-    // Create a new ticket with an auto-incremented ID
-    const newTicket = {
-        id: tickets.length + 1,
-        title: title,
-    };
+    // Insert the new ticket into the database
+    const query = `
+        INSERT INTO ticket (title, category, description, deadline, owner_id)
+        VALUES ($1, $2, $3, $4, $5)
+        RETURNING *;
+    `;
 
-    tickets.push(newTicket);
+    db.query(query, [title, category, description, deadline, owner_id], (err, result) => {
+        if (err) {
+            return res.status(500).json({ error: "Database insert failed" });
+        }
+        res.status(201).json(result.rows[0]);  // Return the newly created ticket
+    });
+});
 
-    res.status(201).json(newTicket);
+// Example query to insert a user (you can remove this if not needed)
+db.query("INSERT INTO users (name, age) VALUES ($1, $2)", ["Rayna", 6]);
+
+// Example query to insert a ticket (you can remove this if not needed)
+db.query("INSERT INTO ticket (title, category, description, deadline, owner_id) VALUES ($1, $2, $3, $4, $5)",
+    ["The first ticket", "cleaning", "I want someone to clean my room", "2024-10-31 23:59:59", 1]);
+
+// Basic endpoint to return HTML content
+app.get("/", (req, res) => {
+    res.send("<h1>Hello world</h1>");  // sending back HTML
 });
 
 // Start the server
