@@ -32,6 +32,7 @@ db-migrate up initialize
 Your PostgreSQL database is now set up and ready to be used with the backend of the project.
 
 # Starting the Backend
+
 Start Database
 ```
 Navigate to the backend/src directory 
@@ -63,7 +64,8 @@ http://localhost:3000/tickets
   "owner_id": 1
 }
 ```
-# Starting the Frontend
+Note: if you restart the database, you must also restart the backend server to regain getting and posting functionality.
+## Starting the Frontend
 ```
 Navigate to the frontend directory
 npm install
