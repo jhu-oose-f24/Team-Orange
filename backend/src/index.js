@@ -1,8 +1,7 @@
-import express from "express";
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-import bodyParser from "body-parser";
-import pg from 'pg';
+const express = require("express");
+const path = require("path");
+const bodyParser = require("body-parser");
+const pg = require('pg');
 
 const app = express();
 const port = 3000;
@@ -54,11 +53,13 @@ app.post("/tickets", (req, res) => {
     });
 });
 
+// Example of database inserts
 db.query("INSERT INTO users (name, age) VALUES ($1, $2)", ["Rayna", 6]);
 
 db.query("INSERT INTO ticket (title, category, description, deadline, owner_id) VALUES ($1, $2, $3, $4, $5)",
     ["The first ticket", "cleaning", "I want someone to clean my room", "2024-10-31 23:59:59", 1]);
 
+// Home route
 app.get("/", (req, res) => {
     res.send("<h1>Hello world</h1>");  // sending back HTML
 });
