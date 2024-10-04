@@ -18,8 +18,6 @@ CREATE DATABASE your_db_name OWNER your_username;
 ```
 Exit psql by typing \q.
 
-Open the project’s backend/src/database.json file and update the database connection details. 
-
 Navigate to the backend/src directory and install the required database migration tools:
 ```
 npm install -g db-migrate
