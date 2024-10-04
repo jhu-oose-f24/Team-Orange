@@ -65,10 +65,16 @@ http://localhost:3000/tickets
 }
 ```
 Note: if you restart the database, you must also restart the backend server to regain getting and posting functionality.
-## Starting the Frontend
+## Starting the Frontend (Separate terminal)
 ```
 Navigate to the frontend directory
 npm install
 npm start 
 Click the link printed in the console or go to http://localhost:3001 to start adding tickets!
 ```
+
+## App Features Currently Implemented
+When you run our app currently you will load into a screen with a simple UI that says ChoreHop at the top. There is functionality in the app to create tickets as well as fetch tickets (GET and POST apis). Each time you load in, the tickets should be fetched and displayed, and then subsequently added tickets should be added to the feed. Title, description, category, and a date can be added to the ticket and will also be displayed on the tickets in the feed. 
+
+## What we are building
+Our plan is to build an app that allows users (specifically from within the Hopkins community) to sign on and do one of two things; First, users can create a ticket for any chore whether it be landscaping, cleaning, pickup, babysitting, etc. and other users on the app will be able to see what they are requesting. Second, these other users will have the ability to pick up these tickets, and complete the chore in exchange for pay. Basically, our app will be an all in one ticketing app for users in the JHU community to be able to request help with their chores and these users to be able to pick up jobs to make some quick money from helping out their fellow bluejays.
