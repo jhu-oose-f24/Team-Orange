@@ -15,9 +15,9 @@ We are looking to create a Hopkins specific errand ticketing app where users can
 **Functional Requirements:** List the (functional) requirements that software needs to have in order to solve the problem stated above. List these in role-goal-benefit format. It is useful to try to group the requirements into those that are essential (must have), and those which are non-essential (but nice to have).  
 **Must have**
 
-1. As a user, I want to be able to register an account and sign in, so that I can use the app. 
-2. As a user, I want to be able to view a stream of all tickets (errands/chores), so that I can see which tickets have been created by other users. 
-3. As a user, I want to be able to create a new ticket so that I can put out tasks that other users can see and complete. 
+1. As a user, I want to be able to register an account and sign in, so that I can use the app.
+2. As a user, I want to be able to view a stream of all tickets (errands/chores), so that I can see which tickets have been created by other users.
+3. As a user, I want to be able to create a new ticket so that I can put out tasks that other users can see and complete.
 4. As a user, I want to be able to assign a task to myself so that I can pickup the ticket and know that I am responsible for the task.
 5. As a user, I want to be able to assign a payment value for the task which corresponds to an agreed-upon amount which describes the difficulty and length of the task.
 6. As a user, I want to be able to view all tickets that are assigned to me, so that I can easily see which tasks I am responsible for.
@@ -34,8 +34,8 @@ We are looking to create a Hopkins specific errand ticketing app where users can
 
 1. As a user, I want to have different task categories (such as household chore, shopping/grocery, pet care, etc) so that I can assign a category to the task and later filter tasks by category.
 2. As a user, I want to have a feature where I can track the status of a payment so that once the task is completed, I can verify if I have received the agreed upon payment for the errand.
-3. As a user, I would like to be able to filter open tickets by price so that I can see compare tasks by difficulty and monetary value. 
-4. As a user, I would like there to be a chat history feature associated with each ticket so that the owner and assignee can easily communicate on questions related to the task. 
+3. As a user, I would like to be able to filter open tickets by price so that I can see compare tasks by difficulty and monetary value.
+4. As a user, I would like there to be a chat history feature associated with each ticket so that the owner and assignee can easily communicate on questions related to the task.
 
 **Non-functional Requirements:**
 
@@ -58,13 +58,12 @@ Page load times should not exceed 3 seconds.
 
 **Software Architecture & Technology Stack:** Will this be a Web/desktop/mobile (all, or some other kind of) application? Would it conform to specific software architecture? What programming languages, frameworks, databases, …, will be used to develop and deploy the software?
 
-The application we want to build is a web application. And we will use the client-server architecture.
-We will use Javascript, Node.js, Express.js, React.js, PostgreSQL. 
-To optimize the performance and handle data consistency, we probably consider Redis, MongoDB and Kafka.
-
+- Frontend: For the frontend of our application, we are using React Typescript to allow for a dynamic, component based UI. We chose to use Typescript to ensure type safety, hopefully cutting down our debugging time. 
+- Backend: For the backend, we chose to use both Node.js and Express.js. This allows us to build scalable RESTful API's, with Express providing a solid framework for handling HTTP requests and Node enabling a fast, event-driven server. 
+- Database: Currently, our database uses PostgreSQL, providing a comprehensive relational database, complying to ACID principles and supporting complex queries. Moving forward, we may also use MongoDB for data that doesn't fit well within relational database. 
 
 **Similar Apps:** List a few similar applications to the one you are developing. Don't be eager to conclude no similar app exists\! There is always something similar to what you are building\! Finding those will help you to better specify your project. ***You must be prepared to explain how your app is different from the existing ones.***
 
-JIRA - JIRA is a project tasking interface allowing users to break down their project into more manageable pieces, rather than posting individual errands anyone can complete. 
-GreenPal - GreenPal allows users to post lawn care needs, which local services can bid on, however it is specific to landscaping. 
+JIRA - JIRA is a project tasking interface allowing users to break down their project into more manageable pieces, rather than posting individual errands anyone can complete.
+GreenPal - GreenPal allows users to post lawn care needs, which local services can bid on, however it is specific to landscaping.
 Spruce - Spruce is for specific neighborhoods where they partner with service providers, rather than on demand independent providers.
