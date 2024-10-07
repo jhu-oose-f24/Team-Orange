@@ -5,7 +5,15 @@ import getTickets from '../api/GetTickets.ts';
 import createTicket from '../api/CreateTicket.ts';
 
 const Feed: React.FC = () => {
-    const [tickets, setTickets] = useState<List<{ title: string; description: string; category: string; deadline: string; owner_id: number }>>(List());
+    const [tickets, setTickets] = useState<List<{
+        id: number;
+        title: string;
+        description: string;
+        category: string;
+        deadline: string;
+        owner_id: number;
+    }>>(List());
+    
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [category, setCategory] = useState(''); 
@@ -32,7 +40,7 @@ const Feed: React.FC = () => {
             title, 
             description, 
             category, 
-            deadline, 
+            deadline,
             owner_id: ownerId 
         };
         
@@ -47,6 +55,21 @@ const Feed: React.FC = () => {
         } catch (error) {
             setError('Failed to create ticket. Please try again later.');
         }
+    };
+
+    const handleEditTicket = (updatedTicket: {
+        id: number;
+        title: string;
+        description: string;
+        category: string;
+        deadline: string;
+        owner_id: number;
+    }) => {
+        const updatedTickets = tickets.map(ticket => 
+            ticket.id === updatedTicket.id ? updatedTicket : ticket
+        );
+        console.log(updatedTickets.size)
+        setTickets(List(updatedTickets));
     };
 
     return (
@@ -82,14 +105,16 @@ const Feed: React.FC = () => {
                 />
                 <button type="submit">Create Ticket</button>
             </form>
-            {tickets.map((ticket, index) => (
+
+            {tickets.map(ticket => (
                 <Ticket 
-                    key={index}
+                    id={ticket.id}
                     title={ticket.title} 
                     description={ticket.description} 
                     category={ticket.category}
                     deadline={ticket.deadline}
                     owner_id={ticket.owner_id}
+                    onEdit={handleEditTicket} 
                 />
             ))}
         </div>
