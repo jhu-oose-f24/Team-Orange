@@ -59,8 +59,25 @@ http://localhost:3000/tickets
   "category": "maintenance",
   "description": "test01",
   "deadline": "2024-10-10 23:59:59",
-  "owner_id": 1
+  "owner_id": 1,
+  "payment": 149
 }
+
+#Test Delete
+http://localhost:3000/tickets/TICKET-ID
+
+#Test Put
+http://localhost:3000/tickets/TICKET-ID
+
+{
+    "title": "Fix the printer",
+    "description": "The office printer needs to be repaired."
+}
+{
+    "assigneduser_id": 3,
+    "payment": 200
+}
+
 ```
 Note: if you restart the database, you must also restart the backend server to regain getting and posting functionality.
 ## Starting the Frontend (Separate terminal)
