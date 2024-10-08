@@ -8,23 +8,17 @@ interface TicketProps {
     category: string;
     deadline: string;
     owner_id: number;
-    onEdit: (updatedTicket: {
-        id: number;
-        title: string;
-        description: string;
-        category: string;
-        deadline: string;
-        owner_id: number;
-    }) => void;
+    onDelete: (ticketId: number) => void;
 }
 
-
-const Ticket: React.FC<TicketProps> = ({ id, title, description, category, deadline, owner_id }) => {
+const Ticket: React.FC<TicketProps> = ({ id, title, description, category, deadline, owner_id, onDelete }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [editTitle, setEditTitle] = useState(title);
     const [editDescription, setEditDescription] = useState(description);
     const [editCategory, setEditCategory] = useState(category);
     const [editDeadline, setEditDeadline] = useState(deadline.slice(0,-1));
+    const [isConfirmingDelete, setIsConfirmingDelete] = useState(false); // State to handle delete confirmation
+
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -44,6 +38,19 @@ const Ticket: React.FC<TicketProps> = ({ id, title, description, category, deadl
         }
     };
 
+    const handleDeleteClick = () => {
+        setIsConfirmingDelete(true); // Show confirmation popup
+    };
+
+    const handleConfirmDelete = () => {
+        onDelete(id); // Call delete function
+        setIsConfirmingDelete(false); // Close the confirmation popup
+    };
+
+    const handleCancelDelete = () => {
+        setIsConfirmingDelete(false); // Close the confirmation popup without deleting
+    };
+    
     return (
         <div className="ticket">
             <h2>{title}</h2>
@@ -51,7 +58,20 @@ const Ticket: React.FC<TicketProps> = ({ id, title, description, category, deadl
             <p><strong>Category:</strong> {category}</p>
             <p><strong>Deadline:</strong> {new Date(deadline).toLocaleString()}</p>
             <p><strong>Owner ID:</strong> {owner_id}</p>
-            <button onClick={() => setIsEditing(true)}>Edit Ticket</button>
+
+            <div className="button-group" >
+                <button onClick={() => setIsEditing(true)}>Edit Ticket</button>
+
+                <button onClick={handleDeleteClick}>Delete Ticket</button>
+            </div>
+
+            {isConfirmingDelete && (
+                <div className="modal">
+                    <p>Are you sure you want to delete this ticket?</p>
+                    <button onClick={handleConfirmDelete}>Yes</button>
+                    <button onClick={handleCancelDelete}>Cancel</button>
+                </div>
+            )}
 
             {isEditing && (
                 <div className="modal">

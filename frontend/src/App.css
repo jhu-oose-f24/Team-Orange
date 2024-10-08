@@ -68,7 +68,7 @@ button {
   padding: 10px 15px; 
   background-color: #61dafb; 
   color: white;
-  border: none;
+  border: #333;
   border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.2s; 
@@ -87,4 +87,27 @@ button:hover {
   display: flex; 
   flex-direction: column; 
   align-items: stretch;
+}
+
+.button-group {
+  display: flex;
+  gap: 15px;
+  justify-content: flex-start;
+  align-items: stretch;
+  margin-top: 10px;
+}
+
+.button-group button {
+  flex-grow: 1;
+  padding: 10px 15px; 
+  background-color: #61dafb; 
+  color: white;
+  border: #333;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s; 
+}
+
+.button-group button:hover {
+  background-color: #5ab9eb;
 }

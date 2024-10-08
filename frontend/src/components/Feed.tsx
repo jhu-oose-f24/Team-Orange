@@ -3,6 +3,7 @@ import Ticket from './Ticket.tsx';
 import { List } from 'immutable';
 import getTickets from '../api/GetTickets.ts';
 import createTicket from '../api/CreateTicket.ts';
+import deleteTicket from '../api/DeleteTicket.ts';
 
 const Feed: React.FC = () => {
     const [tickets, setTickets] = useState<List<{
@@ -19,6 +20,7 @@ const Feed: React.FC = () => {
     const [category, setCategory] = useState(''); 
     const [deadline, setDeadline] = useState(''); 
     const [ownerId, setOwnerId] = useState(1);
+    const [payment, setPayment] = useState('');
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
@@ -41,7 +43,8 @@ const Feed: React.FC = () => {
             description, 
             category, 
             deadline,
-            owner_id: ownerId 
+            owner_id: ownerId, 
+            payment: Number(payment)
         };
         
         try {
@@ -52,23 +55,20 @@ const Feed: React.FC = () => {
             setCategory('');
             setDeadline('');
             setOwnerId(1);
+            setPayment('');
         } catch (error) {
             setError('Failed to create ticket. Please try again later.');
         }
     };
 
-    const handleEditTicket = (updatedTicket: {
-        id: number;
-        title: string;
-        description: string;
-        category: string;
-        deadline: string;
-        owner_id: number;
-    }) => {
-        const updatedTickets = tickets.map(ticket => 
-            ticket.id === updatedTicket.id ? updatedTicket : ticket
-        );
-        setTickets(List(updatedTickets));
+    const handleDeleteTicket = async (ticketId: number) => {
+        try {
+            await deleteTicket(ticketId);
+            const updatedTickets = tickets.filter(ticket => ticket.id !== ticketId);
+            setTickets(List(updatedTickets));
+        } catch (error) {
+            console.error('Failed to delete ticket:', error);
+        }
     };
 
     return (
@@ -97,6 +97,13 @@ const Feed: React.FC = () => {
                     required 
                 />
                 <input 
+                    type="text" 
+                    placeholder="Payment"
+                    value={payment} 
+                    onChange={(e) => setPayment(e.target.value)} 
+                    required 
+                />
+                <input 
                     type="datetime-local" 
                     value={deadline} 
                     onChange={(e) => setDeadline(e.target.value)} 
@@ -114,7 +121,7 @@ const Feed: React.FC = () => {
                     category={ticket.category}
                     deadline={ticket.deadline}
                     owner_id={ticket.owner_id}
-                    onEdit={handleEditTicket} 
+                    onDelete={handleDeleteTicket}
                     />
                 </div>
             ))}
