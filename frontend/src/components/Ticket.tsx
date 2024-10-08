@@ -17,7 +17,7 @@ const Ticket: React.FC<TicketProps> = ({ id, title, description, category, deadl
     const [editDescription, setEditDescription] = useState(description);
     const [editCategory, setEditCategory] = useState(category);
     const [editDeadline, setEditDeadline] = useState(deadline.slice(0,-1));
-    const [isConfirmingDelete, setIsConfirmingDelete] = useState(false); // State to handle delete confirmation
+    const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
 
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -39,16 +39,16 @@ const Ticket: React.FC<TicketProps> = ({ id, title, description, category, deadl
     };
 
     const handleDeleteClick = () => {
-        setIsConfirmingDelete(true); // Show confirmation popup
+        setIsConfirmingDelete(true);
     };
 
     const handleConfirmDelete = () => {
-        onDelete(id); // Call delete function
-        setIsConfirmingDelete(false); // Close the confirmation popup
+        onDelete(id);
+        setIsConfirmingDelete(false);
     };
 
     const handleCancelDelete = () => {
-        setIsConfirmingDelete(false); // Close the confirmation popup without deleting
+        setIsConfirmingDelete(false);
     };
     
     return (
