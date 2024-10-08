@@ -13,6 +13,7 @@ const Feed: React.FC = () => {
         category: string;
         deadline: string;
         owner_id: number;
+        payment: number
     }>>(List());
     
     const [title, setTitle] = useState('');
@@ -121,6 +122,7 @@ const Feed: React.FC = () => {
                     category={ticket.category}
                     deadline={ticket.deadline}
                     owner_id={ticket.owner_id}
+                    payment={ticket.payment}
                     onDelete={handleDeleteTicket}
                     />
                 </div>

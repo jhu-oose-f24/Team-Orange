@@ -8,15 +8,17 @@ interface TicketProps {
     category: string;
     deadline: string;
     owner_id: number;
+    payment: number;
     onDelete: (ticketId: number) => void;
 }
 
-const Ticket: React.FC<TicketProps> = ({ id, title, description, category, deadline, owner_id, onDelete }) => {
+const Ticket: React.FC<TicketProps> = ({ id, title, description, category, deadline, owner_id, payment, onDelete }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [editTitle, setEditTitle] = useState(title);
     const [editDescription, setEditDescription] = useState(description);
     const [editCategory, setEditCategory] = useState(category);
     const [editDeadline, setEditDeadline] = useState(deadline.slice(0,-1));
+    const [editPayment, setEditPayment] = useState(payment)
     const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
 
 
@@ -56,8 +58,9 @@ const Ticket: React.FC<TicketProps> = ({ id, title, description, category, deadl
             <h2>{title}</h2>
             <p>{description}</p>
             <p><strong>Category:</strong> {category}</p>
-            <p><strong>Deadline:</strong> {new Date(deadline).toLocaleString()}</p>
             <p><strong>Owner ID:</strong> {owner_id}</p>
+            <p><strong>Payment: </strong> {`$${payment}`}</p>
+            <p><strong>Deadline:</strong> {new Date(deadline).toLocaleString()}</p>
 
             <div className="button-group" >
                 <button onClick={() => setIsEditing(true)}>Edit Ticket</button>
@@ -95,6 +98,13 @@ const Ticket: React.FC<TicketProps> = ({ id, title, description, category, deadl
                             placeholder="Category"
                             value={editCategory}
                             onChange={(e) => setEditCategory(e.target.value)}
+                            required
+                        />
+                        <input
+                            type="text"
+                            placeholder="Payment"
+                            value={editPayment}
+                            onChange={(e) => setEditPayment(Number(e.target.value))}
                             required
                         />
                         <input
