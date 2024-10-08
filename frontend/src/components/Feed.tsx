@@ -32,7 +32,7 @@ const Feed: React.FC = () => {
         };
 
         fetchTickets();
-    }, []);
+    }, [tickets]);
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -68,7 +68,6 @@ const Feed: React.FC = () => {
         const updatedTickets = tickets.map(ticket => 
             ticket.id === updatedTicket.id ? updatedTicket : ticket
         );
-        console.log(updatedTickets.size)
         setTickets(List(updatedTickets));
     };
 
@@ -107,7 +106,8 @@ const Feed: React.FC = () => {
             </form>
 
             {tickets.map(ticket => (
-                <Ticket 
+                <div key={ticket.id}>
+                    <Ticket 
                     id={ticket.id}
                     title={ticket.title} 
                     description={ticket.description} 
@@ -115,7 +115,8 @@ const Feed: React.FC = () => {
                     deadline={ticket.deadline}
                     owner_id={ticket.owner_id}
                     onEdit={handleEditTicket} 
-                />
+                    />
+                </div>
             ))}
         </div>
     );

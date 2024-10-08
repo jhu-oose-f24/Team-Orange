@@ -24,7 +24,7 @@ const Ticket: React.FC<TicketProps> = ({ id, title, description, category, deadl
     const [editTitle, setEditTitle] = useState(title);
     const [editDescription, setEditDescription] = useState(description);
     const [editCategory, setEditCategory] = useState(category);
-    const [editDeadline, setEditDeadline] = useState(deadline);
+    const [editDeadline, setEditDeadline] = useState(deadline.slice(0,-1));
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -37,8 +37,7 @@ const Ticket: React.FC<TicketProps> = ({ id, title, description, category, deadl
         };
 
         try {
-            const updatedData = await editTicket(id, updatedTicket);
-            console.log('Ticket updated:', updatedData);
+            await editTicket(id, updatedTicket);
             setIsEditing(false); 
         } catch (error) {
             console.error('Failed to update ticket:', error);
