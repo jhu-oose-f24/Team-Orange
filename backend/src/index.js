@@ -35,25 +35,38 @@ app.get("/tickets", (req, res) => {
 
 // GET endpoint to search for specific tickets
 app.get("/tickets/search", (req, res) => {
-    const { title, date, owner_id } = req.query;
+    const { title, startDate, endDate, owner_id } = req.query;
 
-    // Build the dynamic query
     let query = "SELECT * FROM ticket WHERE 1=1";
     let queryParams = [];
 
+    // Search by title (if provided)
     if (title) {
         queryParams.push(`%${title}%`);
-        query += ` AND title ILIKE $${queryParams.length}`; // Case-insensitive search
+        query += ` AND title ILIKE $${queryParams.length}`;
     }
-    if (date) {
-        queryParams.push(date);
-        query += ` AND deadline = $${queryParams.length}`;
+
+    // Search by deadline date range (if both startDate and endDate are provided)
+    if (startDate && endDate) {
+        queryParams.push(startDate, endDate);
+        query += ` AND deadline BETWEEN $${queryParams.length - 1} AND $${queryParams.length}`;
+    } else if (startDate) {
+        // If only startDate is provided
+        queryParams.push(startDate);
+        query += ` AND deadline >= $${queryParams.length}`;
+    } else if (endDate) {
+        // If only endDate is provided
+        queryParams.push(endDate);
+        query += ` AND deadline <= $${queryParams.length}`;
     }
+
+    // Search by owner_id (if provided)
     if (owner_id) {
         queryParams.push(owner_id);
         query += ` AND owner_id = $${queryParams.length}`;
     }
 
+    // Execute the query with the parameters
     db.query(query, queryParams, (err, result) => {
         if (err) {
             return res.status(500).json({ error: "Database query failed" });
