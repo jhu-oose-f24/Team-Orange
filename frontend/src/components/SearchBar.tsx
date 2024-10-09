@@ -17,17 +17,23 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
     };
 
     if (startDate) {
-      searchParams.startDate = startDate.toISOString().split('T')[0];
-    }
-    if (endDate) {
-      searchParams.endDate = endDate.toISOString().split('T')[0];
+      const startDateWithTime = new Date(startDate);
+      startDateWithTime.setHours(0, 0, 0, 0);
+      searchParams.startDate = startDateWithTime.toISOString();
     }
 
+    if (endDate) {
+      const endDateWithTime = new Date(endDate);
+      endDateWithTime.setHours(23, 59, 59, 999);
+      searchParams.endDate = endDateWithTime.toISOString();
+    }
     onSearch(searchParams);
   };
 
   return (
+
     <div className="search-bar">
+      <h3>Search for Ticket</h3>
       <input
         type="text"
         placeholder="Search by Title"
