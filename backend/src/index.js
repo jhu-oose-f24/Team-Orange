@@ -33,6 +33,36 @@ app.get("/tickets", (req, res) => {
     });
 });
 
+// GET endpoint to search for specific tickets
+app.get("/tickets/search", (req, res) => {
+    const { title, date, owner_id } = req.query;
+
+    // Build the dynamic query
+    let query = "SELECT * FROM ticket WHERE 1=1";
+    let queryParams = [];
+
+    if (title) {
+        queryParams.push(`%${title}%`);
+        query += ` AND title ILIKE $${queryParams.length}`; // Case-insensitive search
+    }
+    if (date) {
+        queryParams.push(date);
+        query += ` AND deadline = $${queryParams.length}`;
+    }
+    if (owner_id) {
+        queryParams.push(owner_id);
+        query += ` AND owner_id = $${queryParams.length}`;
+    }
+
+    db.query(query, queryParams, (err, result) => {
+        if (err) {
+            return res.status(500).json({ error: "Database query failed" });
+        }
+        res.json(result.rows);
+    });
+});
+
+
 // POST endpoint to create a new ticket
 app.post("/tickets", (req, res) => {
     const { title, category, description, deadline, owner_id, payment } = req.body;
