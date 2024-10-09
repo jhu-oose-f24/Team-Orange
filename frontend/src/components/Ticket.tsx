@@ -18,7 +18,7 @@ const Ticket: React.FC<TicketProps> = ({ id, title, description, category, deadl
     const [editDescription, setEditDescription] = useState(description);
     const [editCategory, setEditCategory] = useState(category);
     const [editDeadline, setEditDeadline] = useState(deadline.slice(0,-1));
-    const [editPayment, setEditPayment] = useState(payment)
+    const [editPayment, setEditPayment] = useState(payment);
     const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
 
 
@@ -30,6 +30,7 @@ const Ticket: React.FC<TicketProps> = ({ id, title, description, category, deadl
             description: editDescription,
             category: editCategory,
             deadline: editDeadline,
+            payment: editPayment,
         };
 
         try {
