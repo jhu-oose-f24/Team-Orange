@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import editTicket from "../api/EditTicket.ts";
+import editTicket from "../api/EditTicket";
 
 interface TicketProps {
   id: number;
