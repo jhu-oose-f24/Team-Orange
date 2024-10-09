@@ -10,8 +10,21 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
   const [searchTitle, setSearchTitle] = useState('');
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSearch = () => {
+    setError(null);
+
+    if (!searchTitle) {
+      setError('Title is required for searching.');
+      return;
+    }
+
+    if (startDate && endDate && startDate > endDate) {
+      setError('Start date cannot be after end date.');
+      return;
+    }
+
     const searchParams: { title: string; startDate?: string; endDate?: string } = {
       title: searchTitle,
     };
@@ -27,12 +40,13 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
       endDateWithTime.setHours(23, 59, 59, 999);
       searchParams.endDate = endDateWithTime.toISOString();
     }
+
     onSearch(searchParams);
   };
 
   return (
-
     <div className="search-bar">
+      {error && <div className="error">{error}</div>}
       <h3>Search for Ticket</h3>
       <input
         type="text"
