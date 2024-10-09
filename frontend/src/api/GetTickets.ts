@@ -10,7 +10,7 @@ const getTickets = async () => {
         return data;
     } catch (error) {
         console.error('Error fetching tickets:', error);
-        throw error; // rethrow error for further handling in the calling function
+        throw error; 
     }
 };
 
