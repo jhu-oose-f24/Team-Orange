@@ -1,7 +1,7 @@
 DO $$ 
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'category') THEN
-        CREATE TYPE Category AS ENUM('Errands', 'landscaping', 'Food Delivery', 'Pet Care', 'Traveling', 'Cleaning', 'Gear Rental', 'Other');
+        CREATE TYPE Category AS ENUM('Errands', 'Landscaping', 'Delivery', 'Pet Care', 'Cleaning', 'Gear Rental', 'Other');
     END IF;
 END $$;
 
