@@ -44,6 +44,14 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
     onSearch(searchParams);
   };
 
+  const handleClearSearch = () => {
+    setSearchTitle('');
+    setStartDate(null);
+    setEndDate(null);
+    onSearch({ title: '', startDate: undefined, endDate: undefined });
+  };
+
+
   return (
     <div className="search-bar">
       {error && <div className="error">{error}</div>}
@@ -67,6 +75,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
         dateFormat="yyyy-MM-dd"
       />
       <button onClick={handleSearch}>Search</button>
+      <button onClick={handleClearSearch}>Clear Search</button>
     </div>
   );
 };
