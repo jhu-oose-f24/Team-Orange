@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import editTicket from "../api/EditTicket";
 
+import { Button, Card, Form, Input } from "antd";
+
 interface TicketProps {
   id: number;
   title: string;
@@ -11,6 +13,14 @@ interface TicketProps {
   payment: number;
   onDelete: (ticketId: number) => void;
 }
+
+type EditTicketForm = {
+  editTitle?: string;
+  editDescription?: string;
+  editCategory?: string;
+  editDeadline?: string;
+  editPayment?: number;
+};
 
 const Ticket: React.FC<TicketProps> = ({
   id,
@@ -23,22 +33,16 @@ const Ticket: React.FC<TicketProps> = ({
   onDelete,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [editTitle, setEditTitle] = useState(title);
-  const [editDescription, setEditDescription] = useState(description);
-  const [editCategory, setEditCategory] = useState(category);
   const [editDeadline, setEditDeadline] = useState(deadline.slice(0, -1));
-  const [editPayment, setEditPayment] = useState(payment);
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
+  const handleSubmit = async (form: EditTicketForm) => {
     const updatedTicket = {
-      title: editTitle,
-      description: editDescription,
-      category: editCategory,
+      title: form.editTitle,
+      description: form.editDescription,
+      category: form.editCategory,
       deadline: editDeadline,
-      payment: editPayment,
+      payment: form.editPayment,
     };
 
     try {
@@ -63,8 +67,7 @@ const Ticket: React.FC<TicketProps> = ({
   };
 
   return (
-    <div className="ticket">
-      <h2>{title}</h2>
+    <Card title={title} style={{ width: 600 }}>
       <p>{description}</p>
       <p>
         <strong>Category:</strong> {category}
@@ -79,63 +82,104 @@ const Ticket: React.FC<TicketProps> = ({
         <strong>Deadline:</strong> {new Date(deadline).toLocaleString()}
       </p>
 
-      <div className="button-group">
-        <button onClick={() => setIsEditing(true)}>Edit Ticket</button>
+      <Button type="primary" onClick={() => setIsEditing(true)}>
+        Edit Ticket
+      </Button>
 
-        <button onClick={handleDeleteClick}>Delete Ticket</button>
-      </div>
+      <Button onClick={handleDeleteClick}>Delete Ticket</Button>
 
       {isConfirmingDelete && (
         <div className="modal">
           <p>Are you sure you want to delete this ticket?</p>
-          <button onClick={handleConfirmDelete}>Yes</button>
-          <button onClick={handleCancelDelete}>Cancel</button>
+          <Button type="primary" onClick={handleConfirmDelete}>
+            Yes
+          </Button>
+          <Button onClick={handleCancelDelete}>Cancel</Button>
         </div>
       )}
 
       {isEditing && (
         <div className="modal">
-          <form onSubmit={handleSubmit}>
-            <input
-              type="text"
-              placeholder="Title"
-              value={editTitle}
-              onChange={(e) => setEditTitle(e.target.value)}
-              required
-            />
-            <input
-              type="text"
-              placeholder="Description"
-              value={editDescription}
-              onChange={(e) => setEditDescription(e.target.value)}
-              required
-            />
-            <input
-              type="text"
-              placeholder="Category"
-              value={editCategory}
-              onChange={(e) => setEditCategory(e.target.value)}
-              required
-            />
-            <input
-              type="text"
-              placeholder="Payment"
-              value={editPayment}
-              onChange={(e) => setEditPayment(Number(e.target.value))}
-              required
-            />
-            <input
-              type="datetime-local"
-              value={editDeadline}
-              onChange={(e) => setEditDeadline(e.target.value)}
-              required
-            />
-            <button type="submit">Update Ticket</button>
-          </form>
-          <button onClick={() => setIsEditing(false)}>Cancel</button>
+          <Form
+            name="EditTicketForm"
+            labelCol={{ span: 8 }}
+            wrapperCol={{ span: 16 }}
+            style={{ maxWidth: 600 }}
+            initialValues={{
+              editTitle: title,
+              editDescription: description,
+              editCategory: category,
+              editDeadline: deadline.slice(0, -1),
+              editPayment: payment,
+            }}
+            onFinish={handleSubmit}
+            autoComplete="off"
+          >
+            <Form.Item<EditTicketForm>
+              label="EditTitle"
+              name="editTitle"
+              rules={[
+                { required: true, message: "Please input your new title!" },
+              ]}
+            >
+              <Input placeholder="Title" />
+            </Form.Item>
+
+            <Form.Item<EditTicketForm>
+              label="EditDescription"
+              name="editDescription"
+              rules={[
+                {
+                  required: true,
+                  message: "Please input your new description!",
+                },
+              ]}
+            >
+              <Input placeholder="Description" />
+            </Form.Item>
+
+            <Form.Item<EditTicketForm>
+              label="EditCategory"
+              name="editCategory"
+              rules={[
+                { required: true, message: "Please input your new category!" },
+              ]}
+            >
+              <Input placeholder="Category" />
+            </Form.Item>
+
+            <Form.Item<EditTicketForm>
+              label="EditDeadline"
+              name="editDeadline"
+              rules={[
+                { required: true, message: "Please input your new deadline!" },
+              ]}
+            >
+              <Input
+                type="datetime-local"
+                placeholder="Deadline"
+                onChange={(e) => setEditDeadline(e.target.value)}
+                required
+              />
+            </Form.Item>
+
+            <Form.Item<EditTicketForm>
+              label="EditPayment"
+              name="editPayment"
+              rules={[
+                { required: true, message: "Please input your new payment!" },
+              ]}
+            >
+              <Input placeholder="Payment" />
+            </Form.Item>
+            <Button type="primary" htmlType="submit">
+              Update Ticket
+            </Button>
+          </Form>
+          <Button onClick={() => setIsEditing(false)}>Cancel</Button>
         </div>
       )}
-    </div>
+    </Card>
   );
 };
 

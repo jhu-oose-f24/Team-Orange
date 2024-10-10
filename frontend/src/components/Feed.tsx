@@ -1,9 +1,20 @@
 import React, { useEffect, useState } from "react";
-import Ticket from "./Ticket";
 import { List } from "immutable";
+import { Button, Form, Input, Space } from "antd";
+
+import Ticket from "./Ticket";
 import getTickets from "../api/GetTickets";
 import createTicket from "../api/CreateTicket";
 import deleteTicket from "../api/DeleteTicket";
+
+type CreateTicketForm = {
+  title: string;
+  description: string;
+  category: string;
+  deadline: string;
+  ownerId: number;
+  payment: string;
+};
 
 const Feed: React.FC = () => {
   const [tickets, setTickets] = useState<
@@ -17,13 +28,7 @@ const Feed: React.FC = () => {
       payment: number;
     }>
   >(List());
-
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [category, setCategory] = useState("");
   const [deadline, setDeadline] = useState("");
-  const [ownerId, setOwnerId] = useState(1);
-  const [payment, setPayment] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -39,26 +44,20 @@ const Feed: React.FC = () => {
     fetchTickets();
   }, [tickets]);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleSubmit = async (form: CreateTicketForm) => {
     const newTicket = {
-      title,
-      description,
-      category,
+      title: form.title,
+      description: form.description,
+      category: form.category,
       deadline,
-      owner_id: ownerId,
-      payment: Number(payment),
+      owner_id: 1, // assing all to user 1 right now - can update later
+      payment: Number(form.payment),
     };
 
     try {
       const createdTicket = await createTicket(newTicket);
       setTickets(tickets.push(createdTicket));
-      setTitle("");
-      setDescription("");
-      setCategory("");
       setDeadline("");
-      setOwnerId(1);
-      setPayment("");
     } catch (error) {
       setError("Failed to create ticket. Please try again later.");
     }
@@ -77,56 +76,78 @@ const Feed: React.FC = () => {
   return (
     <div className="feed">
       {error && <div className="error">{error}</div>}
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          required
-        />
-        <input
-          type="text"
-          placeholder="Description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          required
-        />
-        <input
-          type="text"
-          placeholder="Category"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          required
-        />
-        <input
-          type="text"
-          placeholder="Payment"
-          value={payment}
-          onChange={(e) => setPayment(e.target.value)}
-          required
-        />
-        <input
-          type="datetime-local"
-          value={deadline}
-          onChange={(e) => setDeadline(e.target.value)}
-          required
-        />
-        <button type="submit">Create Ticket</button>
-      </form>
+      <Form
+        name="CreateTicketForm"
+        labelCol={{ span: 8 }}
+        wrapperCol={{ span: 16 }}
+        style={{ maxWidth: 600 }}
+        initialValues={{ remember: true }}
+        onFinish={handleSubmit}
+      >
+        <Form.Item<CreateTicketForm>
+          label="Title"
+          name="title"
+          rules={[{ required: true, message: "Please input a title!" }]}
+        >
+          <Input />
+        </Form.Item>
+
+        <Form.Item<CreateTicketForm>
+          label="Description"
+          name="description"
+          rules={[{ required: true, message: "Please input a description!" }]}
+        >
+          <Input />
+        </Form.Item>
+
+        <Form.Item<CreateTicketForm>
+          label="Category"
+          name="category"
+          rules={[{ required: true, message: "Please input a category!" }]}
+        >
+          <Input />
+        </Form.Item>
+
+        <Form.Item<CreateTicketForm>
+          label="Payment"
+          name="payment"
+          rules={[{ required: true, message: "Please input a payment!" }]}
+        >
+          <Input />
+        </Form.Item>
+
+        <Form.Item<CreateTicketForm>
+          label="Deadline"
+          name="deadline"
+          rules={[{ required: true, message: "Please input a deadline!" }]}
+        >
+          <Input
+            type="datetime-local"
+            value={deadline}
+            onChange={(e) => setDeadline(e.target.value)}
+            required
+          />
+        </Form.Item>
+
+        <Button type="primary" htmlType="submit">
+          Create Ticket
+        </Button>
+      </Form>
 
       {tickets.map((ticket) => (
         <div key={ticket.id}>
-          <Ticket
-            id={ticket.id}
-            title={ticket.title}
-            description={ticket.description}
-            category={ticket.category}
-            deadline={ticket.deadline}
-            owner_id={ticket.owner_id}
-            payment={ticket.payment}
-            onDelete={handleDeleteTicket}
-          />
+          <Space direction="vertical" size={16}>
+            <Ticket
+              id={ticket.id}
+              title={ticket.title}
+              description={ticket.description}
+              category={ticket.category}
+              deadline={ticket.deadline}
+              owner_id={ticket.owner_id}
+              payment={ticket.payment}
+              onDelete={handleDeleteTicket}
+            />
+          </Space>
         </div>
       ))}
     </div>
