@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import Ticket from './Ticket.tsx';
+import Ticket from './Ticket';
 import { List } from 'immutable';
-import getTickets from '../api/GetTickets.ts';
-import createTicket from '../api/CreateTicket.ts';
+import getTickets from '../api/GetTickets';
+import createTicket from '../api/CreateTicket';
 
 const Feed: React.FC = () => {
-    const [tickets, setTickets] = useState<List<{ title: string; description: string; category: string; deadline: string; owner_id: number }>>(List());
+    const [tickets, setTickets] = useState<List<{ title: string; description: string; category: string; status: string; deadline: string; owner_id: number }>>(List());
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [category, setCategory] = useState(''); 
+    const [status, setStatus] = useState('Open');
     const [deadline, setDeadline] = useState(''); 
     const [ownerId, setOwnerId] = useState(1);
     const [error, setError] = useState<string | null>(null);
@@ -17,6 +18,7 @@ const Feed: React.FC = () => {
         const fetchTickets = async () => {
             try {
                 const fetchedTickets = await getTickets();
+                console.log("Reaching this ------");
                 setTickets(List(fetchedTickets));
             } catch (error) {
                 setError('Failed to fetch tickets. Please try again later.');
@@ -32,6 +34,7 @@ const Feed: React.FC = () => {
             title, 
             description, 
             category, 
+            status,
             deadline, 
             owner_id: ownerId 
         };
@@ -42,6 +45,7 @@ const Feed: React.FC = () => {
             setTitle('');
             setDescription('');
             setCategory('');
+            setStatus('Open');
             setDeadline('');
             setOwnerId(1);
         } catch (error) {
@@ -74,6 +78,16 @@ const Feed: React.FC = () => {
                     onChange={(e) => setCategory(e.target.value)} 
                     required 
                 />
+                <select
+                    value={status}
+                    onChange={(e) => setStatus(e.target.value)}
+                    >required
+                     <option value="Open">Open</option>
+                    <option value="InProgress">InProgress</option>
+                    <option value="Done">Done</option>
+                    <option value="Closed">Closed</option>
+                    
+                    </select>
                 <input 
                     type="datetime-local" 
                     value={deadline} 
@@ -88,6 +102,7 @@ const Feed: React.FC = () => {
                     title={ticket.title} 
                     description={ticket.description} 
                     category={ticket.category}
+                    status = {ticket.status}
                     deadline={ticket.deadline}
                     owner_id={ticket.owner_id}
                 />

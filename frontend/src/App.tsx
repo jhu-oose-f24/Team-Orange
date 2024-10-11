@@ -1,5 +1,5 @@
 import React from 'react';
-import Feed from './components/Feed.tsx';
+import Feed from './components/Feed';
 import './App.css'; 
 
 const App: React.FC = () => {

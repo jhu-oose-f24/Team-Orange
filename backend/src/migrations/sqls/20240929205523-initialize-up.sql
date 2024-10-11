@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS public.ticket (
     description TEXT NOT NULL,
     create_time TIMESTAMP DEFAULT NOW(),
     deadline TIMESTAMP,
-    Priority priority NOT NULL, 
+    Priority priority DEFAULT 'Low', 
     Status status DEFAULT 'Open',
     owner_id INTEGER NOT NULL,
     assigneduser_id INTEGER,
