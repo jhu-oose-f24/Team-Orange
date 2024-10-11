@@ -3,14 +3,25 @@ import Ticket from './Ticket.tsx';
 import { List } from 'immutable';
 import getTickets from '../api/GetTickets.ts';
 import createTicket from '../api/CreateTicket.ts';
+import deleteTicket from '../api/DeleteTicket.ts';
 
 const Feed: React.FC = () => {
-    const [tickets, setTickets] = useState<List<{ title: string; description: string; category: string; deadline: string; owner_id: number }>>(List());
+    const [tickets, setTickets] = useState<List<{
+        id: number;
+        title: string;
+        description: string;
+        category: string;
+        deadline: string;
+        owner_id: number;
+        payment: number
+    }>>(List());
+    
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [category, setCategory] = useState(''); 
     const [deadline, setDeadline] = useState(''); 
     const [ownerId, setOwnerId] = useState(1);
+    const [payment, setPayment] = useState('');
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
@@ -24,7 +35,7 @@ const Feed: React.FC = () => {
         };
 
         fetchTickets();
-    }, []);
+    }, [tickets]);
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -32,8 +43,9 @@ const Feed: React.FC = () => {
             title, 
             description, 
             category, 
-            deadline, 
-            owner_id: ownerId 
+            deadline,
+            owner_id: ownerId, 
+            payment: Number(payment)
         };
         
         try {
@@ -44,8 +56,19 @@ const Feed: React.FC = () => {
             setCategory('');
             setDeadline('');
             setOwnerId(1);
+            setPayment('');
         } catch (error) {
             setError('Failed to create ticket. Please try again later.');
+        }
+    };
+
+    const handleDeleteTicket = async (ticketId: number) => {
+        try {
+            await deleteTicket(ticketId);
+            const updatedTickets = tickets.filter(ticket => ticket.id !== ticketId);
+            setTickets(List(updatedTickets));
+        } catch (error) {
+            console.error('Failed to delete ticket:', error);
         }
     };
 
@@ -75,6 +98,13 @@ const Feed: React.FC = () => {
                     required 
                 />
                 <input 
+                    type="text" 
+                    placeholder="Payment"
+                    value={payment} 
+                    onChange={(e) => setPayment(e.target.value)} 
+                    required 
+                />
+                <input 
                     type="datetime-local" 
                     value={deadline} 
                     onChange={(e) => setDeadline(e.target.value)} 
@@ -82,15 +112,20 @@ const Feed: React.FC = () => {
                 />
                 <button type="submit">Create Ticket</button>
             </form>
-            {tickets.map((ticket, index) => (
-                <Ticket 
-                    key={index}
+
+            {tickets.map(ticket => (
+                <div key={ticket.id}>
+                    <Ticket 
+                    id={ticket.id}
                     title={ticket.title} 
                     description={ticket.description} 
                     category={ticket.category}
                     deadline={ticket.deadline}
                     owner_id={ticket.owner_id}
-                />
+                    payment={ticket.payment}
+                    onDelete={handleDeleteTicket}
+                    />
+                </div>
             ))}
         </div>
     );
