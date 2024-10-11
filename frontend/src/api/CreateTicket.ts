@@ -1,6 +1,14 @@
 const BASE_URL = 'http://localhost:3000/tickets';
 
-const createTicket = async (ticket: { title: string; description: string}) => {
+const createTicket = async (
+    ticket: { 
+        title: string,
+        description: string, 
+        category: string, 
+        deadline: string,
+        owner_id: number, 
+        payment: number
+    }) => {
     try {
         const response = await fetch(BASE_URL, {
             method: 'POST',
