@@ -20,7 +20,6 @@ const Feed: React.FC = () => {
         const fetchTickets = async () => {
             try {
                 const fetchedTickets = await getTickets();
-                console.log("Reaching this ------");
                 setTickets(List(fetchedTickets));
             } catch (error) {
                 setError('Failed to fetch tickets. Please try again later.');
