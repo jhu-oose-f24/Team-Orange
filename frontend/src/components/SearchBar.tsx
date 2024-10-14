@@ -43,34 +43,38 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
   };
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', border: '1px solid #d9d9d9', padding: '8px', borderRadius: '4px', width: '100%', maxWidth: '600px' }}>
-      {error && <Alert message={error} type="error" showIcon closable style={{ marginRight: '10px', flexGrow: 1 }} />}
-      <Input
-        style={{ flexGrow: 1, marginRight: '8px' }}
-        placeholder="Search by Title"
-        value={searchTitle}
-        onChange={(e) => setSearchTitle(e.target.value)}
-      />
-      <Input
-        type="datetime-local"
-        style={{ width: '120px', marginRight: '8px' }}
-        value={startDate ? new Date(startDate).toISOString().slice(0, 16) : ''}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setStartDate(e.target.value)}
-        placeholder="Start Date"
-      />
-      <Input
-        type="datetime-local"
-        style={{ width: '120px', marginRight: '8px' }}
-        value={endDate ? new Date(endDate).toISOString().slice(0, 16) : ''}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEndDate(e.target.value)}
-        placeholder="End Date"
-      />
-      <Button type="primary" onClick={handleSearch} style={{ marginRight: '4px' }}>
-        Search
-      </Button>
-      <Button onClick={handleClearSearch}>
-        Clear
-      </Button>
+    <div style={{ width: '100%', maxWidth: '600px', border: '1px solid #d9d9d9', padding: '8px', borderRadius: '4px' }}>
+      {error && <Alert message={error} type="error" showIcon closable style={{ marginBottom: '8px' }} />}
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+        <Input
+          style={{ flexGrow: 1, marginRight: '8px' }}
+          placeholder="Search by Title"
+          value={searchTitle}
+          onChange={(e) => setSearchTitle(e.target.value)}
+        />
+        <Input
+          type="datetime-local"
+          style={{ width: '120px', marginRight: '8px' }}
+          value={startDate ? new Date(startDate).toISOString().slice(0, 16) : ''}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setStartDate(e.target.value)}
+          placeholder="Start Date"
+        />
+        <Input
+          type="datetime-local"
+          style={{ width: '120px' }}
+          value={endDate ? new Date(endDate).toISOString().slice(0, 16) : ''}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEndDate(e.target.value)}
+          placeholder="End Date"
+        />
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+        <Button type="primary" onClick={handleSearch} style={{ marginRight: '4px' }}>
+          Search
+        </Button>
+        <Button onClick={handleClearSearch}>
+          Clear
+        </Button>
+      </div>
     </div>
   );
 };
