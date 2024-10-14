@@ -15,7 +15,7 @@ type CreateTicketForm = {
 const CreateTicket: React.FC = () => {
   const [deadline, setDeadline] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null)
+  const [success, setSuccess] = useState<string | null>(null);
 
   const handleSubmit = async (form: CreateTicketForm) => {
     const newTicket = {
@@ -31,7 +31,9 @@ const CreateTicket: React.FC = () => {
       const createdTicket = await createTicket(newTicket);
       //   setTickets(tickets.push(createdTicket));
       setDeadline("");
-      setSuccess("Successfully Created your new ticket. View it in the Feed page.")
+      setSuccess(
+        "Successfully Created your new ticket. View it in the Feed page.",
+      );
     } catch (error) {
       setError("Failed to create ticket. Please try again later.");
     }

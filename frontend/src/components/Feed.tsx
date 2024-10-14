@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { List } from "immutable";
-import { Space } from "antd";
+import { Button, Card, Col, Form, Input, Row, Space } from "antd";
 
 import Ticket from "./Ticket";
 import getTickets from "../api/GetTickets";
@@ -49,20 +49,18 @@ const Feed: React.FC = () => {
     <div className="feed">
       {error && <div className="error">{error}</div>}
       {tickets.map((ticket) => (
-        <div key={ticket.id}>
-          <Space direction="vertical" size={16}>
-            <Ticket
-              id={ticket.id}
-              title={ticket.title}
-              description={ticket.description}
-              category={ticket.category}
-              deadline={ticket.deadline}
-              owner_id={ticket.owner_id}
-              payment={ticket.payment}
-              onDelete={handleDeleteTicket}
-            />
-          </Space>
-        </div>
+        <Space direction="vertical" size={16}>
+          <Ticket
+            id={ticket.id}
+            title={ticket.title}
+            description={ticket.description}
+            category={ticket.category}
+            deadline={ticket.deadline}
+            owner_id={ticket.owner_id}
+            payment={ticket.payment}
+            onDelete={handleDeleteTicket}
+          />
+        </Space>
       ))}
     </div>
   );
