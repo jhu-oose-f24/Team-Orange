@@ -1,4 +1,4 @@
-class Ticket {
+interface Ticket {
     title: string;
     category: string;
     description: string;

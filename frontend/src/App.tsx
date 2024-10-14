@@ -16,7 +16,13 @@ const App: React.FC = () => {
                 <NavBar />
                 <Routes>
                     <Route path="/create-ticket" element={<CreateTicket />} />
-                    <Route path="/feed" element={<Feed />} />
+                    <Route path="/feed" element={
+                        <div className="feed-container">
+                            <Feed />
+                            <Feed />
+                            <Feed />
+                        </div>
+                    } />
                     <Route path="/profile" element={<Profile />} />
                     <Route path="/" element={<Feed />} />
                 </Routes>

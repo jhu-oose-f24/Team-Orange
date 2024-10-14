@@ -13,11 +13,19 @@
   color: white;
 }
 
-.feed {
-  width: 80%; 
-  max-width: 800px;
-  margin: 20px auto;
+.feed-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
   padding: 20px;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.feed {
+  width: 30%; 
+  margin: 20px auto;
+  padding: 10px;
   background-color: #fff; 
   border-radius: 8px; 
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); 
