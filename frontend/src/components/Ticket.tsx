@@ -12,6 +12,7 @@ interface TicketProps {
   owner_id: number;
   payment: number;
   onDelete: (ticketId: number) => void;
+  onUpdate: () => void;
 }
 
 type EditTicketForm = {
@@ -31,6 +32,7 @@ const Ticket: React.FC<TicketProps> = ({
   owner_id,
   payment,
   onDelete,
+  onUpdate,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editDeadline, setEditDeadline] = useState(deadline.slice(0, -1));
@@ -48,6 +50,7 @@ const Ticket: React.FC<TicketProps> = ({
     try {
       await editTicket(id, updatedTicket);
       setIsEditing(false);
+      onUpdate();
     } catch (error) {
       console.error("Failed to update ticket:", error);
     }
