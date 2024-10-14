@@ -33,6 +33,44 @@ app.get("/tickets", (req, res) => {
     });
 });
 
+// GET endpoint to search for specific tickets
+app.get("/tickets/search", (req, res) => {
+    const { title, startDate, endDate, owner_id } = req.query;
+
+    let query = "SELECT * FROM ticket WHERE 1=1";
+    let queryParams = [];
+
+    if (title) {
+        queryParams.push(`%${title}%`);
+        query += ` AND title ILIKE $${queryParams.length}`;
+    }
+
+    if (startDate && endDate) {
+        queryParams.push(startDate, endDate);
+        query += ` AND deadline BETWEEN $${queryParams.length - 1} AND $${queryParams.length}`;
+    } else if (startDate) {
+        queryParams.push(startDate);
+        query += ` AND deadline >= $${queryParams.length}`;
+    } else if (endDate) {
+        queryParams.push(endDate);
+        query += ` AND deadline <= $${queryParams.length}`;
+    }
+
+    /* No search by user implemented on front end
+    if (owner_id) {
+        queryParams.push(owner_id);
+        query += ` AND owner_id = $${queryParams.length}`;
+    }
+     */
+    db.query(query, queryParams, (err, result) => {
+        if (err) {
+            return res.status(500).json({ error: "Database query failed" });
+        }
+        res.json(result.rows);
+    });
+});
+
+
 // POST endpoint to create a new ticket
 app.post("/tickets", (req, res) => {
     const { title, category, description, deadline, owner_id, payment } = req.body;
