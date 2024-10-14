@@ -3,7 +3,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
 interface SearchBarProps {
-  onSearch: (params: { title: string; startDate?: string; endDate?: string }) => void;
+  onSearch: (params: { title?: string; startDate?: string; endDate?: string }) => void;
 }
 
 const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
@@ -15,18 +15,25 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
   const handleSearch = () => {
     setError(null);
 
+    /*
+
     if (!searchTitle) {
       setError('Title is required for searching.');
       return;
     }
+
+     */
+
+    const trimmedTitle = searchTitle.trim();
+
 
     if (startDate && endDate && startDate > endDate) {
       setError('Start date cannot be after end date.');
       return;
     }
 
-    const searchParams: { title: string; startDate?: string; endDate?: string } = {
-      title: searchTitle,
+    const searchParams: { title?: string; startDate?: string; endDate?: string } = {
+      title: trimmedTitle,
     };
 
     if (startDate) {
@@ -75,7 +82,9 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
         dateFormat="yyyy-MM-dd"
       />
       <button onClick={handleSearch}>Search</button>
-      <button onClick={handleClearSearch}>Clear Search</button>
+      <button onClick={handleClearSearch} style={{ marginLeft: '10px' }}>
+        Clear Search
+      </button>
     </div>
   );
 };
