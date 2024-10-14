@@ -73,6 +73,7 @@ const Feed: React.FC<FeedProps> = ({statusFilter}) => {
 
   return (
     <div className="feed">
+        <h2 style={{ fontSize: '24px', color: '#61dafb' }}>{statusFilter} Tickets</h2>
       {error && <div className="error">{error}</div>}
       <SearchBar onSearch={handleSearch} />
       {tickets.map((ticket) => (
