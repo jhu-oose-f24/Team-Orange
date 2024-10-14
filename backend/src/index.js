@@ -79,6 +79,8 @@ app.post("/tickets", (req, res) => {
         return res.status(400).json({ error: "All fields are required" });
     }
 
+    // check category, type 
+
     // Insert the new ticket into the database
     const query = `
         INSERT INTO ticket (title, category, description, deadline, owner_id, payment)
@@ -142,7 +144,6 @@ app.put("/tickets/:id", (req, res) => {
         });
     });
 });
-
 
 // DELETE endpoint to delete a ticket by ID
 app.delete("/tickets/:id", (req, res) => {
