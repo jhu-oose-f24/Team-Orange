@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { List } from "immutable";
-import searchTickets from '../api/SearchTicket';
+import searchTickets from "../api/SearchTicket";
 import SearchBar from './SearchBar';
 import { Space } from "antd";
 
