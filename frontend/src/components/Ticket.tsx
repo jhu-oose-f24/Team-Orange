@@ -158,7 +158,7 @@ const Ticket: React.FC<TicketProps> = ({
               <Input
                 type="datetime-local"
                 placeholder="Deadline"
-                onChange={(e) => setEditDeadline(e.target.value)}
+                onChange={(e : React.ChangeEvent<HTMLInputElement>) => setEditDeadline(e.target.value)}
                 required
               />
             </Form.Item>
