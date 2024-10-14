@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import Ticket from './Ticket.tsx';
+import Ticket from './Ticket';
 import { List } from 'immutable';
-import getTickets from '../api/GetTickets.ts';
-import createTicket from '../api/CreateTicket.ts';
-import deleteTicket from '../api/DeleteTicket.ts';
+import getTickets from '../api/GetTickets';
+import createTicket from '../api/CreateTicket';
+import deleteTicket from '../api/DeleteTicket';
 
 const Feed: React.FC = () => {
     const [tickets, setTickets] = useState<List<{
