@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, Form, Input } from "antd";
+import { Button, Form, Input, Select } from "antd";
 
 import createTicket from "../api/CreateTicket";
 
@@ -7,6 +7,7 @@ type CreateTicketForm = {
   title: string;
   description: string;
   category: string;
+  status: string;
   deadline: string;
   ownerId: number;
   payment: string;
@@ -22,6 +23,7 @@ const CreateTicket: React.FC = () => {
       title: form.title,
       description: form.description,
       category: form.category,
+      status: form.status,
       deadline,
       owner_id: 1, // assing all to user 1 right now - can update later
       payment: Number(form.payment),
@@ -74,6 +76,19 @@ const CreateTicket: React.FC = () => {
           rules={[{ required: true, message: "Please input a category!" }]}
         >
           <Input />
+        </Form.Item>
+
+        <Form.Item<CreateTicketForm>
+          label="Status"
+          name="status"
+          rules={[{ required: true, message: "Select from a Status!" }]}
+        > 
+          <Select placeholder="Select a status" >
+            <Select.Option value="Open">Open</Select.Option>
+            <Select.Option value="InProgress">InProgress</Select.Option>
+            <Select.Option value="Done">Done</Select.Option>
+            <Select.Option value="Closed">Closed</Select.Option>
+          </Select>
         </Form.Item>
 
         <Form.Item<CreateTicketForm>
