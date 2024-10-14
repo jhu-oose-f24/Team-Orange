@@ -111,3 +111,22 @@ button:hover {
 .button-group button:hover {
   background-color: #5ab9eb;
 }
+
+nav {
+  display: flex;
+  justify-content: space-evenly;
+  width: 100%; 
+  margin-top: 10px;
+}
+
+.navButton {
+  flex: 1; 
+  padding: 10px;
+  font-size: 16px;
+  background-color: lightblue;
+  color: black;
+ 
+} 
+
+
+
