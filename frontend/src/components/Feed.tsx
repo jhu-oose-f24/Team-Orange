@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { List } from "immutable";
-import { Button, Card, Col, Form, Input, Row, Space } from "antd";
+import { Space } from "antd";
 
 import Ticket from "./Ticket";
 import getTickets from "../api/GetTickets";
@@ -21,6 +21,7 @@ const Feed: React.FC = () => {
   >(List());
 
   const [error, setError] = useState<string | null>(null);
+  const [refetch, setRefetch] = useState(false); // Refetch trigger
 
   useEffect(() => {
     const fetchTickets = async () => {
@@ -33,13 +34,14 @@ const Feed: React.FC = () => {
     };
 
     fetchTickets();
-  }, [tickets]);
+  }, [refetch]);
 
   const handleDeleteTicket = async (ticketId: number) => {
     try {
       await deleteTicket(ticketId);
       const updatedTickets = tickets.filter((ticket) => ticket.id !== ticketId);
       setTickets(List(updatedTickets));
+      setRefetch(!refetch);
     } catch (error) {
       console.error("Failed to delete ticket:", error);
     }
@@ -59,6 +61,7 @@ const Feed: React.FC = () => {
             owner_id={ticket.owner_id}
             payment={ticket.payment}
             onDelete={handleDeleteTicket}
+            onUpdate={() => setRefetch(!refetch)}
           />
         </Space>
       ))}

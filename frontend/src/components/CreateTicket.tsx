@@ -28,8 +28,7 @@ const CreateTicket: React.FC = () => {
     };
 
     try {
-      const createdTicket = await createTicket(newTicket);
-      //   setTickets(tickets.push(createdTicket));
+      await createTicket(newTicket);
       setDeadline("");
       setSuccess(
         "Successfully Created your new ticket. View it in the Feed page.",
