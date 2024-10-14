@@ -35,7 +35,6 @@ app.get("/tickets", (req, res) => {
 
 // POST endpoint to create a new ticket
 app.post("/tickets", (req, res) => {
-    console.log("creating in index.js");
     const { title, category, status, description, deadline, owner_id, payment } = req.body;
 
     if (!title || !category || !description || !deadline || !owner_id || payment === undefined) {
