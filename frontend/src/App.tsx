@@ -1,16 +1,28 @@
-import React from "react";
-import Feed from "./components/Feed";
-import "./App.css";
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Feed from './components/Feed';
+import NavBar from './components/NavBar';
+import CreateTicket from './components/CreateTicket';
+import Profile from './components/Profile';
+import './App.css';
 
 const App: React.FC = () => {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <h1>ChoreHop</h1>
-      </header>
-      <Feed />
-    </div>
-  );
+    return (
+        <Router>
+            <div className="App">
+                <header className="App-header">
+                    <h1>ChoreHop</h1>
+                </header>
+                <NavBar />
+                <Routes>
+                    <Route path="/create-ticket" element={<CreateTicket />} />
+                    <Route path="/feed" element={<Feed />} />
+                    <Route path="/profile" element={<Profile />} />
+                    <Route path="/" element={<Feed />} />
+                </Routes>
+            </div>
+        </Router>
+    );
 };
 
 export default App;
