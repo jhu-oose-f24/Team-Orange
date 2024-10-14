@@ -9,8 +9,11 @@ import getTickets from "../api/GetTickets";
 
 import deleteTicket from "../api/DeleteTicket";
 
+interface FeedProps {
+    statusFilter: string; 
+  }
 
-const Feed: React.FC = () => {
+const Feed: React.FC<FeedProps> = ({statusFilter}) => {
   const [tickets, setTickets] = useState<
     List<{
       id: number;
@@ -20,6 +23,7 @@ const Feed: React.FC = () => {
       deadline: string;
       owner_id: number;
       payment: number;
+      status: string;
     }>
   >(List());
 
@@ -28,16 +32,20 @@ const Feed: React.FC = () => {
 
   useEffect(() => {
     const fetchTickets = async () => {
-      try {
-        const fetchedTickets = await getTickets();
-        setTickets(List(fetchedTickets));
-      } catch (error) {
+        try {
+            const fetchedTickets = await getTickets();
+            // Filter tickets based on statusFilter
+            const filteredTickets = fetchedTickets.filter(
+                (ticket: { status: string; }) => ticket.status.toLowerCase() === statusFilter.toLowerCase()
+              );
+            setTickets(List(filteredTickets));
+          }  catch (error) {
         setError("Failed to fetch tickets. Please try again later.");
       }
     };
 
     fetchTickets();
-  }, [refetch]);
+  }, [refetch, statusFilter]);
 
   const handleDeleteTicket = async (ticketId: number) => {
     try {
@@ -74,6 +82,7 @@ const Feed: React.FC = () => {
             title={ticket.title}
             description={ticket.description}
             category={ticket.category}
+            status={ticket.status}
             deadline={ticket.deadline}
             owner_id={ticket.owner_id}
             payment={ticket.payment}

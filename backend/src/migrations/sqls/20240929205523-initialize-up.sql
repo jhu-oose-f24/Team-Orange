@@ -32,8 +32,9 @@ CREATE TABLE IF NOT EXISTS public.ticket (
     description TEXT NOT NULL,
     create_time TIMESTAMP DEFAULT NOW(),
     deadline TIMESTAMP,
-    Priority priority NOT NULL, 
-    Status status DEFAULT 'Open',
+    Priority priority DEFAULT 'Low', 
+    /* Status status DEFAULT 'Open',*/
+    /* ^ Removed for it2 to test multiple feeds */
     owner_id INTEGER NOT NULL,
     assigneduser_id INTEGER,
     payment INTEGER DEFAULT 0,
