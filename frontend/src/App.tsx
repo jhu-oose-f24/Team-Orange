@@ -25,6 +25,8 @@ const App: React.FC = () => {
     { key: "profile", label: "Profile", path: "/profile" },
   ];
 
+  // statusFilter very case sensitive. Also not addressing Closed option
+
   return (
     <Router>
       <Layout>
@@ -44,14 +46,14 @@ const App: React.FC = () => {
                 path="/feed"
                 element={
                   <div className="feed-container">
-                    <Feed />
-                    <Feed />
-                    <Feed />
+                    <Feed statusFilter='Open'/>
+                    <Feed statusFilter='InProgress'/>
+                    <Feed statusFilter='Done'/>
                   </div>
                 }
               />
               <Route path="/profile" element={<Profile />} />
-              <Route path="/" element={<Feed />} />
+              <Route path="/" element={<Feed statusFilter="Open"/>} />
             </Routes>
           </div>
         </Content>

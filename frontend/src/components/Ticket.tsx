@@ -7,6 +7,7 @@ interface TicketProps {
   id: number;
   title: string;
   description: string;
+  status: string;
   category: string;
   deadline: string;
   owner_id: number;

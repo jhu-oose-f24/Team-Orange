@@ -73,7 +73,7 @@ app.get("/tickets/search", (req, res) => {
 
 // POST endpoint to create a new ticket
 app.post("/tickets", (req, res) => {
-    const { title, category, description, deadline, owner_id, payment } = req.body;
+    const { title, category, status, description, deadline, owner_id, payment } = req.body;
 
     if (!title || !category || !description || !deadline || !owner_id || payment === undefined) {
         return res.status(400).json({ error: "All fields are required" });
@@ -83,12 +83,12 @@ app.post("/tickets", (req, res) => {
 
     // Insert the new ticket into the database
     const query = `
-        INSERT INTO ticket (title, category, description, deadline, owner_id, payment)
-        VALUES ($1, $2, $3, $4, $5, $6)
+        INSERT INTO ticket (title, category, status, description, deadline, owner_id, payment)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
         RETURNING *;
     `;
 
-    db.query(query, [title, category, description, deadline, owner_id, payment], (err, result) => {
+    db.query(query, [title, category, status, description, deadline, owner_id, payment], (err, result) => {
         if (err) {
             return res.status(500).json({ error: "Database insert failed" });
         }
@@ -171,7 +171,7 @@ app.delete("/tickets/:id", (req, res) => {
 db.query("INSERT INTO users (name, age) VALUES ($1, $2)", ["Rayna", 6]);
 
 db.query("INSERT INTO ticket (title, category, description, deadline, owner_id) VALUES ($1, $2, $3, $4, $5)",
-    ["The first ticket", "cleaning", "I want someone to clean my room", "2024-10-31 23:59:59", 1]);
+    ["The first ticket", "Cleaning", "I want someone to clean my room", "2024-10-31 23:59:59", 1]);
 
 // Home route
 app.get("/", (req, res) => {

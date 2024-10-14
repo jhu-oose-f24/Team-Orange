@@ -15,7 +15,7 @@ const Profile: React.FC = () => {
                 <h2 className="profile-name">{name}</h2>
                 <p className="profile-bio">{bio}</p>
             </div>
-            <Feed /> {/* Will eventually be a feed of your created tickets and picked up tickets */}
+            <Feed statusFilter='OPEN'/> {/* Will eventually be a feed of your created tickets and picked up tickets */}
         </div>
     );
 };
