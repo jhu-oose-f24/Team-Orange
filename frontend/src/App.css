@@ -89,6 +89,11 @@ button:hover {
   margin-bottom: 10px;
 }
 
+.success {
+  color: green;
+  margin-bottom: 10px;
+}
+
 .ticket-form {
   display: flex;
   flex-direction: column;

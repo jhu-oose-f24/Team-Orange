@@ -1,10 +1,10 @@
-import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Feed from './components/Feed';
-import NavBar from './components/NavBar';
-import CreateTicket from './components/CreateTicket';
-import Profile from './components/Profile';
-import './App.css';
+import React from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import Feed from "./components/Feed";
+import NavBar from "./components/NavBar";
+import CreateTicket from "./components/CreateTicket";
+import Profile from "./components/Profile";
+import "./App.css";
 
 const App: React.FC = () => {
     return (
