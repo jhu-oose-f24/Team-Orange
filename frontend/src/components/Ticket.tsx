@@ -67,7 +67,10 @@ const Ticket: React.FC<TicketProps> = ({
   };
 
   return (
-    <Card title={title} style={{ minWidth: 250, maxWidth: '100%', flexGrow: 1 }}>
+    <Card
+      title={title}
+      style={{ minWidth: 250, maxWidth: "100%", flexGrow: 1 }}
+    >
       <p>{description}</p>
       <p>
         <strong>Category:</strong> {category}
