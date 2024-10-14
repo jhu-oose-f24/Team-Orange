@@ -3,6 +3,7 @@ import {
   BrowserRouter as Router,
   Route,
   Routes,
+  Navigate,
 } from "react-router-dom";
 import { Layout, theme } from "antd";
 
@@ -51,7 +52,7 @@ const App: React.FC = () => {
                 }
               />
               <Route path="/profile" element={<Profile />} />
-              <Route path="/" element={<Feed />} />
+              <Route path="/" element={<Navigate to="/feed" replace />} /> {/* Redirect to /feed */}
             </Routes>
           </div>
         </Content>
