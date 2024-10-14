@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
+
 interface SearchBarProps {
   onSearch: (params: { title?: string; startDate?: string; endDate?: string }) => void;
 }
