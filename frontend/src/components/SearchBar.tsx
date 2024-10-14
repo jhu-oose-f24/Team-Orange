@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
-
+import { Input, Button, Alert } from 'antd';
 
 interface SearchBarProps {
   onSearch: (params: { title?: string; startDate?: string; endDate?: string }) => void;
@@ -9,26 +7,15 @@ interface SearchBarProps {
 
 const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
   const [searchTitle, setSearchTitle] = useState('');
-  const [startDate, setStartDate] = useState<Date | null>(null);
-  const [endDate, setEndDate] = useState<Date | null>(null);
+  const [startDate, setStartDate] = useState<string | null>(null);
+  const [endDate, setEndDate] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const handleSearch = () => {
     setError(null);
-
-    /*
-
-    if (!searchTitle) {
-      setError('Title is required for searching.');
-      return;
-    }
-
-     */
-
     const trimmedTitle = searchTitle.trim();
 
-
-    if (startDate && endDate && startDate > endDate) {
+    if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
       setError('Start date cannot be after end date.');
       return;
     }
@@ -38,15 +25,11 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
     };
 
     if (startDate) {
-      const startDateWithTime = new Date(startDate);
-      startDateWithTime.setHours(0, 0, 0, 0);
-      searchParams.startDate = startDateWithTime.toISOString();
+      searchParams.startDate = new Date(startDate).toISOString();
     }
 
     if (endDate) {
-      const endDateWithTime = new Date(endDate);
-      endDateWithTime.setHours(23, 59, 59, 999);
-      searchParams.endDate = endDateWithTime.toISOString();
+      searchParams.endDate = new Date(endDate).toISOString();
     }
 
     onSearch(searchParams);
@@ -59,37 +42,37 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
     onSearch({ title: '', startDate: undefined, endDate: undefined });
   };
 
-
   return (
-    <div className="search-bar">
-      {error && <div className="error">{error}</div>}
-      <h3>Search for Ticket</h3>
-      <input
-        type="text"
+    <div style={{ display: 'flex', alignItems: 'center', border: '1px solid #d9d9d9', padding: '8px', borderRadius: '4px', width: '100%', maxWidth: '600px' }}>
+      {error && <Alert message={error} type="error" showIcon closable style={{ marginRight: '10px', flexGrow: 1 }} />}
+      <Input
+        style={{ flexGrow: 1, marginRight: '8px' }}
         placeholder="Search by Title"
         value={searchTitle}
         onChange={(e) => setSearchTitle(e.target.value)}
       />
-      <DatePicker
-        selected={startDate}
-        onChange={(date) => setStartDate(date)}
-        placeholderText="Start Date"
-        dateFormat="yyyy-MM-dd"
+      <Input
+        type="datetime-local"
+        style={{ width: '120px', marginRight: '8px' }}
+        value={startDate ? new Date(startDate).toISOString().slice(0, 16) : ''}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setStartDate(e.target.value)}
+        placeholder="Start Date"
       />
-      <DatePicker
-        selected={endDate}
-        onChange={(date) => setEndDate(date)}
-        placeholderText="End Date"
-        dateFormat="yyyy-MM-dd"
+      <Input
+        type="datetime-local"
+        style={{ width: '120px', marginRight: '8px' }}
+        value={endDate ? new Date(endDate).toISOString().slice(0, 16) : ''}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEndDate(e.target.value)}
+        placeholder="End Date"
       />
-      <button onClick={handleSearch}>Search</button>
-      <button onClick={handleClearSearch} style={{ marginLeft: '10px' }}>
-        Clear Search
-      </button>
+      <Button type="primary" onClick={handleSearch} style={{ marginRight: '4px' }}>
+        Search
+      </Button>
+      <Button onClick={handleClearSearch}>
+        Clear
+      </Button>
     </div>
   );
 };
 
 export default SearchBar;
-
-
