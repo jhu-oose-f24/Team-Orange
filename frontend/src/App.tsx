@@ -54,7 +54,7 @@ const App: React.FC = () => {
                 }
               />
               <Route path="/profile" element={<Profile />} />
-              <Route path="/" element={<Feed statusFilter="Open"/>} />
+              <Route path="/" element={<Navigate to="/feed" replace/>} />
             </Routes>
           </div>
         </Content>
