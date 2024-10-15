@@ -65,7 +65,10 @@ const Feed: React.FC<FeedProps> = ({statusFilter}) => {
 
     try {
       const fetchedTickets = await searchTickets(filteredParams);
-      setTickets(List(fetchedTickets));
+      const feedFilteredTickets = fetchedTickets.filter(
+        (ticket: { status: string }) => ticket.status.toLowerCase() === statusFilter.toLowerCase()
+      );
+      setTickets(List(feedFilteredTickets));
     } catch (error) {
       setError('Failed to search tickets. Please try again later.');
     }
