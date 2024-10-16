@@ -24,3 +24,4 @@
 - FE usability updates (confirm popovers, toast error/success messages)
 - Host the database remotely
 - Payment Functionality (brainstorming how we want to implement, could store balance for each user in the db, deposit funds and update balance on completion of tickets. Could also be a verification status based on a third party payment system - venmo, zelle, etc)
+- Chatting feature between users: We want ticket owners and assigned users to be able to communicate with each other. Assigned users can message the owner with questions, comments, etc and messages from other users will be displayed in the profile section.
