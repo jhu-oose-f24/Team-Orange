@@ -3,6 +3,7 @@ const path = require("path");
 const bodyParser = require("body-parser");
 const pg = require('pg');
 const cors = require('cors');
+const { v4: uuidv4 } = require('uuid');
 
 const app = express();
 const port = 3000;
@@ -35,7 +36,7 @@ app.get("/tickets", (req, res) => {
 
 // GET endpoint to search for specific tickets
 app.get("/tickets/search", (req, res) => {
-    const { title, startDate, endDate, owner_id } = req.query;
+    const { title, startDate, endDate, owner_id, status, priority, ticket_id, minPayment, maxPayment, sortBy, sortOrder} = req.query;
 
     let query = "SELECT * FROM ticket WHERE 1=1";
     let queryParams = [];
@@ -56,12 +57,52 @@ app.get("/tickets/search", (req, res) => {
         query += ` AND deadline <= $${queryParams.length}`;
     }
 
-    /* No search by user implemented on front end
+    // No search by user implemented on front end
     if (owner_id) {
         queryParams.push(owner_id);
         query += ` AND owner_id = $${queryParams.length}`;
     }
-     */
+
+    // Example: GET /tickets/search?title=Clean&status=Open&priority=Low
+
+    if (status) {
+        queryParams.push(status);
+        query += ` AND status = $${queryParams.length}`;
+    }
+
+    if (priority) {
+        queryParams.push(priority);
+        query += ` AND priority = $${queryParams.length}`;
+    }
+
+    if (ticket_id) {
+        queryParams.push(ticket_id);
+        query += ` AND id = $${queryParams.length}`;
+    }
+
+    // GET /tickets/search?minPayment=5
+    // GET /tickets/search?minPayment=5&maxPayment=100
+    if (minPayment) {
+        queryParams.push(minPayment);
+        query += ` AND payment >= $${queryParams.length}`;
+    }
+    if (maxPayment) {
+        queryParams.push(maxPayment);
+        query += ` AND payment <= $${queryParams.length}`;
+    }
+
+    // Sorting
+    // GET /tickets/search?sortBy=create_time&sortOrder=ASC
+    // GET /tickets/search?sortBy=priority&sortOrder=DESC
+    if (sortBy) {
+        const validSortFields = ['create_time', 'priority', 'deadline', 'payment'];  // only allow sorting by these fields
+        if (validSortFields.includes(sortBy)) {
+            const order = sortOrder && sortOrder.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';  // default to ascending order
+            query += ` ORDER BY ${sortBy} ${order}`;
+        }
+    }
+
+
     db.query(query, queryParams, (err, result) => {
         if (err) {
             return res.status(500).json({ error: "Database query failed" });
@@ -79,16 +120,36 @@ app.post("/tickets", (req, res) => {
         return res.status(400).json({ error: "All fields are required" });
     }
 
-    // check category, type 
+    const ticketId = uuidv4();   
 
     // Insert the new ticket into the database
     const query = `
-        INSERT INTO ticket (title, category, status, description, deadline, owner_id, payment)
-        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        INSERT INTO ticket (id, title, category, status, description, deadline, owner_id, payment)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
         RETURNING *;
     `;
 
-    db.query(query, [title, category, status, description, deadline, owner_id, payment], (err, result) => {
+    db.query(query, [ticketId, title, category, status, description, deadline, owner_id, payment], (err, result) => {
+        if (err) {
+            return res.status(500).json({ error: "Database insert failed" });
+        }
+        res.status(201).json(result.rows[0]);
+    });
+});
+
+// POST endpoint to create a new user
+app.post("/users", (req, res) => {
+    const { name, age } = req.body;
+
+    if (!name || !age) {
+        return res.status(400).json({ error: "Name and age are required" });
+    }
+
+    const userId = uuidv4();  
+
+    const query = "INSERT INTO users (id, name, age) VALUES ($1, $2, $3) RETURNING *";
+
+    db.query(query, [userId, name, age], (err, result) => {
         if (err) {
             return res.status(500).json({ error: "Database insert failed" });
         }
@@ -168,10 +229,13 @@ app.delete("/tickets/:id", (req, res) => {
 
 
 // Example of database inserts
-db.query("INSERT INTO users (name, age) VALUES ($1, $2)", ["Rayna", 6]);
+const userId = uuidv4();
+db.query("INSERT INTO users (id, name, age) VALUES ($1, $2, $3)", [userId, "Rayna", 6]);
 
-db.query("INSERT INTO ticket (title, category, description, deadline, owner_id) VALUES ($1, $2, $3, $4, $5)",
-    ["The first ticket", "Cleaning", "I want someone to clean my room", "2024-10-31 23:59:59", 1]);
+const ticketId = uuidv4();
+db.query("INSERT INTO ticket (id, title, category, description, deadline, owner_id) VALUES ($1, $2, $3, $4, $5, $6)",
+    [ticketId, "The first ticket", "Cleaning", "I want someone to clean my room", "2024-10-31 23:59:59", userId]);
+
 
 // Home route
 app.get("/", (req, res) => {

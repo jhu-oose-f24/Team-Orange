@@ -1,3 +1,5 @@
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+
 DO $$ 
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'category') THEN
@@ -20,23 +22,22 @@ BEGIN
 END $$;
 
 CREATE TABLE IF NOT EXISTS public.users (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(100),
     age INTEGER NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS public.ticket (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     title VARCHAR(255) NOT NULL,
     Category category NOT NULL,
     description TEXT NOT NULL,
     create_time TIMESTAMP DEFAULT NOW(),
     deadline TIMESTAMP,
-    Priority priority DEFAULT 'Low', 
-    /* Status status DEFAULT 'Open',*/
-    /* ^ Removed for it2 to test multiple feeds */
-    owner_id INTEGER NOT NULL,
-    assigneduser_id INTEGER,
+    Priority priority DEFAULT 'Low',
+    Status status DEFAULT 'Open',
+    owner_id UUID NOT NULL,
+    assigneduser_id UUID,
     payment INTEGER DEFAULT 0,
     FOREIGN KEY (assigneduser_id) REFERENCES public.users (id),
     FOREIGN KEY (owner_id) REFERENCES public.users (id)
