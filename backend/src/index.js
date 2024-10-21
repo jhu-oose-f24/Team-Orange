@@ -23,6 +23,11 @@ db.connect()
     .then(() => console.log('Connected to PostgreSQL'))
     .catch(err => console.error('Connection error', err.stack));
 
+app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+});
+    
+
 // GET endpoint to retrieve all tickets
 app.get("/tickets", (req, res) => {
     db.query("SELECT * FROM ticket", (err, result) => {
