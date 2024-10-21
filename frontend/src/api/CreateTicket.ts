@@ -5,6 +5,7 @@ const createTicket = async (ticket: {
   description: string;
   category: string;
   deadline: string;
+  status: string;
   owner_id: number;
   payment: number;
 }) => {
