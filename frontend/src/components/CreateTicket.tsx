@@ -9,8 +9,10 @@ type CreateTicketForm = {
   category: string;
   status: string;
   deadline: string;
-  ownerId: number;
+  ownerId: string;
+  assigneduser_id: string | undefined;
   payment: string;
+  priority: string;
 };
 
 const CreateTicket: React.FC = () => {
@@ -25,8 +27,10 @@ const CreateTicket: React.FC = () => {
       category: form.category,
       status: form.status,
       deadline,
-      owner_id: 1, // assing all to user 1 right now - can update later
+      owner_id: '011ff2c1-1ade-4c92-a649-9725f85aec00', // assing all to same right now when we add user search functionality this will change
+      assigneduser_id: undefined, // this will also change when we add more users and user fetching/searching
       payment: Number(form.payment),
+      priority: form.priority
     };
 
     try {
@@ -43,7 +47,6 @@ const CreateTicket: React.FC = () => {
   return (
     <div>
       <h2>Create Ticket</h2>
-      {/* Add your create ticket form here */}
       {error && <div className="error">{error}</div>}
       {success && <div className="success">{success}</div>}
       <Form
@@ -70,12 +73,23 @@ const CreateTicket: React.FC = () => {
           <Input />
         </Form.Item>
 
+        {/* We will also need a dropdown for assigned user/owner here */}
+
         <Form.Item<CreateTicketForm>
           label="Category"
           name="category"
           rules={[{ required: true, message: "Please input a category!" }]}
-        >
-          <Input />
+>
+          {/* // 'Errands', 'Landscaping', 'Delivery', 'Pet Care', 'Cleaning', 'Gear Rental', 'Other' */}
+          <Select placeholder="Select a Category" >
+            <Select.Option value="Errands">Errands</Select.Option>
+            <Select.Option value="Landscaping">Landscaping</Select.Option>
+            <Select.Option value="Delivery">Delivery</Select.Option>
+            <Select.Option value="Pet Care">Pet Care</Select.Option>
+            <Select.Option value="Cleaning">Cleaning</Select.Option>
+            <Select.Option value="Gear Rental">Gear Rental</Select.Option>
+            <Select.Option value="Other">Other</Select.Option>
+          </Select>
         </Form.Item>
 
         <Form.Item<CreateTicketForm>
@@ -110,6 +124,16 @@ const CreateTicket: React.FC = () => {
             onChange={(e) => setDeadline(e.target.value)}
             required
           />
+        </Form.Item>
+        <Form.Item<CreateTicketForm>
+          label="Priority"
+          name="priority"
+          rules={[{ required: true, message: "Please input a priority!" }]}>
+          <Select placeholder="Select a priority" >
+            <Select.Option value="Low">Low</Select.Option>
+            <Select.Option value="Medium">Medium</Select.Option>
+            <Select.Option value="High">High</Select.Option>
+          </Select>
         </Form.Item>
 
         <Button type="primary" htmlType="submit">
