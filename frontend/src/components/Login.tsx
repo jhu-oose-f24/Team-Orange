@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Form, Input, Button, Typography, message } from "antd";
+import { loginUser } from "../api/Login";
 
 const { Title } = Typography;
 
@@ -7,12 +8,14 @@ const Login: React.FC<{ onLogin: () => void }> = ({ onLogin }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleSubmit = () => {
-    // Add authentication logic here
-    if (username === "user" && password === "password") {
-      onLogin();
+  const handleSubmit = async () => {
+    const response = await loginUser(username, password);
+
+    if (response.success) {
+      message.success("Login successful!");
+      onLogin(); // Trigger onLogin if login is successful
     } else {
-      message.error("Invalid credentials");
+      message.error(response.message || "Invalid credentials");
     }
   };
 
@@ -21,10 +24,7 @@ const Login: React.FC<{ onLogin: () => void }> = ({ onLogin }) => {
       <Title level={3} style={{ textAlign: "center", marginBottom: "20px" }}>
         Login
       </Title>
-      <Form
-        layout="vertical"
-        onFinish={handleSubmit}
-      >
+      <Form layout="vertical" onFinish={handleSubmit}>
         <Form.Item
           label="Username"
           name="username"
@@ -60,3 +60,4 @@ const Login: React.FC<{ onLogin: () => void }> = ({ onLogin }) => {
 };
 
 export default Login;
+
