@@ -11,7 +11,9 @@ import Feed from "./components/Feed";
 import CreateTicket from "./components/CreateTicket";
 import Profile from "./components/Profile";
 import AppHeader from "./components/AppHeader";
+import { ChatContextProvider } from "./components/chatContext";
 import "./App.css";
+
 
 const { Header, Content, Footer } = Layout;
 
