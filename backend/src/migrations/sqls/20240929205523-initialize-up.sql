@@ -45,9 +45,12 @@ CREATE TABLE IF NOT EXISTS public.ticket (
 
 CREATE TABLE IF NOT EXISTS public.messages (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    sending_id REFERENCES public.users (id),
-    receiving_id REFERENCES public.users (id),
-    ticket_id REFERENCES public.ticket (id),
+    sending_id UUID NOT NULL,
+    receiving_id UUID NOT NULL,
+    ticket_id UUID NOT NULL,
+    FOREIGN KEY (sending_id) REFERENCES public.users (id),
+    FOREIGN KEY (receiving_id) REFERENCES public.users (id),
+    FOREIGN KEY (ticket_id) REFERENCES public.ticket (id),
     message TEXT NOT NULL,
     create_time TIMESTAMP DEFAULT NOW()
 );
