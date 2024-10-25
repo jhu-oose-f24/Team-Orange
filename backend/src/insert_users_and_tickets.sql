@@ -11,5 +11,5 @@ INSERT INTO public.ticket (id, title, category, description, deadline, owner_id,
 ('105ff2c1-1ade-4c92-a649-9725f85aec11', 'Organize a team event', 'Errands', 'Plan and organize a team event for this month', '2024-11-05 23:59:59', '022ff2c1-1ade-4c92-a649-9725f85aec11', 'Medium', 15);
 
 INSERT INTO public.messages (id, sending_id, receiving_id, ticket_id, message, create_time) VALUES 
-('111ff2c1-1ade-4c92-a649-9725f85aec00', '011ff2c1-1ade-4c92-a649-9725f85aec00', '022ff2c1-1ade-4c92-a649-9725f85aec11', '101ff2c1-1ade-4c92-a649-9725f85aec00', 'Hi, Jane', '2024-12-31 23:59:59')
+('111ff2c1-1ade-4c92-a649-9725f85aec00', '011ff2c1-1ade-4c92-a649-9725f85aec00', '022ff2c1-1ade-4c92-a649-9725f85aec11', '101ff2c1-1ade-4c92-a649-9725f85aec00', 'Hi, Jane', '2024-12-31 23:59:59'),
 ('222ff2c1-1ade-4c92-a649-9725f85aec00',  '022ff2c1-1ade-4c92-a649-9725f85aec11', '011ff2c1-1ade-4c92-a649-9725f85aec00', '101ff2c1-1ade-4c92-a649-9725f85aec00', 'Hi, John', '2024-12-31 23:59:59')
