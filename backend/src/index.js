@@ -137,6 +137,16 @@ app.post("/tickets", (req, res) => {
     });
 });
 
+// GET endpoint to retrieve all users
+app.get("/users", (req, res) => {
+    db.query("SELECT * FROM users", (err, result) => {
+        if (err) {
+            return res.status(500).json({ error: "Database query failed" });
+        }
+        res.json(result.rows);
+    });
+});
+
 // POST endpoint to create a new user
 app.post("/users", (req, res) => {
     const { name, age } = req.body;
