@@ -27,10 +27,10 @@ const CreateTicket: React.FC = () => {
       category: form.category,
       status: form.status,
       deadline,
-      owner_id: '011ff2c1-1ade-4c92-a649-9725f85aec00', // assing all to same right now when we add user search functionality this will change
+      owner_id: "011ff2c1-1ade-4c92-a649-9725f85aec00", // assing all to same right now when we add user search functionality this will change
       assigneduser_id: undefined, // this will also change when we add more users and user fetching/searching
       payment: Number(form.payment),
-      priority: form.priority
+      priority: form.priority,
     };
 
     try {
@@ -79,9 +79,9 @@ const CreateTicket: React.FC = () => {
           label="Category"
           name="category"
           rules={[{ required: true, message: "Please input a category!" }]}
->
+        >
           {/* // 'Errands', 'Landscaping', 'Delivery', 'Pet Care', 'Cleaning', 'Gear Rental', 'Other' */}
-          <Select placeholder="Select a Category" >
+          <Select placeholder="Select a Category">
             <Select.Option value="Errands">Errands</Select.Option>
             <Select.Option value="Landscaping">Landscaping</Select.Option>
             <Select.Option value="Delivery">Delivery</Select.Option>
@@ -96,8 +96,8 @@ const CreateTicket: React.FC = () => {
           label="Status"
           name="status"
           rules={[{ required: true, message: "Select from a Status!" }]}
-        > 
-          <Select placeholder="Select a status" >
+        >
+          <Select placeholder="Select a status">
             <Select.Option value="Open">Open</Select.Option>
             <Select.Option value="InProgress">InProgress</Select.Option>
             <Select.Option value="Done">Done</Select.Option>
@@ -128,8 +128,9 @@ const CreateTicket: React.FC = () => {
         <Form.Item<CreateTicketForm>
           label="Priority"
           name="priority"
-          rules={[{ required: true, message: "Please input a priority!" }]}>
-          <Select placeholder="Select a priority" >
+          rules={[{ required: true, message: "Please input a priority!" }]}
+        >
+          <Select placeholder="Select a priority">
             <Select.Option value="Low">Low</Select.Option>
             <Select.Option value="Medium">Medium</Select.Option>
             <Select.Option value="High">High</Select.Option>

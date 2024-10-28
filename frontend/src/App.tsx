@@ -47,14 +47,14 @@ const App: React.FC = () => {
                 path="/feed"
                 element={
                   <div className="feed-container">
-                    <Feed statusFilter='Open'/>
-                    <Feed statusFilter='InProgress'/>
-                    <Feed statusFilter='Done'/>
+                    <Feed statusFilter="Open" />
+                    <Feed statusFilter="InProgress" />
+                    <Feed statusFilter="Done" />
                   </div>
                 }
               />
               <Route path="/profile" element={<Profile />} />
-              <Route path="/" element={<Navigate to="/feed" replace/>} />
+              <Route path="/" element={<Navigate to="/feed" replace />} />
             </Routes>
           </div>
         </Content>
