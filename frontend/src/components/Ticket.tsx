@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import editTicket from "../api/EditTicket";
 
 import { Button, Card, Form, Input } from "antd";
@@ -10,7 +10,7 @@ interface TicketProps {
   status: string;
   category: string;
   deadline: string;
-  owner_id: number;
+  owner_id: string;
   payment: number;
   onDelete: (ticketId: number) => void;
   onUpdate: () => void;
@@ -38,6 +38,13 @@ const Ticket: React.FC<TicketProps> = ({
   const [isEditing, setIsEditing] = useState(false);
   const [editDeadline, setEditDeadline] = useState(deadline.slice(0, -1));
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
+  const [isOwner, setIsOwner] = useState(false);
+  useEffect(() => {
+    const userId = localStorage.getItem("activeUID");
+    if (userId && userId === owner_id) {
+      setIsOwner(true);
+    }
+  }, [owner_id]);
 
   const handleSubmit = async (form: EditTicketForm) => {
     const updatedTicket = {
@@ -89,11 +96,11 @@ const Ticket: React.FC<TicketProps> = ({
         <strong>Deadline:</strong> {new Date(deadline).toLocaleString()}
       </p>
 
-      <Button type="primary" onClick={() => setIsEditing(true)}>
+      {isOwner && <Button type="primary" onClick={() => setIsEditing(true)}>
         Edit Ticket
-      </Button>
+      </Button>}
 
-      <Button onClick={handleDeleteClick}>Delete Ticket</Button>
+      {isOwner && <Button onClick={handleDeleteClick}>Delete Ticket</Button>}
 
       {isConfirmingDelete && (
         <div className="modal">
@@ -165,7 +172,9 @@ const Ticket: React.FC<TicketProps> = ({
               <Input
                 type="datetime-local"
                 placeholder="Deadline"
-                onChange={(e : React.ChangeEvent<HTMLInputElement>) => setEditDeadline(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setEditDeadline(e.target.value)
+                }
                 required
               />
             </Form.Item>

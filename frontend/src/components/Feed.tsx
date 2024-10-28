@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { List } from "immutable";
 import searchTickets from "../api/SearchTicket";
-import SearchBar from './SearchBar';
+import SearchBar from "./SearchBar";
 import { Space } from "antd";
 
 import Ticket from "./Ticket";
@@ -10,10 +10,10 @@ import getTickets from "../api/GetTickets";
 import deleteTicket from "../api/DeleteTicket";
 
 interface FeedProps {
-    statusFilter: string; 
-  }
+  statusFilter: string;
+}
 
-const Feed: React.FC<FeedProps> = ({statusFilter}) => {
+const Feed: React.FC<FeedProps> = ({ statusFilter }) => {
   const [tickets, setTickets] = useState<
     List<{
       id: number;
@@ -21,7 +21,7 @@ const Feed: React.FC<FeedProps> = ({statusFilter}) => {
       description: string;
       category: string;
       deadline: string;
-      owner_id: number;
+      owner_id: string;
       payment: number;
       status: string;
     }>
@@ -32,14 +32,15 @@ const Feed: React.FC<FeedProps> = ({statusFilter}) => {
 
   useEffect(() => {
     const fetchTickets = async () => {
-        try {
-            const fetchedTickets = await getTickets();
-            // Filter tickets based on statusFilter
-            const filteredTickets = fetchedTickets.filter(
-                (ticket: { status: string; }) => ticket.status.toLowerCase() === statusFilter.toLowerCase()
-              );
-            setTickets(List(filteredTickets));
-          }  catch (error) {
+      try {
+        const fetchedTickets = await getTickets();
+        // Filter tickets based on statusFilter
+        const filteredTickets = fetchedTickets.filter(
+          (ticket: { status: string }) =>
+            ticket.status.toLowerCase() === statusFilter.toLowerCase(),
+        );
+        setTickets(List(filteredTickets));
+      } catch (error) {
         setError("Failed to fetch tickets. Please try again later.");
       }
     };
@@ -58,25 +59,34 @@ const Feed: React.FC<FeedProps> = ({statusFilter}) => {
     }
   };
 
-  const handleSearch = async (searchParams: { title?: string; startDate?: string; endDate?: string }) => {
+  const handleSearch = async (searchParams: {
+    title?: string;
+    startDate?: string;
+    endDate?: string;
+  }) => {
     const filteredParams = Object.fromEntries(
-      Object.entries(searchParams).filter(([_, value]) => value !== '' && value !== undefined)
+      Object.entries(searchParams).filter(
+        ([_, value]) => value !== "" && value !== undefined,
+      ),
     );
 
     try {
       const fetchedTickets = await searchTickets(filteredParams);
       const feedFilteredTickets = fetchedTickets.filter(
-        (ticket: { status: string }) => ticket.status.toLowerCase() === statusFilter.toLowerCase()
+        (ticket: { status: string }) =>
+          ticket.status.toLowerCase() === statusFilter.toLowerCase(),
       );
       setTickets(List(feedFilteredTickets));
     } catch (error) {
-      setError('Failed to search tickets. Please try again later.');
+      setError("Failed to search tickets. Please try again later.");
     }
   };
 
   return (
     <div className="feed">
-        <h2 style={{ fontSize: '24px', color: '#61dafb' }}>{statusFilter} Tickets</h2>
+      <h2 style={{ fontSize: "24px", color: "#61dafb" }}>
+        {statusFilter} Tickets
+      </h2>
       {error && <div className="error">{error}</div>}
       <SearchBar onSearch={handleSearch} />
       {tickets.map((ticket) => (
@@ -100,4 +110,3 @@ const Feed: React.FC<FeedProps> = ({statusFilter}) => {
 };
 
 export default Feed;
-

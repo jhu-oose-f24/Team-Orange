@@ -12,6 +12,7 @@ import CreateTicket from "./components/CreateTicket";
 import Profile from "./components/Profile";
 import AppHeader from "./components/AppHeader";
 import "./App.css";
+import UsersDropdown from "./components/UsersDropdown.dev";
 
 const { Header, Content, Footer } = Layout;
 
@@ -24,6 +25,7 @@ const App: React.FC = () => {
     { key: "feed", label: "Feed", path: "/feed" },
     { key: "create-ticket", label: "Create Ticket", path: "/create-ticket" },
     { key: "profile", label: "Profile", path: "/profile" },
+    { key: "dev-user", label: "DevUser", path: "/dev-user" },
   ];
 
   // statusFilter very case sensitive. Also not addressing Closed option
@@ -47,14 +49,15 @@ const App: React.FC = () => {
                 path="/feed"
                 element={
                   <div className="feed-container">
-                    <Feed statusFilter='Open'/>
-                    <Feed statusFilter='InProgress'/>
-                    <Feed statusFilter='Done'/>
+                    <Feed statusFilter="Open" />
+                    <Feed statusFilter="InProgress" />
+                    <Feed statusFilter="Done" />
                   </div>
                 }
               />
               <Route path="/profile" element={<Profile />} />
-              <Route path="/" element={<Navigate to="/feed" replace/>} />
+              <Route path="/dev-user" element={<UsersDropdown />} />
+              <Route path="/" element={<Navigate to="/feed" replace />} />
             </Routes>
           </div>
         </Content>
