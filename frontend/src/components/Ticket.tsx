@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import editTicket from "../api/EditTicket";
+import Chat from "./Chat";
 
-import { Button, Card, Form, Input } from "antd";
+import { Button, Card, Form, Input, Modal } from "antd";
 
 interface TicketProps {
   id: number;
@@ -38,6 +39,7 @@ const Ticket: React.FC<TicketProps> = ({
   const [isEditing, setIsEditing] = useState(false);
   const [editDeadline, setEditDeadline] = useState(deadline.slice(0, -1));
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
+  const [isChatModalOpen, setIsChatModalOpen] = useState(false);
 
   const handleSubmit = async (form: EditTicketForm) => {
     const updatedTicket = {
@@ -70,6 +72,10 @@ const Ticket: React.FC<TicketProps> = ({
     setIsConfirmingDelete(false);
   };
 
+  const handleChatModalClose = () => {
+    setIsChatModalOpen(false);
+  };
+
   return (
     <Card
       title={title}
@@ -94,6 +100,10 @@ const Ticket: React.FC<TicketProps> = ({
       </Button>
 
       <Button onClick={handleDeleteClick}>Delete Ticket</Button>
+
+      <Button onClick={() => setIsChatModalOpen(true)}>
+        Chat
+      </Button>
 
       {isConfirmingDelete && (
         <div className="modal">
@@ -186,6 +196,17 @@ const Ticket: React.FC<TicketProps> = ({
           <Button onClick={() => setIsEditing(false)}>Cancel</Button>
         </div>
       )}
+
+      {/* Chat modal */}
+      <Modal
+        title="Chat"
+        visible={isChatModalOpen}
+        onCancel={handleChatModalClose}
+        footer={null} // Optional: remove default footer
+        width={400} // Adjust width as needed
+      >
+        <Chat />
+      </Modal>
     </Card>
   );
 };
