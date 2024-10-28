@@ -37,7 +37,6 @@ const AppHeader: React.FC<AppHeaderProps> = ({ tabs }) => {
         {" "}
         ChoreHop
       </div>
-      <UsersDropdown />
       <Menu
         theme="dark"
         mode="horizontal"
