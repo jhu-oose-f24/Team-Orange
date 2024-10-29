@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { List } from "immutable";
 import searchTickets from "../api/SearchTicket";
 import { Space } from "antd";
-
+import TicketType from "../types/Ticket";
 import Ticket from "./Ticket";
 import getTickets from "../api/GetTickets";
 import deleteTicket from "../api/DeleteTicket";
@@ -41,7 +41,7 @@ const Feed: React.FC<FeedProps> = ({ statusFilter, searchParams }) => {
         if (Object.keys(searchParams).length === 0) {
           const allTickets = await getTickets();
           const filteredTickets = allTickets.filter(
-            (ticket) => ticket.status.toLowerCase() === statusFilter.toLowerCase()
+            (ticket: TicketType) => ticket.status.toLowerCase() === statusFilter.toLowerCase()
           );
           setTickets(List(filteredTickets));
         } else {

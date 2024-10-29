@@ -1,4 +1,4 @@
-interface Ticket {
+interface TicketType {
   title: string;
   category: string;
   description: string;
@@ -9,4 +9,4 @@ interface Ticket {
   payment: number | null;
 }
 
-export default Ticket;
+export default TicketType;
