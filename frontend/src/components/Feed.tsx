@@ -26,7 +26,7 @@ const Feed: React.FC<FeedProps> = ({ statusFilter, searchParams }) => {
       description: string;
       category: string;
       deadline: string;
-      owner_id: number;
+      owner_id: string;
       payment: number;
       status: string;
     }>
@@ -88,7 +88,9 @@ const Feed: React.FC<FeedProps> = ({ statusFilter, searchParams }) => {
 
   return (
     <div className="feed">
-      <h2 style={{ fontSize: '24px', color: '#61dafb' }}>{statusFilter} Tickets</h2>
+      <h2 style={{ fontSize: "24px", color: "#61dafb" }}>
+        {statusFilter} Tickets
+      </h2>
       {error && <div className="error">{error}</div>}
       {tickets.map((ticket) => (
         <Space direction="vertical" size={16} key={ticket.id}>

@@ -12,7 +12,7 @@ interface SearchBarProps {
 }
 
 const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
-  const [searchTitle, setSearchTitle] = useState('');
+  const [searchTitle, setSearchTitle] = useState("");
   const [startDate, setStartDate] = useState<string | null>(null);
   const [endDate, setEndDate] = useState<string | null>(null);
   const [category, setCategory] = useState<string | null>(null);
@@ -24,7 +24,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
     const trimmedTitle = searchTitle.trim();
 
     if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
-      setError('Start date cannot be after end date.');
+      setError("Start date cannot be after end date.");
       return;
     }
 
@@ -56,7 +56,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
   };
 
   const handleClearSearch = () => {
-    setSearchTitle('');
+    setSearchTitle("");
     setStartDate(null);
     setEndDate(null);
     setCategory(null);

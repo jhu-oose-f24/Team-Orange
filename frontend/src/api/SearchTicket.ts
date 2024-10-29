@@ -1,4 +1,4 @@
-const SEARCH_URL = 'http://localhost:3000/tickets/search';
+const SEARCH_URL = "http://localhost:3000/tickets/search";
 
 const searchTickets = async (searchParams = {}) => {
   try {
@@ -7,15 +7,14 @@ const searchTickets = async (searchParams = {}) => {
 
     const response = await fetch(url);
     if (!response.ok) {
-      throw new Error('Network response was not ok');
+      throw new Error("Network response was not ok");
     }
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error('Error searching tickets:', error);
+    console.error("Error searching tickets:", error);
     throw error;
   }
 };
 
 export default searchTickets;
-
