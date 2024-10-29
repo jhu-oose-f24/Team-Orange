@@ -4,7 +4,7 @@ interface TicketType {
   description: string;
   deadline: string;
   status: string;
-  owner_id: number;
+  owner_id: string;
   assigneduser_id: number | null;
   payment: number | null;
 }
