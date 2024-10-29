@@ -39,7 +39,7 @@ const Profile: React.FC = () => {
             <Divider />
 
             {/* Post Grid */}
-            <Feed statusFilter="Done"/> {/* This would represent your user's posts displayed in a grid */}
+          {/*<Feed statusFilter="Done"/> {/* This would represent your user's posts displayed in a grid */}
         </div>
     );
 };

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   BrowserRouter as Router,
   Route,
@@ -11,6 +11,7 @@ import Feed from "./components/Feed";
 import CreateTicket from "./components/CreateTicket";
 import Profile from "./components/Profile";
 import AppHeader from "./components/AppHeader";
+import SearchBar from "./components/SearchBar";
 import "./App.css";
 
 const { Header, Content, Footer } = Layout;
@@ -26,7 +27,11 @@ const App: React.FC = () => {
     { key: "profile", label: "Profile", path: "/profile" },
   ];
 
-  // statusFilter very case sensitive. Also not addressing Closed option
+  const [searchParams, setSearchParams] = useState({});
+
+  const handleSearch = (params: any) => {
+    setSearchParams(params);
+  };
 
   return (
     <Router>
@@ -46,15 +51,20 @@ const App: React.FC = () => {
               <Route
                 path="/feed"
                 element={
-                  <div className="feed-container">
-                    <Feed statusFilter='Open'/>
-                    <Feed statusFilter='InProgress'/>
-                    <Feed statusFilter='Done'/>
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}>
+                      <SearchBar onSearch={handleSearch} />
+                    </div>
+                    <div className="feed-container">
+                      <Feed statusFilter="Open" searchParams={searchParams} />
+                      <Feed statusFilter="InProgress" searchParams={searchParams} />
+                      <Feed statusFilter="Done" searchParams={searchParams} />
+                    </div>
                   </div>
                 }
               />
               <Route path="/profile" element={<Profile />} />
-              <Route path="/" element={<Navigate to="/feed" replace/>} />
+              <Route path="/" element={<Navigate to="/feed" replace />} />
             </Routes>
           </div>
         </Content>
