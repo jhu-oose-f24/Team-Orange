@@ -238,6 +238,94 @@ app.delete("/tickets/:id", (req, res) => {
 });
 
 
+// get all messages for a ticket
+app.get("/messages/:ticket_id", (req, res) => {
+    const ticketId = req.params.ticket_id;
+
+    // UUID validation
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(ticketId)) {
+        return res.status(400).json({ error: "Invalid ticket_id format" });
+    }
+
+    const query = "SELECT * FROM messages WHERE ticket_id = $1 ORDER BY create_time ASC";
+    db.query(query, [ticketId], (err, result) => {
+        if (err) {
+            console.error('Database query error:', err);
+            return res.status(500).json({ error: "Database query failed" });
+        }
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: "No messages found for this ticket ID" });
+        }
+        res.json(result.rows);
+    });
+});
+
+
+// POST endpoint to create a new message
+app.post("/messages", (req, res) => {
+    const { sending_id, receiving_id, ticket_id, message } = req.body;
+
+    // validate required fields
+    if (!sending_id || !receiving_id || !ticket_id || !message) {
+        return res.status(400).json({ error: "sending_id, receiving_id, ticket_id, and message are required" });
+    }
+
+    // UUID validation
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(sending_id) || !uuidRegex.test(receiving_id) || !uuidRegex.test(ticket_id)) {
+        return res.status(400).json({ error: "Invalid UUID format for sending_id, receiving_id, or ticket_id" });
+    }
+
+    // Check if the sending_id, receiving_id, and ticket_id exist in the database
+    const checkExistenceQuery = `
+        SELECT 
+            (SELECT COUNT(*) FROM users WHERE id = $1) AS sending_exists,
+            (SELECT COUNT(*) FROM users WHERE id = $2) AS receiving_exists,
+            (SELECT COUNT(*) FROM ticket WHERE id = $3) AS ticket_exists;
+    `;
+    db.query(checkExistenceQuery, [sending_id, receiving_id, ticket_id], (err, result) => {
+        if (err) {
+            console.error('Database query error:', err);
+            return res.status(500).json({ error: "Database query failed" });
+        }
+
+        const { sending_exists, receiving_exists, ticket_exists } = result.rows[0];
+
+        if (sending_exists === '0') {
+            return res.status(400).json({ error: "sending_id does not exist" });
+        }
+        if (receiving_exists === '0') {
+            return res.status(400).json({ error: "receiving_id does not exist" });
+        }
+        if (ticket_exists === '0') {
+            return res.status(400).json({ error: "ticket_id does not exist" });
+        }
+
+        // Generate a new UUID for the message
+        const messageId = uuidv4();
+
+        // Insert the new message into the database
+        const insertQuery = `
+            INSERT INTO messages (id, sending_id, receiving_id, ticket_id, message)
+            VALUES ($1, $2, $3, $4, $5)
+            RETURNING *;
+        `;
+
+        db.query(insertQuery, [messageId, sending_id, receiving_id, ticket_id, message], (err, result) => {
+            if (err) {
+                console.error('Database insert error:', err);
+                return res.status(500).json({ error: "Database insert failed" });
+            }
+            res.status(201).json(result.rows[0]);
+        });
+    });
+});
+
+
+
+
+
 // Example of database inserts
 const userId = uuidv4();
 db.query("INSERT INTO users (id, name, age) VALUES ($1, $2, $3)", [userId, "Rayna", 6]);
