@@ -33,7 +33,7 @@ const Chat: React.FC<ChatProps> = ({ receiverId, ticketId }) => {
   const handleSendMessage = () => {
     if (inputValue.trim() && senderId && receiverId && ticketId) {
       const newMessage = {
-        text: inputValue,
+        message: inputValue,
         from: 'user',
         senderId,
         receiverId,

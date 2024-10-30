@@ -1,19 +1,10 @@
 const BASE_URL = "http://localhost:3000/tickets";
 
 const createTicket = async (ticket: {
-  title: string;
-  description: string;
-  category: string;
-  deadline: string;
-  status: string;
-  owner_id: string;
-  assigneduser_id: string | undefined;
-  payment: number;
-  priority: string;
-  //   {
-  //     "owner_id": "011ff2c1-1ade-4c92-a649-9725f85aec00",
-  //     "priority": "High"
-  // }
+  sending_id: string;
+  receiving_id: string;
+  ticket_id: string;
+  message: string;
 }) => {
   try {
     const response = await fetch(BASE_URL, {
