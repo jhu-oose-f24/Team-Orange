@@ -12,6 +12,7 @@ interface TicketProps {
   category: string;
   deadline: string;
   owner_id: string;
+  assigneduser_id: string;
   payment: number;
   onDelete: (ticketId: number) => void;
   onUpdate: () => void;
@@ -32,6 +33,7 @@ const Ticket: React.FC<TicketProps> = ({
   category,
   deadline,
   owner_id,
+  assigneduser_id,
   payment,
   onDelete,
   onUpdate,
@@ -94,6 +96,9 @@ const Ticket: React.FC<TicketProps> = ({
       </p>
       <p>
         <strong>Owner ID:</strong> {owner_id}
+      </p>
+      <p>
+        <strong>Assigner ID:</strong> {assigneduser_id}
       </p>
       <p>
         <strong>Payment: </strong> {`$${payment}`}
@@ -214,7 +219,7 @@ const Ticket: React.FC<TicketProps> = ({
         footer={null} // Optional: remove default footer
         width={400} // Adjust width as needed
       >
-        <Chat ={owner_id} ticketId={id}/>
+        <Chat receiverId={assigneduser_id} ticketId={id}/>
       </Modal>
     </Card >
   );

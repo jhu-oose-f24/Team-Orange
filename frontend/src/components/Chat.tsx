@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Input, Button, Card } from 'antd';
 
-const Chat: React.FC = () => {
+interface ChatProps {
+  receiverId: string;
+  ticketId: number;
+}
+
+const Chat: React.FC<ChatProps> = ({ receiverId, ticketId }) => {
   const [inputValue, setInputValue] = useState('');
   const [messages, setMessages] = useState<{ text: string; from: 'user' | 'other' }[]>([]);
   const [senderId, setSenderId] = useState<string | null>(null);
-  const receivingId = "some-receiving-uuid"; 
-  const ticketId = "some-ticket-uuid"; 
 
   useEffect(() => {
     const activeUID = localStorage.getItem('activeUID');
