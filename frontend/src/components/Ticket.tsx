@@ -43,6 +43,8 @@ const Ticket: React.FC<TicketProps> = ({
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
   const [isChatModalOpen, setIsChatModalOpen] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
+  const [isReceiver, setIsReceiver] = useState(false);
+
   useEffect(() => {
     const userId = localStorage.getItem("activeUID");
     if (userId && userId === owner_id) {
@@ -113,9 +115,9 @@ const Ticket: React.FC<TicketProps> = ({
 
       {isOwner && <Button onClick={handleDeleteClick}>Delete Ticket</Button>}
 
-      <Button onClick={() => setIsChatModalOpen(true)}>
+      {isOwner && <Button onClick={() => setIsChatModalOpen(true)}>
         Chat
-      </Button>
+      </Button>}
 
       {isConfirmingDelete && (
         <div className="modal">
