@@ -22,6 +22,7 @@ const Feed: React.FC<FeedProps> = ({ statusFilter }) => {
       category: string;
       deadline: string;
       owner_id: string;
+      assigned_id: string | null;
       payment: number;
       status: string;
     }>
@@ -99,6 +100,7 @@ const Feed: React.FC<FeedProps> = ({ statusFilter }) => {
             status={ticket.status}
             deadline={ticket.deadline}
             owner_id={ticket.owner_id}
+            assigned_id={ticket.assigned_id}
             payment={ticket.payment}
             onDelete={handleDeleteTicket}
             onUpdate={() => setRefetch(!refetch)}

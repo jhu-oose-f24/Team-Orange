@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import editTicket from "../api/EditTicket";
+import assignTicket from "../api/AssignTicket";
 
 import { Button, Card, Form, Input } from "antd";
 
@@ -11,6 +12,7 @@ interface TicketProps {
   category: string;
   deadline: string;
   owner_id: string;
+  assigned_id: string | null;
   payment: number;
   onDelete: (ticketId: number) => void;
   onUpdate: () => void;
@@ -31,6 +33,7 @@ const Ticket: React.FC<TicketProps> = ({
   category,
   deadline,
   owner_id,
+  assigned_id,
   payment,
   onDelete,
   onUpdate,
@@ -39,6 +42,7 @@ const Ticket: React.FC<TicketProps> = ({
   const [editDeadline, setEditDeadline] = useState(deadline.slice(0, -1));
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
+  const [isAssigning, setIsAssigning] = useState(false);
   useEffect(() => {
     const userId = localStorage.getItem("activeUID");
     if (userId && userId === owner_id) {
@@ -61,6 +65,19 @@ const Ticket: React.FC<TicketProps> = ({
       onUpdate();
     } catch (error) {
       console.error("Failed to update ticket:", error);
+    }
+  };
+
+  const handleAssign = async () => {
+    const userId = localStorage.getItem("activeUID");
+    if (userId) {
+      try {
+        await assignTicket(id, (userId));
+        setIsAssigning(false);
+        onUpdate();
+      } catch (error) {
+        console.error("Failed to assign ticket:", error);
+      }
     }
   };
 
@@ -99,6 +116,10 @@ const Ticket: React.FC<TicketProps> = ({
       {isOwner && <Button type="primary" onClick={() => setIsEditing(true)}>
         Edit Ticket
       </Button>}
+
+      {(!isOwner && !assigned_id) && (<Button type="primary" onClick={() => setIsAssigning(true)}>
+        Pickup Ticket
+      </Button>)}
 
       {isOwner && <Button onClick={handleDeleteClick}>Delete Ticket</Button>}
 
@@ -193,6 +214,17 @@ const Ticket: React.FC<TicketProps> = ({
             </Button>
           </Form>
           <Button onClick={() => setIsEditing(false)}>Cancel</Button>
+        </div>
+
+        
+      )}
+      {isAssigning && (
+        <div className="modal">
+          <p>Do you want to assign yourself to this ticket?</p>
+          <Button type="primary" onClick={handleAssign}>
+            Yes, Assign Me
+          </Button>
+          <Button onClick={() => setIsAssigning(false)}>Cancel</Button>
         </div>
       )}
     </Card>
