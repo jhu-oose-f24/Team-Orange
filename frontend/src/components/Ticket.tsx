@@ -207,7 +207,7 @@ const Ticket: React.FC<TicketProps> = ({
       >
         <Chat />
       </Modal>
-    </Card>
+    </Card >
   );
 };
 
