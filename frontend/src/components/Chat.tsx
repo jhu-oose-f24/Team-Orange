@@ -1,20 +1,51 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Input, Button, Card } from 'antd';
+import getMessages from '../api/GetMessages';
 
-const Chat: React.FC = () => {
+interface ChatProps {
+  ticketId: string;
+  recieverID: string;
+  ownerID: string;
+}
+
+type Message = {
+  id: string;
+  sending_id: string;
+  receiving_id: string;
+  ticket_id: string;
+  message: string;
+  create_time: string;
+};
+
+const Chat: React.FC<ChatProps> = ({ticketId, recieverID, ownerID }) => {
   const [inputValue, setInputValue] = useState('');
-  const [messages, setMessages] = useState<{ text: string; from: 'user' | 'other' }[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
 
-  const handleSendMessage = () => {
-    if (inputValue.trim()) {
-      setMessages((prevMessages) => [...prevMessages, { text: inputValue, from: 'user' }]);
-      setInputValue('');
 
-      setTimeout(() => {
-        setMessages((prevMessages) => [...prevMessages, { text: 'Message Received', from: 'other' }]);
-      }, 500);
-    }
-  };
+    // Fetch messages once when component mounts
+    useEffect(() => {
+      const fetchMessages = async () => {
+        try {
+          const fetchedMessages = await getMessages(ticketId);
+          setMessages(fetchedMessages);
+        } catch (err) {
+          console.error('Failed to fetch messages:', err);
+        }
+      };
+  
+      fetchMessages();
+    }, [messages]);
+
+  // const handleSendMessage = () => {
+  //   if (inputValue.trim()) {
+  //     setMessages((prevMessages) => [...prevMessages, { text: inputValue, from: 'user' }]);
+  //     setInputValue('');
+
+  //     setTimeout(() => {
+  //       setMessages((prevMessages) => [...prevMessages, { text: 'Message Received', from: 'other' }]);
+  //     }, 500);
+  //   }
+  // };
 
   return (
     <Card style={{ width: '100%', maxWidth: '800px', height: '100%', padding: '1rem', margin: '0 auto' }}>
