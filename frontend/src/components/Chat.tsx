@@ -31,12 +31,12 @@ const Chat: React.FC<ChatProps> = ({ receiverId, ticketId }) => {
   // };
 
   const handleSendMessage = () => {
-    if (inputValue.trim() && senderId && receivingId && ticketId) {
+    if (inputValue.trim() && senderId && receiverId && ticketId) {
       const newMessage = {
         text: inputValue,
         from: 'user',
         senderId,
-        receivingId,
+        receiverId,
         ticketId,
         create_time: new Date().toISOString(),
       };
