@@ -1,2 +1,2 @@
-DROP TABLE IF EXISTS public.ticket;
-DROP TABLE IF EXISTS public.users;
+DROP TABLE IF EXISTS public.ticket CASCADE;
+DROP TABLE IF EXISTS public.users CASCADE;
