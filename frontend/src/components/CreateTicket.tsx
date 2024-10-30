@@ -27,7 +27,7 @@ const CreateTicket: React.FC = () => {
       category: form.category,
       status: form.status,
       deadline,
-      owner_id: "011ff2c1-1ade-4c92-a649-9725f85aec00", // assing all to same right now when we add user search functionality this will change
+      owner_id: String(localStorage.getItem('activeUID')), 
       assigneduser_id: undefined, // this will also change when we add more users and user fetching/searching
       payment: Number(form.payment),
       priority: form.priority,
