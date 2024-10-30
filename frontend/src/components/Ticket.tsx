@@ -214,9 +214,9 @@ const Ticket: React.FC<TicketProps> = ({
         footer={null} // Optional: remove default footer
         width={400} // Adjust width as needed
       >
-        <Chat />
+        <Chat ={owner_id} ticketId={id}/>
       </Modal>
-    </Card>
+    </Card >
   );
 };
 

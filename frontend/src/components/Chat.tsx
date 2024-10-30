@@ -1,20 +1,51 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Input, Button, Card } from 'antd';
 
 const Chat: React.FC = () => {
   const [inputValue, setInputValue] = useState('');
   const [messages, setMessages] = useState<{ text: string; from: 'user' | 'other' }[]>([]);
+  const [senderId, setSenderId] = useState<string | null>(null);
+  const receivingId = "some-receiving-uuid"; 
+  const ticketId = "some-ticket-uuid"; 
+
+  useEffect(() => {
+    const activeUID = localStorage.getItem('activeUID');
+    if (activeUID) {
+      setSenderId(activeUID);
+    }
+  }, []);
+
+
+  // const handleSendMessage = () => {
+  //   if (inputValue.trim()) {
+  //     setMessages((prevMessages) => [...prevMessages, { text: inputValue, from: 'user' }]);
+  //     setInputValue('');
+
+  //     setTimeout(() => {
+  //       setMessages((prevMessages) => [...prevMessages, { text: 'Message Received', from: 'other' }]);
+  //     }, 500);
+  //   }
+  // };
 
   const handleSendMessage = () => {
-    if (inputValue.trim()) {
-      setMessages((prevMessages) => [...prevMessages, { text: inputValue, from: 'user' }]);
-      setInputValue('');
+    if (inputValue.trim() && senderId && receivingId && ticketId) {
+      const newMessage = {
+        text: inputValue,
+        from: 'user',
+        senderId,
+        receivingId,
+        ticketId,
+        create_time: new Date().toISOString(),
+      };
+    // TODO: call backend send message to database
+    setMessages((prevMessages) => [...prevMessages, { text: inputValue, from: 'user' }]);
+    setInputValue('');
 
-      setTimeout(() => {
-        setMessages((prevMessages) => [...prevMessages, { text: 'Message Received', from: 'other' }]);
-      }, 500);
+    setTimeout(() => {
+            setMessages((prevMessages) => [...prevMessages, { text: 'Message Received', from: 'other' }]);
+          }, 500);
     }
-  };
+  }
 
   return (
     <Card style={{ width: '100%', maxWidth: '800px', height: '100%', padding: '1rem', margin: '0 auto' }}>
