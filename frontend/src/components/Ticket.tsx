@@ -12,7 +12,7 @@ interface TicketProps {
   category: string;
   deadline: string;
   owner_id: string;
-  assigned_id: string | null;
+  assigneduser_id: string | null;
   payment: number;
   onDelete: (ticketId: number) => void;
   onUpdate: () => void;
@@ -33,7 +33,7 @@ const Ticket: React.FC<TicketProps> = ({
   category,
   deadline,
   owner_id,
-  assigned_id,
+  assigneduser_id: assigned_id,
   payment,
   onDelete,
   onUpdate,

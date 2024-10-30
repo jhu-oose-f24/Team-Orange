@@ -4,9 +4,8 @@ interface Ticket {
   description: string;
   deadline: string;
   status: string;
-  owner_id: number;
-  assigned_id: number;
-  assigneduser_id: number | null;
+  owner_id: string;
+  assigneduser_id: string | null;
   payment: number | null;
 }
 
