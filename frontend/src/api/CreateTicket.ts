@@ -9,11 +9,11 @@ const createTicket = async (ticket: {
   owner_id: string;
   assigneduser_id: string | undefined;
   payment: number;
-  priority: string
-//   {
-//     "owner_id": "011ff2c1-1ade-4c92-a649-9725f85aec00",
-//     "priority": "High"
-// }
+  priority: string;
+  //   {
+  //     "owner_id": "011ff2c1-1ade-4c92-a649-9725f85aec00",
+  //     "priority": "High"
+  // }
 }) => {
   try {
     const response = await fetch(BASE_URL, {

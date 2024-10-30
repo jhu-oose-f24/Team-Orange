@@ -20,6 +20,11 @@ const NavBar: React.FC = () => {
             <Link to="/profile">Profile</Link>
           </button>
         </li>
+        <li>
+          <button>
+            <Link to="/devUser">devUser</Link>
+          </button>
+        </li>
       </ul>
     </nav>
   );
