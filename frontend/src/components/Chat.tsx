@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Input, Button, Card } from 'antd';
 import getMessages from '../api/GetMessages';
+import createMessage from '../api/CreateMessage';
 
 interface ChatProps {
   ticketId: string;
-  recieverID: string;
+  receiverId: string;
   ownerID: string;
 }
 
@@ -17,7 +18,7 @@ type Message = {
   create_time: string;
 };
 
-const Chat: React.FC<ChatProps> = ({ticketId, recieverID, ownerID }) => {
+const Chat: React.FC<ChatProps> = ({ticketId, receiverId, ownerID }) => {
   const [inputValue, setInputValue] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
 
@@ -36,16 +37,28 @@ const Chat: React.FC<ChatProps> = ({ticketId, recieverID, ownerID }) => {
       fetchMessages();
     }, [messages]);
 
-  // const handleSendMessage = () => {
-  //   if (inputValue.trim()) {
-  //     setMessages((prevMessages) => [...prevMessages, { text: inputValue, from: 'user' }]);
-  //     setInputValue('');
+  const handleSendMessage = async () => {
+    if (!inputValue.trim()) return;
+    // create new message 
+    const sendMessage = {
+      sending_id: ownerID,
+      receiving_id: receiverId,
+      ticket_id: ticketId,
+      message: inputValue
+    }
+    console.log(ownerID);
+    console.log(inputValue);
 
-  //     setTimeout(() => {
-  //       setMessages((prevMessages) => [...prevMessages, { text: 'Message Received', from: 'other' }]);
-  //     }, 500);
-  //   }
-  // };
+    // send the message to the db
+    try{
+      const savedMessage = await createMessage(sendMessage);
+      setMessages([...messages, savedMessage]); // Add the sent message to the chat
+      setInputValue(''); // Clear input field
+    }
+    catch (err) {
+      console.error('Failed to send message:', err);
+    }
+  };
 
   return (
     <Card style={{ width: '100%', maxWidth: '800px', height: '100%', padding: '1rem', margin: '0 auto' }}>
@@ -66,7 +79,7 @@ const Chat: React.FC<ChatProps> = ({ticketId, recieverID, ownerID }) => {
               key={index} 
               style={{
                 display: 'flex',
-                justifyContent: message.from === 'user' ? 'flex-end' : 'flex-start',
+                justifyContent: message.sending_id === ownerID ? 'flex-end' : 'flex-start',
                 marginBottom: '10px',
               }}
             >
@@ -75,11 +88,11 @@ const Chat: React.FC<ChatProps> = ({ticketId, recieverID, ownerID }) => {
                   maxWidth: '70%',
                   padding: '10px',
                   borderRadius: '10px',
-                  backgroundColor: message.from === 'user' ? '#0084ff' : '#e5e5ea',
-                  color: message.from === 'user' ? 'white' : 'black',
+                  backgroundColor: message.sending_id === ownerID? '#0084ff' : '#e5e5ea',
+                  color: message.sending_id === ownerID ? 'white' : 'black',
                 }}
               >
-                {message.text}
+                {message.message}
               </div>
             </div>
           ))

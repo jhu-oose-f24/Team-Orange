@@ -10,7 +10,6 @@ INSERT INTO public.ticket (id, title, category, description, deadline, owner_id,
 ('104ff2c1-1ade-4c92-a649-9725f85aec00', 'Replace the projector', 'Other', 'Replace the old projector in the meeting room', '2024-11-15 23:59:59', '011ff2c1-1ade-4c92-a649-9725f85aec00', 'High', 3),
 ('105ff2c1-1ade-4c92-a649-9725f85aec11', 'Organize a team event', 'Errands', 'Plan and organize a team event for this month', '2024-11-05 23:59:59', '022ff2c1-1ade-4c92-a649-9725f85aec11', 'Medium', 15);
 
-INSERT INTO public.ticket (id, title, category, description, deadline, owner_id, assigneduser_id, priority, payment) VALUES 
 
 INSERT INTO public.messages (id, sending_id, receiving_id, ticket_id, message, create_time) VALUES 
 ('111ff2c1-1ade-4c92-a649-9725f85aec00', '011ff2c1-1ade-4c92-a649-9725f85aec00', '022ff2c1-1ade-4c92-a649-9725f85aec11', '101ff2c1-1ade-4c92-a649-9725f85aec00', 'Hi, Jane', '2024-12-31 23:59:59'),
