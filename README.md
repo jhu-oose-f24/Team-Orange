@@ -37,6 +37,15 @@ db-migrate up initialize
 
 Your PostgreSQL database is now set up and ready to be used with the backend of the project.
 
+## Note: 
+backend/src/index.js and backend src/database.json must be modified with the credentials created locally: 
+
+`"driver": "pg",
+"user": "postgres",
+"password": "1234",
+"host": "localhost",
+"database": "TicketSystem" `
+
 # Starting the Backend (If db already ran for Iteration1, no need to re-migrate)
 
 Start Database
@@ -109,6 +118,10 @@ When you run our app currently you will load into a screen with a simple UI that
 ### Iteration 2
 
 For this iteration we added a Navigation Bar, a Search Bar, functions to edit and delete tickets, profile and create tickets components, and styling for the entire app. Now, when you load into the app you are taken to our feed component which shows all of the tickets currently in our database. We have three different feeds now that are separated into Open, In Progress, and Done. We also have a search bar at the top of the three different feeds where you can search for a ticket by name or by date. Right now we have a search bar for each feed and it functions correctly for each feed. In the future we want to have just one search bar for all the feeds. In our create ticket component we separated out our create ticket functionality from our feed from the last iteration and gave it its own component and put it in the navigation bar. We added a payment and status field to the ticket interface. The payment can be input in the create ticket form as well as the status. When you create a ticket and specify the status it will show up in the correct feed. The status field is an enumeration with Open, In Progress, and Closed. In the profile component we hardcoded data in to show what the profile would look like; however, we have not yet implemented user authentication, so we do not have any data to implement into profile. We also put a feed component under the profile to show tickets that the user has created. We do not have the ability to filter that feed yet because we don't have users implemented. We also implemented the Ant Design Library into our app for a more appealing UI.
+
+### Iteration 3 
+
+In iteration 3, we focused on our chat functionality, which also required the addition of users. We added devUsers that can be chosen from a dropdown menu, which assigns a UUID as the ownerID, allowing us to associate the owner and assigned users id's to each ticket. We then implemented the chat feature, with each ticket having an associated chat between the owner of the ticket and the assigned user. Currently, this is available for all tickets, but it will eventually only be available for those that are unclosed. This takes our application above a simple CRUD app, allowing for communication between the owner and assignee of each ticket. Additionally, we refined the search filter on both the backend and frontend. We altered the searchbar so that it only appears once on the primary page, searching through each of the three feeds. We also added the ability to filter tickets by category and minimum payment, improving the user experience on the front end.   
 
 ## What we are building
 

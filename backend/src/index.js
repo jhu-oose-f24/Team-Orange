@@ -36,7 +36,7 @@ app.get("/tickets", (req, res) => {
 
 // GET endpoint to search for specific tickets
 app.get("/tickets/search", (req, res) => {
-    const { title, startDate, endDate, owner_id, status, priority, ticket_id, minPayment, maxPayment, sortBy, sortOrder} = req.query;
+    const { title, startDate, endDate, owner_id, status, priority, ticket_id, minPayment, maxPayment, sortBy, sortOrder, category} = req.query;
 
     let query = "SELECT * FROM ticket WHERE 1=1";
     let queryParams = [];
@@ -89,6 +89,11 @@ app.get("/tickets/search", (req, res) => {
     if (maxPayment) {
         queryParams.push(maxPayment);
         query += ` AND payment <= $${queryParams.length}`;
+    }
+
+    if (category) {
+        queryParams.push(category);
+        query += ` AND category = $${queryParams.length}`;
     }
 
     // Sorting
