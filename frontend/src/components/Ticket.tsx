@@ -244,6 +244,7 @@ const Ticket: React.FC<TicketProps> = ({
       )}
 
       {/* Chat modal */}
+      {assigned_id !== null && (
       <Modal
         title="Chat"
         visible={isChatModalOpen}
@@ -251,8 +252,9 @@ const Ticket: React.FC<TicketProps> = ({
         footer={null} // Optional: remove default footer
         width={400} // Adjust width as needed
       >
-        <Chat  ticketId={String(id)} receiverId={assigned_id} ownerID={owner_id}/>
+        <Chat ticketId={String(id)} receiverId={assigned_id} ownerID={owner_id} />
       </Modal>
+    )}
     </Card >
   );
 };

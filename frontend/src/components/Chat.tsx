@@ -5,7 +5,7 @@ import createMessage from '../api/CreateMessage';
 
 interface ChatProps {
   ticketId: string;
-  receiverId: string;
+  receiverId: string | null;
   ownerID: string;
 }
 
