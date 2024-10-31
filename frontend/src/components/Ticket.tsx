@@ -249,7 +249,7 @@ const Ticket: React.FC<TicketProps> = ({
       {/* Chat modal */}
       <Modal
         title="Chat"
-        visible={isChatModalOpen}
+        open={isChatModalOpen}
         onCancel={handleChatModalClose}
         footer={null} // Optional: remove default footer
         width={400} // Adjust width as needed
