@@ -1,6 +1,6 @@
-import React from "react";
-import { Card, Avatar, Row, Col, Typography, Divider } from "antd";
-import Feed from "./Feed"; // Import the Feed component
+import React, {useState} from 'react';
+import { Card, Avatar, Row, Col, Typography, Divider } from 'antd';
+import Feed from './Feed'; // Import the Feed component
 
 const { Title, Text } = Typography;
 
@@ -12,6 +12,7 @@ const Profile: React.FC = () => {
   // Profile stats (hardcoded for now, can be dynamic)
   const created_tickets = 4;
   const completed_tickets = 10;
+  const [searchParams, setSearchParams] = useState({});
 
   return (
     <div
@@ -45,7 +46,7 @@ const Profile: React.FC = () => {
       </Row>
       <Divider />
       {/* Post Grid */}
-      <Feed statusFilter="Done" />{" "}
+      <Feed statusFilter="Done" searchParams={searchParams}/>{" "}
       {/* This would represent your user's posts displayed in a grid */}
     </div>
   );

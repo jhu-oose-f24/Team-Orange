@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import editTicket from "../api/EditTicket";
+import assignTicket from "../api/AssignTicket";
 import Chat from "./Chat";
 
 import { Button, Card, Form, Input, Modal } from "antd";
@@ -12,6 +13,7 @@ interface TicketProps {
   category: string;
   deadline: string;
   owner_id: string;
+  assigneduser_id: string | null;
   payment: number;
   onDelete: (ticketId: string) => void;
   onUpdate: () => void;
@@ -32,6 +34,7 @@ const Ticket: React.FC<TicketProps> = ({
   category,
   deadline,
   owner_id,
+  assigneduser_id,
   payment,
   onDelete,
   onUpdate,
@@ -41,14 +44,21 @@ const Ticket: React.FC<TicketProps> = ({
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
   const [isChatModalOpen, setIsChatModalOpen] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
-  const [isReceiver, setIsReceiver] = useState(false);
-
+  const [isAssigned, setIsAssigned] = useState(false);
+  const [isAssigning, setIsAssigning] = useState(false);
   useEffect(() => {
     const userId = localStorage.getItem("activeUID");
     if (userId && userId === owner_id) {
       setIsOwner(true);
     }
   }, [owner_id]);
+
+  useEffect(() => {
+    const userId = localStorage.getItem("activeUID");
+    if (userId && userId === assigneduser_id) {
+      setIsAssigned(true);
+    }
+  }, [assigneduser_id]);
 
   const handleSubmit = async (form: EditTicketForm) => {
     const updatedTicket = {
@@ -65,6 +75,19 @@ const Ticket: React.FC<TicketProps> = ({
       onUpdate();
     } catch (error) {
       console.error("Failed to update ticket:", error);
+    }
+  };
+
+  const handleAssign = async () => {
+    const userId = localStorage.getItem("activeUID");
+    if (userId) {
+      try {
+        await assignTicket(id, (userId));
+        setIsAssigning(false);
+        onUpdate();
+      } catch (error) {
+        console.error("Failed to assign ticket:", error);
+      }
     }
   };
 
@@ -108,9 +131,13 @@ const Ticket: React.FC<TicketProps> = ({
         Edit Ticket
       </Button>}
 
+      {(!isOwner && !isAssigned) && (<Button type="primary" onClick={() => setIsAssigning(true)}>
+        Pickup Ticket
+      </Button>)}
+
       {isOwner && <Button onClick={handleDeleteClick}>Delete Ticket</Button>}
 
-      {isOwner && <Button onClick={() => setIsChatModalOpen(true)}>
+      {(isOwner || isAssigned) && <Button onClick={() => setIsChatModalOpen(true)}>
         Chat
       </Button>}
 
@@ -205,6 +232,17 @@ const Ticket: React.FC<TicketProps> = ({
             </Button>
           </Form>
           <Button onClick={() => setIsEditing(false)}>Cancel</Button>
+        </div>
+
+        
+      )}
+      {isAssigning && (
+        <div className="modal">
+          <p>Do you want to assign yourself to this ticket?</p>
+          <Button type="primary" onClick={handleAssign}>
+            Yes, Assign Me
+          </Button>
+          <Button onClick={() => setIsAssigning(false)}>Cancel</Button>
         </div>
       )}
 
