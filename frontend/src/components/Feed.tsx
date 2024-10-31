@@ -21,7 +21,7 @@ interface FeedProps {
 const Feed: React.FC<FeedProps> = ({ statusFilter, searchParams }) => {
   const [tickets, setTickets] = useState<
     List<{
-      id: number;
+      id: string;
       title: string;
       description: string;
       category: string;
@@ -76,7 +76,7 @@ const Feed: React.FC<FeedProps> = ({ statusFilter, searchParams }) => {
     }
   };
 
-  const handleDeleteTicket = async (ticketId: number) => {
+  const handleDeleteTicket = async (ticketId: string) => {
     try {
       await deleteTicket(ticketId);
       const updatedTickets = tickets.filter((ticket) => ticket.id !== ticketId);
