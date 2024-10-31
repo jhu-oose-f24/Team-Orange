@@ -1,7 +1,7 @@
 const BASE_URL = "http://localhost:3000/tickets";
 
 const editTicket = async (
-  id: number,
+  id: string,
   updatedTicket: {
     title?: string;
     description?: string;

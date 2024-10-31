@@ -1,51 +1,66 @@
 import React, { useState, useEffect } from 'react';
 import { Input, Button, Card } from 'antd';
 import getMessages from '../api/GetMessages';
+import postMessage from '../api/PostMessage';
+import Message from '../types/Message';
 
 interface ChatProps {
   ticketId: string;
-  recieverID: string;
   ownerID: string;
+  recieverID: string;
 }
 
-type Message = {
-  id: string;
+interface MessageData {
   sending_id: string;
   receiving_id: string;
   ticket_id: string;
   message: string;
-  create_time: string;
-};
+}
 
-const Chat: React.FC<ChatProps> = ({ticketId, recieverID, ownerID }) => {
+const Chat: React.FC<ChatProps> = ({ ticketId, ownerID, recieverID }) => {
   const [inputValue, setInputValue] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
 
+  const activeUID = localStorage.getItem("activeUID") || '';
 
-    // Fetch messages once when component mounts
-    useEffect(() => {
-      const fetchMessages = async () => {
-        try {
-          const fetchedMessages = await getMessages(ticketId);
-          setMessages(fetchedMessages);
-        } catch (err) {
-          console.error('Failed to fetch messages:', err);
-        }
-      };
-  
-      fetchMessages();
-    }, [messages]);
+  useEffect(() => {
+    const fetchMessages = async () => {
+      try {
+        const fetchedMessages = await getMessages(ticketId);
+        console.log(fetchedMessages);
+        setMessages(fetchedMessages);
+      } catch (err) {
+        console.error('Failed to fetch messages:', err);
+      }
+    };
 
-  // const handleSendMessage = () => {
-  //   if (inputValue.trim()) {
-  //     setMessages((prevMessages) => [...prevMessages, { text: inputValue, from: 'user' }]);
-  //     setInputValue('');
+    fetchMessages();
+  }, []);
 
-  //     setTimeout(() => {
-  //       setMessages((prevMessages) => [...prevMessages, { text: 'Message Received', from: 'other' }]);
-  //     }, 500);
-  //   }
-  // };
+  const handleSendMessage = async () => {
+    if (!inputValue.trim()) return;
+
+    const receiving_id = activeUID === ownerID ? recieverID : ownerID;
+
+    const newMessage: MessageData = {
+      sending_id: activeUID,
+      receiving_id,
+      ticket_id: ticketId,
+      message: inputValue,
+    };
+
+    try {
+      // Send the new message to the server
+      console.log(newMessage);
+      const sentMessage = await postMessage(newMessage);
+      console.log("anything");
+      // Update the local state to display the new message
+      // setMessages([...messages, sentMessage]);
+      setInputValue(""); // Clear the input field
+    } catch (error) {
+      console.error("Failed to send message:", error);
+    }
+  };
 
   return (
     <Card style={{ width: '100%', maxWidth: '800px', height: '100%', padding: '1rem', margin: '0 auto' }}>
@@ -61,12 +76,12 @@ const Chat: React.FC<ChatProps> = ({ticketId, recieverID, ownerID }) => {
         {messages.length === 0 ? (
           <p style={{ textAlign: 'center', color: '#888' }}>No messages yet</p>
         ) : (
-          messages.map((message, index) => (
+          messages.map((message) => (
             <div 
-              key={index} 
+              key={message.id} 
               style={{
                 display: 'flex',
-                justifyContent: message.from === 'user' ? 'flex-end' : 'flex-start',
+                justifyContent: message.sending_id === activeUID ? 'flex-end' : 'flex-start',
                 marginBottom: '10px',
               }}
             >
@@ -75,11 +90,11 @@ const Chat: React.FC<ChatProps> = ({ticketId, recieverID, ownerID }) => {
                   maxWidth: '70%',
                   padding: '10px',
                   borderRadius: '10px',
-                  backgroundColor: message.from === 'user' ? '#0084ff' : '#e5e5ea',
-                  color: message.from === 'user' ? 'white' : 'black',
+                  backgroundColor: message.sending_id === activeUID ? '#0084ff' : '#e5e5ea',
+                  color: message.sending_id === activeUID ? 'white' : 'black',
                 }}
               >
-                {message.text}
+                {message.message}
               </div>
             </div>
           ))
@@ -102,5 +117,6 @@ const Chat: React.FC<ChatProps> = ({ticketId, recieverID, ownerID }) => {
 };
 
 export default Chat;
+
 
 

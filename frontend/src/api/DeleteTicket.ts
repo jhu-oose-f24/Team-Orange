@@ -1,6 +1,6 @@
 const BASE_URL = "http://localhost:3000/tickets";
 
-const deleteTicket = async (ticketId: number) => {
+const deleteTicket = async (ticketId: string) => {
   try {
     const response = await fetch(`${BASE_URL}/${ticketId}`, {
       method: "DELETE",

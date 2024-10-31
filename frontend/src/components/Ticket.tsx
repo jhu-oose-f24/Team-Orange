@@ -5,7 +5,7 @@ import Chat from "./Chat";
 import { Button, Card, Form, Input, Modal } from "antd";
 
 interface TicketProps {
-  id: number;
+  id: string;
   title: string;
   description: string;
   status: string;
@@ -13,7 +13,7 @@ interface TicketProps {
   deadline: string;
   owner_id: string;
   payment: number;
-  onDelete: (ticketId: number) => void;
+  onDelete: (ticketId: string) => void;
   onUpdate: () => void;
 }
 
@@ -216,7 +216,7 @@ const Ticket: React.FC<TicketProps> = ({
         footer={null} // Optional: remove default footer
         width={400} // Adjust width as needed
       >
-        <Chat />
+        <Chat ticketId={id} ownerID={owner_id} recieverID="011ff2c1-1ade-4c92-a649-9725f85aec00"/>
       </Modal>
     </Card>
   );
