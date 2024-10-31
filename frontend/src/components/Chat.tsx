@@ -54,8 +54,7 @@ const Chat: React.FC<ChatProps> = ({ ticketId, ownerID, recieverID }) => {
       console.log(newMessage);
       const sentMessage = await postMessage(newMessage);
       console.log("anything");
-      // Update the local state to display the new message
-      // setMessages([...messages, sentMessage]);
+      setMessages([...messages, sentMessage]);
       setInputValue(""); // Clear the input field
     } catch (error) {
       console.error("Failed to send message:", error);

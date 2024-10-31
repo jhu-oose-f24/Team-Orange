@@ -10,7 +10,6 @@ interface MessageData {
 }
 
 const postMessage = async (data: MessageData) : Promise<Message> => {
-  console.log("Posting message:", data);
   try {
     const response = await fetch(BASE_URL, {
       method: "POST",
