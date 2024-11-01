@@ -7,7 +7,7 @@ import Message from '../types/Message';
 interface ChatProps {
   ticketId: string;
   ownerID: string;
-  recieverID: string;
+  assignedID: string | null;
 }
 
 interface MessageData {
@@ -17,7 +17,7 @@ interface MessageData {
   message: string;
 }
 
-const Chat: React.FC<ChatProps> = ({ ticketId, ownerID, recieverID }) => {
+const Chat: React.FC<ChatProps> = ({ ticketId, ownerID, assignedID }) => {
   const [inputValue, setInputValue] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
 
@@ -40,7 +40,7 @@ const Chat: React.FC<ChatProps> = ({ ticketId, ownerID, recieverID }) => {
   const handleSendMessage = async () => {
     if (!inputValue.trim()) return;
 
-    const receiving_id = activeUID === ownerID ? recieverID : ownerID;
+    const receiving_id = activeUID === ownerID ? assignedID as string: ownerID;
 
     const newMessage: MessageData = {
       sending_id: activeUID,
@@ -51,9 +51,7 @@ const Chat: React.FC<ChatProps> = ({ ticketId, ownerID, recieverID }) => {
 
     try {
       // Send the new message to the server
-      console.log(newMessage);
       const sentMessage = await postMessage(newMessage);
-      console.log("anything");
       setMessages([...messages, sentMessage]);
       setInputValue(""); // Clear the input field
     } catch (error) {
