@@ -1,6 +1,6 @@
 const BASE_URL = "http://localhost:3000/tickets";
 
-const assignTicket = async (id: number, assignedUserId: string | null) => {
+const assignTicket = async (id: string, assignedUserId: string | null) => {
   try {
     const response = await fetch(`${BASE_URL}/${id}`, {
       method: "PUT",
