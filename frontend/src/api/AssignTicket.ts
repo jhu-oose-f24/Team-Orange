@@ -1,25 +1,13 @@
 const BASE_URL = "http://localhost:3000/tickets";
 
-const editTicket = async (
-  id: string,
-  updatedTicket: {
-    title?: string;
-    description?: string;
-    category?: string;
-    deadline?: string;
-    status?: string;
-    owner_id?: number;
-    assigneduser_id?: number | null;
-    payment?: number | null;
-  },
-) => {
+const assignTicket = async (id: string, assignedUserId: string | null) => {
   try {
     const response = await fetch(`${BASE_URL}/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(updatedTicket),
+      body: JSON.stringify({ assigneduser_id: assignedUserId }),
     });
 
     if (!response.ok) {
@@ -29,9 +17,9 @@ const editTicket = async (
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error("Error editing ticket:", error);
+    console.error("Error assigning ticket:", error);
     throw error;
   }
 };
 
-export default editTicket;
+export default assignTicket;

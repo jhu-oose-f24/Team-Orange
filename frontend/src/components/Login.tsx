@@ -22,10 +22,7 @@ const Login: React.FC<{ onLogin: () => void }> = ({ onLogin }) => {
       <Title level={3} style={{ textAlign: "center", marginBottom: "20px" }}>
         Login
       </Title>
-      <Form
-        layout="vertical"
-        onFinish={handleSubmit}
-      >
+      <Form layout="vertical" onFinish={handleSubmit}>
         <Form.Item
           label="Username"
           name="username"

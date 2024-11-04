@@ -1,18 +1,21 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import editTicket from "../api/EditTicket";
+import assignTicket from "../api/AssignTicket";
+import Chat from "./Chat";
 
-import { Button, Card, Form, Input } from "antd";
+import { Button, Card, Form, Input, Modal } from "antd";
 
 interface TicketProps {
-  id: number;
+  id: string;
   title: string;
   description: string;
   status: string;
   category: string;
   deadline: string;
-  owner_id: number;
+  owner_id: string;
+  assigneduser_id: string | null;
   payment: number;
-  onDelete: (ticketId: number) => void;
+  onDelete: (ticketId: string) => void;
   onUpdate: () => void;
 }
 
@@ -31,6 +34,7 @@ const Ticket: React.FC<TicketProps> = ({
   category,
   deadline,
   owner_id,
+  assigneduser_id,
   payment,
   onDelete,
   onUpdate,
@@ -38,6 +42,23 @@ const Ticket: React.FC<TicketProps> = ({
   const [isEditing, setIsEditing] = useState(false);
   const [editDeadline, setEditDeadline] = useState(deadline.slice(0, -1));
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
+  const [isChatModalOpen, setIsChatModalOpen] = useState(false);
+  const [isOwner, setIsOwner] = useState(false);
+  const [isAssigned, setIsAssigned] = useState(false);
+  const [isAssigning, setIsAssigning] = useState(false);
+  useEffect(() => {
+    const userId = localStorage.getItem("activeUID");
+    if (userId && userId === owner_id) {
+      setIsOwner(true);
+    }
+  }, [owner_id]);
+
+  useEffect(() => {
+    const userId = localStorage.getItem("activeUID");
+    if (userId && userId === assigneduser_id) {
+      setIsAssigned(true);
+    }
+  }, [assigneduser_id]);
 
   const handleSubmit = async (form: EditTicketForm) => {
     const updatedTicket = {
@@ -57,6 +78,19 @@ const Ticket: React.FC<TicketProps> = ({
     }
   };
 
+  const handleAssign = async () => {
+    const userId = localStorage.getItem("activeUID");
+    if (userId) {
+      try {
+        await assignTicket(id, (userId));
+        setIsAssigning(false);
+        onUpdate();
+      } catch (error) {
+        console.error("Failed to assign ticket:", error);
+      }
+    }
+  };
+
   const handleDeleteClick = () => {
     setIsConfirmingDelete(true);
   };
@@ -68,6 +102,10 @@ const Ticket: React.FC<TicketProps> = ({
 
   const handleCancelDelete = () => {
     setIsConfirmingDelete(false);
+  };
+
+  const handleChatModalClose = () => {
+    setIsChatModalOpen(false);
   };
 
   return (
@@ -89,11 +127,19 @@ const Ticket: React.FC<TicketProps> = ({
         <strong>Deadline:</strong> {new Date(deadline).toLocaleString()}
       </p>
 
-      <Button type="primary" onClick={() => setIsEditing(true)}>
+      {isOwner && <Button type="primary" onClick={() => setIsEditing(true)}>
         Edit Ticket
-      </Button>
+      </Button>}
 
-      <Button onClick={handleDeleteClick}>Delete Ticket</Button>
+      {(!isOwner && !isAssigned) && (<Button type="primary" onClick={() => setIsAssigning(true)}>
+        Pickup Ticket
+      </Button>)}
+
+      {isOwner && <Button onClick={handleDeleteClick}>Delete Ticket</Button>}
+
+      {(isOwner || isAssigned) && <Button onClick={() => setIsChatModalOpen(true)}>
+        Chat
+      </Button>}
 
       {isConfirmingDelete && (
         <div className="modal">
@@ -165,7 +211,9 @@ const Ticket: React.FC<TicketProps> = ({
               <Input
                 type="datetime-local"
                 placeholder="Deadline"
-                onChange={(e : React.ChangeEvent<HTMLInputElement>) => setEditDeadline(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setEditDeadline(e.target.value)
+                }
                 required
               />
             </Form.Item>
@@ -185,7 +233,29 @@ const Ticket: React.FC<TicketProps> = ({
           </Form>
           <Button onClick={() => setIsEditing(false)}>Cancel</Button>
         </div>
+
+        
       )}
+      {isAssigning && (
+        <div className="modal">
+          <p>Do you want to assign yourself to this ticket?</p>
+          <Button type="primary" onClick={handleAssign}>
+            Yes, Assign Me
+          </Button>
+          <Button onClick={() => setIsAssigning(false)}>Cancel</Button>
+        </div>
+      )}
+
+      {/* Chat modal */}
+      <Modal
+        title="Chat"
+        open={isChatModalOpen}
+        onCancel={handleChatModalClose}
+        footer={null} // Optional: remove default footer
+        width={400} // Adjust width as needed
+      >
+        <Chat ticketId={id} ownerID={owner_id} assignedID={assigneduser_id || ""}/>
+      </Modal>
     </Card>
   );
 };
