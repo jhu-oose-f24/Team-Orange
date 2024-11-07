@@ -24,7 +24,9 @@ END $$;
 CREATE TABLE IF NOT EXISTS public.users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(100),
-    age INTEGER NOT NULL
+    username VARCHAR(100),
+    password VARCHAR(100)
+    
 );
 
 CREATE TABLE IF NOT EXISTS public.ticket (

@@ -1,5 +1,6 @@
 const express = require("express");
 const path = require("path");
+const session = require("express-session");
 const bodyParser = require("body-parser");
 const pg = require('pg');
 const cors = require('cors');
@@ -8,22 +9,62 @@ const bcrypt = require("bcrypt");
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const session = require('express-session');
+const saml = require("passport-saml");
 
 const { v4: uuidv4 } = require('uuid');
 const app = express();
 const port = 3000;
 const saltRound = 10;
 
+
+const JHU_SSO_URL = "https://idp.jh.edu/idp/profile/SAML2/Redirect/SSO";
+const SP_NAME = "glacial-plateau-47269";  // replace this with out app name
+const BASE_URL = "https://glacial-plateau-47269.herokuapp.com"; // need to deploy ours
+// key
+const fs = require("fs");
+const PbK = fs.readFileSync(__dirname + "/certs/cert.pem", "utf8");
+const PvK = fs.readFileSync(__dirname + "/certs/key.pem", "utf8");
+  
+// Setup SAML strategy
+const samlStrategy = new saml.Strategy(
+  {
+    // config options here
+    entryPoint: JHU_SSO_URL,
+    issuer: SP_NAME,
+    callbackUrl: `${BASE_URL}/jhu/login/callback`,
+    decryptionPvk: PvK,
+    privateCert: PvK,
+    cert: `-----BEGIN CERTIFICATE-----
+    YOUR_IDP_PUBLIC_CERT_HERE
+    -----END CERTIFICATE-----` 
+  },
+  (profile, done) => {
+    return done(null, profile);
+  }
+);
+// Tell passport to use the samlStrategy
+passport.use("samlStrategy", samlStrategy);
+
+// trust between our app and idp (metadata XML)
+app.get("/jhu/metadata", (req, res) => {
+    res.type("application/xml");
+    res.status(200);
+    res.send(samlStrategy.generateServiceProviderMetadata(PbK, PbK));
+});
+  
+// middleware
 app.use(bodyParser.urlencoded({ extended: true })); 
+app.use(
+    session({ secret: "use-any-secret", resave: false, saveUninitialized: true })
+);
+app.use(passport.initialize());
+app.use(passport.session());
 app.use(express.static("public"));
 app.use(session({
     secret: "ORANGESECRET",
     resave: false,
     saveUninitialized: true // store uninitialized session to server memory
   }));
-  app.use(password.initialize());
-  app.use(password.session());
-
 // Enable CORS for all routes
 app.use(cors());
 
@@ -51,22 +92,22 @@ app.get("/register", (req, res) => {
 
 app.post("/register", async (req, res) => {
     console.log(req.body);
-    let email = req.body["username"];
+    let username = req.body["username"];
     let password = req.body["password"];
 
     try{
-        if (!email || !password) {
-            return res.status(400).json({ message: "Email and password are required" });
+        if (!username || !password) {
+            return res.status(400).json({ message: "username and password are required" });
         }  
-        const check_if_user_exist = await db.query("SELECT * FROM users WHERE email = $1",[email]);
+        const check_if_user_exist = await db.query("SELECT * FROM users WHERE username = $1",[username]);
         if (check_if_user_exist.rows.length>0){
-            res.send("Email already exists, try logging in ...");
+            res.send("username already exists, try logging in ...");
         }else{
             bcrypt.hash(password,saltRound,async (err, hash)=>{
             if (err){
                 console.log("Error hashing functions: ", err);
               }else{
-                const result = await db.query("INSERT INTO users (email, password) VALUES ($1, $2)", [email,hash]);
+                const result = await db.query("INSERT INTO users (username, password) VALUES ($1, $2)", [username,hash]);
                 // TODO: redirect to the login page
                 res.json({ message: "Registration successful" }); 
               }
@@ -121,47 +162,71 @@ app.post("/login", passport.authenticate("local", {
     res.json({ message: "Login successful" });
 });
   
-passport.use(LocalStrategy(async function verify(username, password, cb){
-    try{
-        const check_if_user_exist = await db.query("SELECT * FROM users WHERE email = $1 ",[email]);
-        if (check_if_user_exist.rows.length>0){
+// 
+passport.use(new LocalStrategy(async function verify(username, password, cb) {
+    try {
+        const check_if_user_exist = await db.query("SELECT * FROM users WHERE username = $1", [username]);
+        if (check_if_user_exist.rows.length > 0) {
             const user = check_if_user_exist.rows[0];
-            const storedHashedPassword = user.password; // stored(right) password 
+            const storedHashedPassword = user.password;
 
-            bcrypt.compare(loginPassword, storedHashedPassword, (err, result)=>{ 
-                if (err){
+            bcrypt.compare(password, storedHashedPassword, (err, result) => {
+                if (err) {
                     return cb(err);
-                    // res.status(500).json({ message: "Internal server error" });
-                }else{
-                    if (result){ // boolean 
-                        return cb(null,user);
-                        // res.json({ message: "Login successful" }); 
-                    }else{
-                        return cb(null, false);
-                        // res.status(401).json({ message: "Password incorrect" });
+                } else {
+                    if (result) {
+                        return cb(null, user);
+                    } else {
+                        return cb(null, false, { message: "Incorrect password." });
                     }
                 }
-            })
-        }else{
-            return cb("user not found");
-            // res.status(404).json({ message: "User not found" });
+            });
+        } else {
+            return cb(null, false, { message: "User not found." });
         }
-    } catch(err){
+    } catch (err) {
         return cb(err);
-        // console.log(err);
-        // res.status(500).json({ message: "Internal server error" });
     }
+}));
 
-}))
 
-password.serializeUser((user, cb) =>{
+passport.serializeUser((user, cb) =>{
     cb(null,user);
 });
-password.deserializeUser((user, cb) =>{
+passport.deserializeUser((user, cb) =>{
     cb(null,user);
 });
-    
+//6: login route
+// login route, redirect users to this when trying to access protected resourses
+app.get(
+    "/jhu/login",
+    (req, res, next) => {
+      next();
+    },
+    passport.authenticate("samlStrategy")
+  );
 
+// again redirect the user to JHU SSO (send authentication XML request)
+app.get("/jhu/login", (req, res) => {
+    // build the authentication request XML
+    // redirect the user to JHU SSO with the request XML
+});
+
+// 7. callback routs
+// JHU SSO authenticate user and send 1. assertion and 2. POST request
+app.post(
+    "/jhu/login/callback",
+    (req, res, next) => {
+      next();
+    },
+    passport.authenticate("samlStrategy"),
+    (req, res) => {
+      // the user data is in req.user
+      res.send(`welcome ${req.user.first_name}`);
+      // TODO: add the username into the database
+    }
+  );
+  
 // GET endpoint to retrieve all tickets
 app.get("/tickets", (req, res) => {
 
@@ -292,24 +357,24 @@ app.get("/users", (req, res) => {
 });
 
 // POST endpoint to create a new user
-app.post("/users", (req, res) => {
-    const { name, age } = req.body;
+// app.post("/users", (req, res) => {
+//     const { name } = req.body;
 
-    if (!name || !age) {
-        return res.status(400).json({ error: "Name and age are required" });
-    }
+//     if (!name ) {
+//         return res.status(400).json({ error: "Name are required" });
+//     }
 
-    const userId = uuidv4();  
+//     const userId = uuidv4();  
 
-    const query = "INSERT INTO users (id, name, age) VALUES ($1, $2, $3) RETURNING *";
+//     const query = "INSERT INTO users (id, name, age) VALUES ($1, $2, $3) RETURNING *";
 
-    db.query(query, [userId, name, age], (err, result) => {
-        if (err) {
-            return res.status(500).json({ error: "Database insert failed" });
-        }
-        res.status(201).json(result.rows[0]);
-    });
-});
+//     db.query(query, [userId, name, age], (err, result) => {
+//         if (err) {
+//             return res.status(500).json({ error: "Database insert failed" });
+//         }
+//         res.status(201).json(result.rows[0]);
+//     });
+// });
 
 
 // PUT endpoint to partially update a ticket by ID
@@ -472,7 +537,7 @@ app.post("/messages", (req, res) => {
 
 // Example of database inserts
 const userId = uuidv4();
-db.query("INSERT INTO users (id, name, age) VALUES ($1, $2, $3)", [userId, "Rayna", 6]);
+// db.query("INSERT INTO users (id, name, age) VALUES ($1, $2, $3)", [userId, "Rayna", 6]);
 
 const ticketId = uuidv4();
 // db.query("INSERT INTO ticket (id, title, category, description, deadline, owner_id) VALUES ($1, $2, $3, $4, $5, $6)",
