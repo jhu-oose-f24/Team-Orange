@@ -1,6 +1,5 @@
 const express = require("express");
 const path = require("path");
-const session = require("express-session");
 const bodyParser = require("body-parser");
 const pg = require('pg');
 const cors = require('cors');
