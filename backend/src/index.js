@@ -206,10 +206,10 @@ app.get(
   );
 
 // again redirect the user to JHU SSO (send authentication XML request)
-app.get("/jhu/login", (req, res) => {
-    // build the authentication request XML
-    // redirect the user to JHU SSO with the request XML
-});
+// app.get("/jhu/login", (req, res) => {
+//     // build the authentication request XML
+//     // redirect the user to JHU SSO with the request XML
+// });
 
 // 7. callback routs
 // JHU SSO authenticate user and send 1. assertion and 2. POST request
