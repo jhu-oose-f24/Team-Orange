@@ -8,17 +8,10 @@ import getTickets from "../api/GetTickets";
 import deleteTicket from "../api/DeleteTicket";
 
 interface FeedProps {
-  statusFilter: string;
-  searchParams: {
-    title?: string;
-    startDate?: string;
-    endDate?: string;
-    category?: string;
-    minPayment?: string;
-  };
+  user_id: string;
 }
 
-const Feed: React.FC<FeedProps> = ({ statusFilter, searchParams }) => {
+const ProfileFeed: React.FC<FeedProps> = ({ user_id }) => {
   const [tickets, setTickets] = useState<
     List<{
       id: string;
@@ -39,42 +32,15 @@ const Feed: React.FC<FeedProps> = ({ statusFilter, searchParams }) => {
   useEffect(() => {
     const fetchTickets = async () => {
       try {
-        if (Object.keys(searchParams).length === 0) {
-          const allTickets = await getTickets();
-          const filteredTickets = allTickets.filter(
-            (ticket: TicketType) => ticket.status.toLowerCase() === statusFilter.toLowerCase()
-          );
-          setTickets(List(filteredTickets));
-        } else {
-          handleSearch(searchParams);
-        }
+        const allTickets = await getTickets();
       } catch (error) {
         setError("Failed to fetch tickets. Please try again later.");
       }
     };
 
     fetchTickets();
-  }, [searchParams, statusFilter]);
+  }, []);
 
-
-  useEffect(() => {
-    if (Object.keys(searchParams).length > 0) {
-      handleSearch(searchParams);
-    }
-  }, [searchParams]);
-
-  const handleSearch = async (params: any) => {
-    try {
-      const fetchedTickets = await searchTickets(params);
-      const feedFilteredTickets = fetchedTickets.filter(
-        (ticket: { status: string }) =>
-          ticket.status.toLowerCase() === statusFilter.toLowerCase()
-      );
-      setTickets(List(feedFilteredTickets));
-    } catch (error) {
-      setError("Failed to search tickets. Please try again later.");
-    }
-  };
 
   const handleDeleteTicket = async (ticketId: string) => {
     try {
@@ -90,7 +56,6 @@ const Feed: React.FC<FeedProps> = ({ statusFilter, searchParams }) => {
   return (
     <div className="feed">
       <h2 style={{ fontSize: "24px", color: "#61dafb" }}>
-        {statusFilter}
       </h2>
       {error && <div className="error">{error}</div>}
       {tickets.map((ticket) => (
@@ -114,4 +79,4 @@ const Feed: React.FC<FeedProps> = ({ statusFilter, searchParams }) => {
   );
 };
 
-export default Feed;
+export default ProfileFeed;

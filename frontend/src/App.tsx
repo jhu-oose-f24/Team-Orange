@@ -14,6 +14,7 @@ import AppHeader from "./components/AppHeader";
 import SearchBar from "./components/SearchBar";
 import "./App.css";
 import UsersDropdown from "./components/UsersDropdown.dev";
+import FloatingActionButton from "./components/FloatingActionButton"; // Import the FAB component
 
 const { Header, Content, Footer } = Layout;
 
@@ -74,6 +75,7 @@ const App: React.FC = () => {
         <Footer style={{ textAlign: "center" }}>
           ChoreHop ©{new Date().getFullYear()} Created for jhu-oose-24
         </Footer>
+        <FloatingActionButton /> {/* Add the FAB component */}
       </Layout>
     </Router>
   );

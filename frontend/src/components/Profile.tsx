@@ -1,6 +1,10 @@
-import React, {useState} from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, Avatar, Row, Col, Typography, Divider } from 'antd';
-import Feed from './Feed'; // Import the Feed component
+import ProfileFeed from './ProfileFeed';
+import Feed from './Feed'; 
+import { List } from 'immutable';
+import getUsers from '../api/GetUsers';
+import User from '../types/User';
 
 const { Title, Text } = Typography;
 
@@ -12,8 +16,30 @@ const Profile: React.FC = () => {
   // Profile stats (hardcoded for now, can be dynamic)
   const created_tickets = 4;
   const completed_tickets = 10;
-  const [searchParams, setSearchParams] = useState({});
 
+  const [UserList, setUserList] = useState<List<User>>(List());
+  const [error, setError] = useState<string | null>(null);
+  const [activeUser, setActiveUser] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const fetchedUsers = await getUsers();
+        setUserList(List(fetchedUsers));
+
+        const activeUID = localStorage.getItem("activeUID");
+        if (activeUID) {
+          const activeUser = fetchedUsers.find((user: User) => user.id === activeUID);
+          if (activeUser) setActiveUser(activeUser.name);
+        }
+
+      } catch (error) {
+        setError("Failed to fetch users. Please try again later.");
+      }
+    };
+    fetchUsers();
+  }, []);
+  
   return (
     <div
       style={{
@@ -46,7 +72,7 @@ const Profile: React.FC = () => {
       </Row>
       <Divider />
       {/* Post Grid */}
-      <Feed statusFilter="Done" searchParams={searchParams}/>{" "}
+      <ProfileFeed user_id='011ff2c1-1ade-4c92-a649-9725f85aec00'/>{" "}
       {/* This would represent your user's posts displayed in a grid */}
     </div>
   );
