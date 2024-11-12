@@ -368,12 +368,12 @@ app.delete("/messages", (req, res) => {
   
 
 // Example of database inserts
-// const userId = uuidv4();
-// db.query("INSERT INTO users (id, name, age) VALUES ($1, $2, $3)", [userId, "Rayna", 6]);
+const userId = uuidv4();
+db.query("INSERT INTO users (id, name, age) VALUES ($1, $2, $3)", [userId, "Rayna", 6]);
 
-// const ticketId = uuidv4();
-// db.query("INSERT INTO ticket (id, title, category, description, deadline, owner_id) VALUES ($1, $2, $3, $4, $5, $6)",
-//     [ticketId, "The first ticket", "Cleaning", "I want someone to clean my room", "2024-10-31 23:59:59", userId]);
+const ticketId = uuidv4();
+db.query("INSERT INTO ticket (id, title, category, description, deadline, owner_id) VALUES ($1, $2, $3, $4, $5, $6)",
+    [ticketId, "The first ticket", "Cleaning", "I want someone to clean my room", "2024-10-31 23:59:59", userId]);
 
 
 // Home route
