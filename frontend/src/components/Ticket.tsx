@@ -16,7 +16,7 @@ interface TicketProps {
   assigneduser_id: string | null;
   payment: number;
   onDelete: (ticketId: string) => void;
-  onUpdate: () => void;
+  setRefresh: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 type EditTicketForm = {
@@ -37,7 +37,7 @@ const Ticket: React.FC<TicketProps> = ({
   assigneduser_id,
   payment,
   onDelete,
-  onUpdate,
+  setRefresh
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editDeadline, setEditDeadline] = useState(deadline.slice(0, -1));
@@ -72,7 +72,7 @@ const Ticket: React.FC<TicketProps> = ({
     try {
       await editTicket(id, updatedTicket);
       setIsEditing(false);
-      onUpdate();
+      setRefresh((prev) => !prev); // trigger refresh
     } catch (error) {
       console.error("Failed to update ticket:", error);
     }
@@ -84,7 +84,7 @@ const Ticket: React.FC<TicketProps> = ({
       try {
         await assignTicket(id, (userId));
         setIsAssigning(false);
-        onUpdate();
+        setRefresh((prev) => !prev); // trigger refresh
       } catch (error) {
         console.error("Failed to assign ticket:", error);
       }
@@ -119,6 +119,9 @@ const Ticket: React.FC<TicketProps> = ({
       </p>
       <p>
         <strong>Owner ID:</strong> {owner_id}
+      </p>
+      <p>
+        <strong>Assigned_user ID:</strong> {assigneduser_id}
       </p>
       <p>
         <strong>Payment: </strong> {`$${payment}`}
