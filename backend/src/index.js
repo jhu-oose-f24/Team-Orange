@@ -259,9 +259,9 @@ app.get("/messages/:ticket_id", (req, res) => {
             console.error('Database query error:', err);
             return res.status(500).json({ error: "Database query failed" });
         }
-        if (result.rows.length === 0) {
-            return res.status(404).json({ error: "No messages found for this ticket ID" });
-        }
+        // if (result.rows.length === 0) {
+        //     return res.status(404).json({ error: "No messages found for this ticket ID" });
+        // }
         res.json(result.rows);
     });
 });
@@ -327,17 +327,53 @@ app.post("/messages", (req, res) => {
     });
 });
 
-
-
-
+app.delete("/messages", (req, res) => {
+    const { ticket_id } = req.body; 
+  
+    // validate that ticket_id is provided
+    if (!ticket_id) {
+      return res.status(400).json({ error: "ticket_id is required" });
+    }
+  
+    // UUID validation for ticket_id
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(ticket_id)) {
+      return res.status(400).json({ error: "Invalid ticket_id format" });
+    }
+  
+    // check if the ticket exists in the database
+    const checkExistenceQuery = "SELECT * FROM ticket WHERE id = $1";
+    db.query(checkExistenceQuery, [ticket_id], (err, result) => {
+      if (err) {
+        console.error('Database query error:', err);
+        return res.status(500).json({ error: "Database query failed" });
+      }
+  
+      if (result.rows.length === 0) {
+        return res.status(404).json({ error: "Ticket not found" });
+      }
+  
+      // delete all messages for this ticket
+      const deleteQuery = "DELETE FROM messages WHERE ticket_id = $1";
+      db.query(deleteQuery, [ticket_id], (err) => {
+        if (err) {
+          console.error('Database delete error:', err);
+          return res.status(500).json({ error: "Failed to delete messages" });
+        }
+  
+        res.status(204).send(); // No content, successful deletion
+      });
+    });
+  });
+  
 
 // Example of database inserts
-const userId = uuidv4();
-db.query("INSERT INTO users (id, name, age) VALUES ($1, $2, $3)", [userId, "Rayna", 6]);
+// const userId = uuidv4();
+// db.query("INSERT INTO users (id, name, age) VALUES ($1, $2, $3)", [userId, "Rayna", 6]);
 
-const ticketId = uuidv4();
-db.query("INSERT INTO ticket (id, title, category, description, deadline, owner_id) VALUES ($1, $2, $3, $4, $5, $6)",
-    [ticketId, "The first ticket", "Cleaning", "I want someone to clean my room", "2024-10-31 23:59:59", userId]);
+// const ticketId = uuidv4();
+// db.query("INSERT INTO ticket (id, title, category, description, deadline, owner_id) VALUES ($1, $2, $3, $4, $5, $6)",
+//     [ticketId, "The first ticket", "Cleaning", "I want someone to clean my room", "2024-10-31 23:59:59", userId]);
 
 
 // Home route
