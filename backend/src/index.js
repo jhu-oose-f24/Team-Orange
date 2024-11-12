@@ -188,7 +188,6 @@ passport.use(new LocalStrategy(async function verify(username, password, cb) {
     }
 }));
 
-
 passport.serializeUser((user, cb) =>{
     cb(null,user);
 });
@@ -222,7 +221,9 @@ app.post(
     (req, res) => {
       // the user data is in req.user
       res.send(`welcome ${req.user.first_name}`);
-      // TODO: add the username into the database
+      // TODO: add the username, firstname, last name, email into the database
+
+
     }
   );
   
