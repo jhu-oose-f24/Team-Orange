@@ -50,10 +50,7 @@ const Profile: React.FC = () => {
       </Row>
       <Divider />
       {/* Post Grid */}
-
-      {/* commented for testing */}
       <Feed statusFilter="Done" searchParams={searchParams} refresh={refresh} setRefresh={setRefresh}/>{" "}
-
       {/* This would represent your user's posts displayed in a grid */}
     </div>
   );
