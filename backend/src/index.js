@@ -16,18 +16,22 @@ const app = express();
 // const port = 3000;
 const port = process.env.PORT || 3000;
 const saltRound = 10;
-const jwt = require("jsonwebtoken");
 
 const JHU_SSO_URL = "https://idp.jh.edu/idp/profile/SAML2/Redirect/SSO";
 const SP_NAME = "chorehop-cc7c0bf7a12c";  // replace this with out app name
 const BASE_URL = "https://chorehop-cc7c0bf7a12c.herokuapp.com/"; // need to deploy ours
 // key
-// const fs = require("fs");
+const fs = require("fs");
 // const PbK = fs.readFileSync(__dirname + "/certs/cert.pem", "utf8");
 // const PvK = fs.readFileSync(__dirname + "/certs/key.pem", "utf8");
 
-const certPem = Buffer.from(process.env.CERT_PEM, 'base64').toString('utf-8');
-const privateKey = Buffer.from(process.env.PRIVATE_KEY, 'base64').toString('utf-8');
+// const certPem = Buffer.from(process.env.CERT_PEM, 'base64').toString('utf-8');
+// const privateKey = Buffer.from(process.env.PRIVATE_KEY, 'base64').toString('utf-8');
+
+const PbK = process.env.PUBLIC_KEY; // Use the public key from environment variable
+const PvK = process.env.PRIVATE_KEY; // Use the private key from environment variable
+
+
 
 
 app.use(session({
@@ -44,9 +48,9 @@ const samlStrategy = new saml.Strategy(
     entryPoint: JHU_SSO_URL,
     issuer: SP_NAME,
     callbackUrl: `${BASE_URL}/jhu/login/callback`,
-    decryptionPvk: privateKey,
-    privateCert: privateKey,
-    cert: fs.readFileSync(path.join(__dirname, 'certs', 'cert.pem'), 'utf-8'),
+    decryptionPvk: PvK,
+    privateCert: PvK,
+    // cert: fs.readFileSync(path.join(__dirname, 'certs', 'cert.pem'), 'utf-8'),
   },
   (profile, done) => {
      
@@ -65,7 +69,7 @@ passport.use("samlStrategy", samlStrategy);
 app.get("/jhu/metadata", (req, res) => {
     res.type("application/xml");
     res.status(200);
-    res.send(samlStrategy.generateServiceProviderMetadata(certPem, certPem));
+    res.send(samlStrategy.generateServiceProviderMetadata(PbK, PbK));
 });
   
 // middleware
