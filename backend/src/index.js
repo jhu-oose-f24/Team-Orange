@@ -148,7 +148,13 @@ app.post(
     (req, res) => {
       // the user data is in req.user
       res.send(`welcome ${req.user.first_name}`);
-
+      const username = req.user.username;
+      const firstName = req.user.first_name;
+      const lastName = req.user.last_name;
+      const email = req.user.email;
+      
+      // check if user already in db
+      
       // TODO: add the username, firstname, last name, email into the database
 
     }
