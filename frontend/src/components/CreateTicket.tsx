@@ -28,7 +28,7 @@ const CreateTicket: React.FC = () => {
       status: form.status,
       deadline,
       owner_id: String(localStorage.getItem('activeUID')), 
-      assigneduser_id: undefined, // this will also change when we add more users and user fetching/searching
+      assigneduser_id: undefined, // currently all new tickets are unassigned. Do we want to assign at creation later?
       payment: Number(form.payment),
       priority: form.priority,
     };
@@ -73,7 +73,7 @@ const CreateTicket: React.FC = () => {
           <Input />
         </Form.Item>
 
-        {/* We will also need a dropdown for assigned user/owner here */}
+        {/* Do we want a dropdown for assigned user here? */}
 
         <Form.Item<CreateTicketForm>
           label="Category"
