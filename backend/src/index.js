@@ -14,6 +14,8 @@ const { v4: uuidv4 } = require('uuid');
 const app = express();
 const port = 3000;
 const saltRound = 10;
+const jwt = require("jsonwebtoken");
+
 
 
 const JHU_SSO_URL = "https://idp.jh.edu/idp/profile/SAML2/Redirect/SSO";
@@ -38,8 +40,12 @@ const samlStrategy = new saml.Strategy(
     -----END CERTIFICATE-----` 
   },
   (profile, done) => {
-     // handle successful login 
-     console.log(profile);
+     
+     if (!profile) {
+        return done(new Error("Authentication failed"));
+    }
+    // handle successful login 
+    console.log(profile);
     return done(null, profile);
   }
 );
@@ -55,16 +61,17 @@ app.get("/jhu/metadata", (req, res) => {
   
 // middleware
 app.use(bodyParser.urlencoded({ extended: true })); 
-app.use(
-    session({ secret: "use-any-secret", resave: false, saveUninitialized: true })
-);
+// app.use(
+//     session({ secret: "use-any-secret", resave: false, saveUninitialized: true })
+// );
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.static("public"));
 app.use(session({
     secret: "ORANGESECRET",
     resave: false,
-    saveUninitialized: true // store uninitialized session to server memory
+    saveUninitialized: true ,// store uninitialized session to server memory
+    cookie: { secure: false, maxAge: 3600000 } // 1-hour session expiry
   }));
 // Enable CORS for all routes
 app.use(cors());
@@ -80,47 +87,6 @@ const db = new pg.Client({
 db.connect()
     .then(() => console.log('Connected to PostgreSQL'))
     .catch(err => console.error('Connection error', err.stack));
-
-
-// Authentication 
-app.get("/login", (req, res) => {
-    res.render("login.ejs"); // delete 
-});
-
-// use passport 
-app.post("/login", passport.authenticate("local", {
-    failureRedirect: "/login", //fail
-    failureFlash: true 
-  }), (req, res) => {
-    res.json({ message: "Login successful" });
-});
-  
-// 
-passport.use(new LocalStrategy(async function verify(username, password, cb) {
-    try {
-        const check_if_user_exist = await db.query("SELECT * FROM users WHERE username = $1", [username]);
-        if (check_if_user_exist.rows.length > 0) {
-            const user = check_if_user_exist.rows[0];
-            const storedHashedPassword = user.password;
-
-            bcrypt.compare(password, storedHashedPassword, (err, result) => {
-                if (err) {
-                    return cb(err);
-                } else {
-                    if (result) {
-                        return cb(null, user);
-                    } else {
-                        return cb(null, false, { message: "Incorrect password." });
-                    }
-                }
-            });
-        } else {
-            return cb(null, false, { message: "User not found." });
-        }
-    } catch (err) {
-        return cb(err);
-    }
-}));
 
 passport.serializeUser((user, cb) =>{
     cb(null,user);
@@ -138,27 +104,71 @@ app.get(
     passport.authenticate("samlStrategy")
   );
 
+const JWT_SECRET = "Team-Orange";
+
 // Callback routes: JHU SSO authenticate user and send 1. assertion and 2. POST request
 app.post(
     "/jhu/login/callback",
     (req, res, next) => {
       next();
     },
-    passport.authenticate("samlStrategy"),
+    passport.authenticate("samlStrategy",{
+        failureRedirect: "/login-failed",
+        failureFlash: "Authentication failed, please try again."
+    }),
     (req, res) => {
-      // the user data is in req.user
-      res.send(`welcome ${req.user.first_name}`);
-      const username = req.user.username;
+       req.session.user = req.user; // Store the user in session
+
+      // user login info
+      console.log(`welcome ${req.user.first_name}`);
+      const userName = req.user.username;
       const firstName = req.user.first_name;
       const lastName = req.user.last_name;
       const email = req.user.email;
       
       // check if user already in db
+      const query = "SELECT id FROM users WHERE Email = $1";
       
-      // TODO: add the username, firstname, last name, email into the database
+      db.query(query, [email], (err, res)=>{
+        if (err) {
+            return res.status(500).json({ error: "Database query failed" });
+        }
+        if (res.rows.length==0){ // user not found : add the db 
+            const userId = uuidv4();
 
+            const addUserQuery = `
+            INSERT INTO users (id, Username, Lastname, Firstname, Email)
+            VALUES ($1, $2, $3, $4, $5)
+            RETURNING *; `;
+          db.query(addUserQuery, [userId, userName, lastName, firstName, email], (insertErr, insertResult) => {
+            if (insertErr) {
+              return res.status(500).json({ error: "Database insert failed" });
+            }
+
+            // Return the newly created user
+            res.status(201).json({token, user: insertResult.rows[0]});
+          });
+        }else{
+            // user in db 
+            const user = result.rows[0];
+            res.status(200).json({ token, user });
+        }
+      })
     }
   );
+
+app.get("/login-failed", (req, res) => {
+const errorMessage = req.flash("error")[0] || "Authentication failed. Please try again.";
+res.status(401).json({ error: errorMessage });
+});
+
+app.get("/logout", (req, res) => {
+    req.session.destroy(err => {
+      if (err) return res.status(500).json({ error: "Logout failed" });
+      res.redirect("/jhu/login"); 
+    });
+  });
+  
   
 // GET endpoint to retrieve all tickets
 app.get("/tickets", (req, res) => {
