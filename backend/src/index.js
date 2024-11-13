@@ -44,7 +44,7 @@ const samlStrategy = new saml.Strategy(
 // Tell passport to use the samlStrategy
 passport.use("samlStrategy", samlStrategy);
 
-// trust between our app and idp (metadata XML)
+// trust between our app(SP) and idp (metadata XML)
 app.get("/jhu/metadata", (req, res) => {
     res.type("application/xml");
     res.status(200);
@@ -222,7 +222,6 @@ app.post(
       // the user data is in req.user
       res.send(`welcome ${req.user.first_name}`);
       // TODO: add the username, firstname, last name, email into the database
-
 
     }
   );
