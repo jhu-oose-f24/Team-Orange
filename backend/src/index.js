@@ -38,6 +38,8 @@ const samlStrategy = new saml.Strategy(
     -----END CERTIFICATE-----` 
   },
   (profile, done) => {
+     // handle successful login 
+     console.log(profile);
     return done(null, profile);
   }
 );
@@ -85,74 +87,6 @@ app.get("/login", (req, res) => {
     res.render("login.ejs"); // delete 
 });
 
-app.get("/register", (req, res) => {
-    res.render("register.ejs"); // delete 
-});
-
-app.post("/register", async (req, res) => {
-    console.log(req.body);
-    let username = req.body["username"];
-    let password = req.body["password"];
-
-    try{
-        if (!username || !password) {
-            return res.status(400).json({ message: "username and password are required" });
-        }  
-        const check_if_user_exist = await db.query("SELECT * FROM users WHERE username = $1",[username]);
-        if (check_if_user_exist.rows.length>0){
-            res.send("username already exists, try logging in ...");
-        }else{
-            bcrypt.hash(password,saltRound,async (err, hash)=>{
-            if (err){
-                console.log("Error hashing functions: ", err);
-              }else{
-                const result = await db.query("INSERT INTO users (username, password) VALUES ($1, $2)", [username,hash]);
-                // TODO: redirect to the login page
-                res.json({ message: "Registration successful" }); 
-              }
-             })
-        }
-    } catch(err){
-        console.log(err);
-    }
-
-});
-
-// app.post("/login", async (req, res) => {
-//     let email = req.body["username"];
-//     let loginPassword = req.body["password"];
-//     try{
-//         const check_if_user_exist = await db.query("SELECT * FROM users WHERE email = $1 ",[email]);
-//         if (check_if_user_exist.rows.length>0){
-//             const user = check_if_user_exist.rows[0];
-//             const storedHashedPassword = user.password; // stored(right) password 
-
-//             bcrypt.compare(loginPassword, storedHashedPassword, (err, result)=>{ 
-//                 if (err){
-//                     console.log("Erroring comparing password",err);
-//                     res.status(500).json({ message: "Internal server error" });
-//                 }else{
-//                     console.log(result);
-//                     if (result){ // boolean 
-//                         // entering true password
-//                         res.json({ message: "Login successful" }); 
-//                     }else{
-//                         // password entered incorrect 
-//                         res.status(401).json({ message: "Password incorrect" });
-//                     }
-//                 }
-//             })
-//         }else{
-//             res.status(404).json({ message: "User not found" });
-//         }
-//     } catch(err){
-//         console.log(err);
-//         res.status(500).json({ message: "Internal server error" });
-//     }
-
-// });
-
-
 // use passport 
 app.post("/login", passport.authenticate("local", {
     failureRedirect: "/login", //fail
@@ -194,8 +128,8 @@ passport.serializeUser((user, cb) =>{
 passport.deserializeUser((user, cb) =>{
     cb(null,user);
 });
-//6: login route
-// login route, redirect users to this when trying to access protected resourses
+
+// Login route: redirect users to this when trying to access protected resourses
 app.get(
     "/jhu/login",
     (req, res, next) => {
@@ -204,14 +138,7 @@ app.get(
     passport.authenticate("samlStrategy")
   );
 
-// again redirect the user to JHU SSO (send authentication XML request)
-// app.get("/jhu/login", (req, res) => {
-//     // build the authentication request XML
-//     // redirect the user to JHU SSO with the request XML
-// });
-
-// 7. callback routs
-// JHU SSO authenticate user and send 1. assertion and 2. POST request
+// Callback routes: JHU SSO authenticate user and send 1. assertion and 2. POST request
 app.post(
     "/jhu/login/callback",
     (req, res, next) => {
@@ -221,6 +148,7 @@ app.post(
     (req, res) => {
       // the user data is in req.user
       res.send(`welcome ${req.user.first_name}`);
+
       // TODO: add the username, firstname, last name, email into the database
 
     }
