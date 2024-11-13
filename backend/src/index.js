@@ -73,23 +73,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.static("public"));
-// app.use(session({
-//     secret: "ORANGESECRET",
-//     resave: false,
-//     saveUninitialized: true ,// store uninitialized session to server memory
-//     cookie: { secure: false, maxAge: 3600000 } // 1-hour session expiry
-//   }));
-// Enable CORS for all routes
 app.use(cors());
 
 require('dotenv').config();
-
-console.log('Database Connection Parameters:');
-console.log('DB_USER:', process.env.DB_USER);
-console.log('DB_HOST:', process.env.DB_HOST);
-console.log('DB_NAME:', process.env.DB_NAME);
-console.log('DB_PASSWORD:', process.env.DB_PASSWORD);
-console.log('DB_PORT:', process.env.DB_PORT);
 
 const db = new pg.Client({
     user: process.env.DB_USER,
