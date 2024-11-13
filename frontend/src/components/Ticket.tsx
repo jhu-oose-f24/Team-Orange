@@ -258,6 +258,8 @@ const Ticket: React.FC<TicketProps> = ({
         </div>
 
       )}
+
+      
       {isAssigning && status !== "Done" && (
         <div className="modal">
           <p>Do you want to assign yourself to this ticket?</p>
