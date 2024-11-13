@@ -7,10 +7,7 @@ const assignTicket = async (id: string, assignedUserId: string | null) => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ 
-        assigneduser_id: assignedUserId,
-        status: "InProgress"
-      }),
+      body: JSON.stringify({ assigneduser_id: assignedUserId, status: "InProgress" }),
     });
 
     if (!response.ok) {

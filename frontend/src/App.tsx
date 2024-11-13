@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   BrowserRouter as Router,
   Route,
@@ -31,16 +31,14 @@ const App: React.FC = () => {
   ];
 
   const [searchParams, setSearchParams] = useState({});
-  const [refetch, setRefetch] = useState(false);
+  const [refresh, setRefresh] = useState(false);
 
   const handleSearch = (params: any) => {
     setSearchParams(params);
   };
 
-  const triggerRefetch = () => {
-    console.log("Triggering refetch...");
-    setRefetch(!refetch); 
-  };
+  useEffect(() => {
+  }, [refresh]);
 
   return (
     <Router>
@@ -65,9 +63,9 @@ const App: React.FC = () => {
                       <SearchBar onSearch={handleSearch} />
                     </div>
                     <div className="feed-container">
-                      <Feed statusFilter="Open" searchParams={searchParams} refetch={refetch} onUpdate={triggerRefetch} />
-                      <Feed statusFilter="InProgress" searchParams={searchParams} refetch={refetch} onUpdate={triggerRefetch} />
-                      <Feed statusFilter="Done" searchParams={searchParams} refetch={refetch} onUpdate={triggerRefetch} />
+                      <Feed statusFilter="Open" searchParams={searchParams} refresh={refresh} setRefresh={setRefresh} />
+                      <Feed statusFilter="InProgress" searchParams={searchParams} refresh={refresh} setRefresh={setRefresh}/>
+                      <Feed statusFilter="Done" searchParams={searchParams} refresh={refresh} setRefresh={setRefresh}/>
                     </div>
                   </div>
                 }

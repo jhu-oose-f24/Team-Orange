@@ -11,6 +11,7 @@ const editTicket = async (
     owner_id?: number;
     assigneduser_id?: number | null;
     payment?: number | null;
+    payment_confirmed?: boolean | null;
   },
 ) => {
   try {

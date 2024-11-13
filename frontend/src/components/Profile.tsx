@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import React, { useState, useEffect } from 'react';
+=======
+import React, {useState, useEffect} from 'react';
+>>>>>>> main
 import { Card, Avatar, Row, Col, Typography, Divider } from 'antd';
 import ProfileFeed from './ProfileFeed';
 import Feed from './Feed'; 
@@ -16,6 +20,14 @@ const Profile: React.FC = () => {
   // Profile stats (hardcoded for now, can be dynamic)
   const created_tickets = 4;
   const completed_tickets = 10;
+<<<<<<< HEAD
+=======
+  const [searchParams, setSearchParams] = useState({});
+  const [refresh, setRefresh] = useState(false);
+
+  useEffect(() => {
+  }, [refresh]);
+>>>>>>> main
 
   const [UserList, setUserList] = useState<List<User>>(List());
   const [error, setError] = useState<string | null>(null);
@@ -72,7 +84,11 @@ const Profile: React.FC = () => {
       </Row>
       <Divider />
       {/* Post Grid */}
+<<<<<<< HEAD
       <ProfileFeed user_id='011ff2c1-1ade-4c92-a649-9725f85aec00'/>{" "}
+=======
+      <Feed statusFilter="Done" searchParams={searchParams} refresh={refresh} setRefresh={setRefresh}/>{" "}
+>>>>>>> main
       {/* This would represent your user's posts displayed in a grid */}
     </div>
   );

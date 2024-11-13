@@ -6,6 +6,7 @@ import TicketType from "../types/Ticket";
 import Ticket from "./Ticket";
 import getTickets from "../api/GetTickets";
 import deleteTicket from "../api/DeleteTicket";
+import deleteMessagesByTicket from "../api/DeleteMessagesByTicket";
 
 interface FeedProps {
   statusFilter: string;
@@ -15,16 +16,27 @@ interface FeedProps {
     endDate?: string;
     category?: string;
     minPayment?: string;
-  };
-  refetch: boolean;
-  onUpdate: () => void;
+  },
+  refresh: boolean;
+  setRefresh: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const Feed: React.FC<FeedProps> = ({ statusFilter, searchParams, refetch, onUpdate }) => {
-  const [tickets, setTickets] = useState<List<TicketType>>(List());
+const Feed: React.FC<FeedProps> = ({ statusFilter, searchParams, refresh, setRefresh }) => {
+  const [tickets, setTickets] = useState<
+    List<{
+      id: string;
+      title: string;
+      description: string;
+      category: string;
+      deadline: string;
+      owner_id: string;
+      assigneduser_id: string | null;
+      payment: number;
+      status: string;
+    }>
+  >(List());
 
   const [error, setError] = useState<string | null>(null);
-
   useEffect(() => {
     const fetchTickets = async () => {
       try {
@@ -43,7 +55,7 @@ const Feed: React.FC<FeedProps> = ({ statusFilter, searchParams, refetch, onUpda
     };
     console.log("Refetching tickets...");
     fetchTickets();
-  }, [searchParams, statusFilter, refetch]);
+  }, [searchParams, statusFilter, refresh]);
 
 
   useEffect(() => {
@@ -67,17 +79,18 @@ const Feed: React.FC<FeedProps> = ({ statusFilter, searchParams, refetch, onUpda
 
   const handleDeleteTicket = async (ticketId: string) => {
     try {
+      await deleteMessagesByTicket(ticketId)
       await deleteTicket(ticketId);
       const updatedTickets = tickets.filter((ticket) => ticket.id !== ticketId);
       setTickets(List(updatedTickets));
-      onUpdate();
+      setRefresh((prev) => !prev);
     } catch (error) {
       console.error("Failed to delete ticket:", error);
     }
   };
 
   const handleUpdateTicket = (updatedTicket: TicketType) => {
-    onUpdate();
+    setRefresh((prev) => !prev);
     setTickets((prevTickets) =>
       prevTickets.map((ticket) =>
         ticket.id === updatedTicket.id ? updatedTicket : ticket
@@ -104,7 +117,7 @@ const Feed: React.FC<FeedProps> = ({ statusFilter, searchParams, refetch, onUpda
             assigneduser_id={ticket.assigneduser_id}
             payment={ticket.payment}
             onDelete={handleDeleteTicket}
-            onUpdate={handleUpdateTicket}
+            setRefresh={setRefresh}
           />
         </Space>
       ))}

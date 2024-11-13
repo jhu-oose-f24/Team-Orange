@@ -176,7 +176,7 @@ app.post("/users", (req, res) => {
 // PUT endpoint to partially update a ticket by ID
 app.put("/tickets/:id", (req, res) => {
     const ticketId = req.params.id;
-    const { title, category, description, deadline, status, owner_id, assigneduser_id, payment } = req.body;
+    const { title, category, description, deadline, status, owner_id, assigneduser_id, payment, payment_confirmed } = req.body;
 
     db.query("SELECT * FROM ticket WHERE id = $1", [ticketId], (err, result) => {
         if (err) {
@@ -197,20 +197,21 @@ app.put("/tickets/:id", (req, res) => {
             owner_id: owner_id || currentTicket.owner_id,
             assigneduser_id: assigneduser_id !== undefined ? assigneduser_id : currentTicket.assigneduser_id, //allow null value
             payment: payment !== undefined ? payment : currentTicket.payment, // allow zero value
+            payment_confirmed: payment_confirmed || currentTicket.payment_confirmed,
         };
 
         // update the ticket in the database
         const query = `
             UPDATE ticket
-            SET title = $1, category = $2, description = $3, deadline = $4, status = $5, owner_id = $6, assigneduser_id = $7, payment = $8
-            WHERE id = $9
+            SET title = $1, category = $2, description = $3, deadline = $4, status = $5, owner_id = $6, assigneduser_id = $7, payment = $8, payment_confirmed = $9
+            WHERE id = $10
             RETURNING *;
         `;
 
         db.query(query, [
             updatedTicket.title, updatedTicket.category, updatedTicket.description,
             updatedTicket.deadline, updatedTicket.status, updatedTicket.owner_id,
-            updatedTicket.assigneduser_id, updatedTicket.payment, ticketId
+            updatedTicket.assigneduser_id, updatedTicket.payment, updatedTicket.payment_confirmed, ticketId
         ], (err, result) => {
             if (err) {
                 return res.status(500).json({ error: "Database update failed" });
@@ -259,9 +260,9 @@ app.get("/messages/:ticket_id", (req, res) => {
             console.error('Database query error:', err);
             return res.status(500).json({ error: "Database query failed" });
         }
-        if (result.rows.length === 0) {
-            return res.status(404).json({ error: "No messages found for this ticket ID" });
-        }
+        // if (result.rows.length === 0) {
+        //     return res.status(404).json({ error: "No messages found for this ticket ID" });
+        // }
         res.json(result.rows);
     });
 });
@@ -327,9 +328,45 @@ app.post("/messages", (req, res) => {
     });
 });
 
-
-
-
+app.delete("/messages", (req, res) => {
+    const { ticket_id } = req.body; 
+  
+    // validate that ticket_id is provided
+    if (!ticket_id) {
+      return res.status(400).json({ error: "ticket_id is required" });
+    }
+  
+    // UUID validation for ticket_id
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(ticket_id)) {
+      return res.status(400).json({ error: "Invalid ticket_id format" });
+    }
+  
+    // check if the ticket exists in the database
+    const checkExistenceQuery = "SELECT * FROM ticket WHERE id = $1";
+    db.query(checkExistenceQuery, [ticket_id], (err, result) => {
+      if (err) {
+        console.error('Database query error:', err);
+        return res.status(500).json({ error: "Database query failed" });
+      }
+  
+      if (result.rows.length === 0) {
+        return res.status(404).json({ error: "Ticket not found" });
+      }
+  
+      // delete all messages for this ticket
+      const deleteQuery = "DELETE FROM messages WHERE ticket_id = $1";
+      db.query(deleteQuery, [ticket_id], (err) => {
+        if (err) {
+          console.error('Database delete error:', err);
+          return res.status(500).json({ error: "Failed to delete messages" });
+        }
+  
+        res.status(204).send(); // No content, successful deletion
+      });
+    });
+  });
+  
 
 // Example of database inserts
 const userId = uuidv4();
