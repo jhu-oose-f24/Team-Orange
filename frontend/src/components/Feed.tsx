@@ -91,7 +91,7 @@ const Feed: React.FC<FeedProps> = ({ statusFilter, searchParams, refresh, setRef
 
   return (
     <div className="feed">
-      <h2 style={{ fontSize: "24px", color: "#61dafb" }}>
+      <h2 style={{ fontSize: "24px", color: "#1677ff" }}>
         {statusFilter} Tickets
       </h2>
       {error && <div className="error">{error}</div>}
