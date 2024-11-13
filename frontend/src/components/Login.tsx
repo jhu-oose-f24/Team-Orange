@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Form, Input, Button, Typography, message } from "antd";
-import login from "../api/Login";
 
 const { Title } = Typography;
 

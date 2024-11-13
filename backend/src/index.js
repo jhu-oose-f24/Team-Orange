@@ -3,75 +3,14 @@ const path = require("path");
 const bodyParser = require("body-parser");
 const pg = require('pg');
 const cors = require('cors');
-const bcrypt = require("bcrypt");
-// const { password } = require("pg/lib/defaults");
-const passport = require('passport');
-const LocalStrategy = require('passport-local').Strategy;
-const session = require('express-session');
-
-const saml = require("passport-saml");
-
 const { v4: uuidv4 } = require('uuid');
+
 const app = express();
 // const port = 3000;
 const port = process.env.PORT || 3000;
 
-const JHU_SSO_URL = "https://idp.jh.edu/idp/profile/SAML2/Redirect/SSO";
-const SP_NAME = "glacial-plateau-47269";  // replace this with out app name
-const BASE_URL = "https://chorehop-cc7c0bf7a12c.herokuapp.com/"; // need to deploy ours
-// key
-const fs = require("fs");
-const PbK = fs.readFileSync(__dirname + "/certs/cert.pem", "utf8");
-const PvK = fs.readFileSync(__dirname + "/certs/key.pem", "utf8");
-
-app.use(session({
-    secret: "ORANGESECRET",
-    resave: false,
-    saveUninitialized: true ,// store uninitialized session to server memory
-    cookie: { secure: false, maxAge: 3600000 } // 1-hour session expiry
-  }));
-  
-// Setup SAML strategy
-const samlStrategy = new saml.Strategy(
-  {
-    // config options here
-    entryPoint: JHU_SSO_URL,
-    issuer: SP_NAME,
-    callbackUrl: `${BASE_URL}/jhu/login/callback`,
-    decryptionPvk: PvK,
-    privateCert: PvK,
-    cert: `-----BEGIN CERTIFICATE-----
-    YOUR_IDP_PUBLIC_CERT_HERE
-    -----END CERTIFICATE-----` 
-  },
-  (profile, done) => {
-     
-     if (!profile) {
-        return done(new Error("Authentication failed"));
-    }
-    // handle successful login 
-    console.log(profile);
-    return done(null, profile);
-  }
-);
-// Tell passport to use the samlStrategy
-passport.use("samlStrategy", samlStrategy);
-
-// trust between our app(SP) and idp (metadata XML)
-app.get("/jhu/metadata", (req, res) => {
-    res.type("application/xml");
-    res.status(200);
-    res.send(samlStrategy.generateServiceProviderMetadata(PbK, PbK));
-});
-  
-// middleware
-app.use(bodyParser.urlencoded({ extended: true })); 
-// app.use(
-//     session({ secret: "use-any-secret", resave: false, saveUninitialized: true })
-// );
-app.use(passport.initialize());
-app.use(passport.session());
-app.use(express.static("public"));
+app.use(bodyParser.json());
+// Enable CORS for all routes
 app.use(cors());
 
 require('dotenv').config();
@@ -93,91 +32,8 @@ db.connect()
     .catch(err => console.error('Connection error1', err.stack));
 
 
-passport.serializeUser((user, cb) =>{
-    cb(null,user);
-});
-passport.deserializeUser((user, cb) =>{
-    cb(null,user);
-});
-
-// Login route: redirect users to this when trying to access protected resourses
-app.get(
-    "/jhu/login",
-    (req, res, next) => {
-      next();
-    },
-    passport.authenticate("samlStrategy")
-  );
-
-const JWT_SECRET = "Team-Orange";
-
-// Callback routes: JHU SSO authenticate user and send 1. assertion and 2. POST request
-app.post(
-    "/jhu/login/callback",
-    (req, res, next) => {
-      next();
-    },
-    passport.authenticate("samlStrategy",{
-        failureRedirect: "/login-failed",
-        failureFlash: "Authentication failed, please try again."
-    }),
-    (req, res) => {
-       req.session.user = req.user; // Store the user in session
-
-      // user login info
-      console.log(`welcome ${req.user.first_name}`);
-      const userName = req.user.jhed;
-      const firstName = req.user.first_name;
-      const lastName = req.user.last_name;
-      const email = req.user.email;
-      
-      // check if user already in db
-      const query = "SELECT id FROM users WHERE Email = $1";
-      
-      db.query(query, [email], (err, res)=>{
-        if (err) {
-            return res.status(500).json({ error: "Database query failed" });
-        }
-        if (res.rows.length==0){ // user not found : add the db 
-            const userId = uuidv4();
-
-            const addUserQuery = `
-            INSERT INTO users (id, Username, Lastname, Firstname, Email)
-            VALUES ($1, $2, $3, $4, $5)
-            RETURNING *; `;
-          db.query(addUserQuery, [userId, userName, lastName, firstName, email], (insertErr, insertResult) => {
-            if (insertErr) {
-              return res.status(500).json({ error: "Database insert failed" });
-            }
-
-            // Return the newly created user
-            res.status(201).json({token, user: insertResult.rows[0]});
-          });
-        }else{
-            // user in db 
-            const user = result.rows[0];
-            res.status(200).json({ token, user });
-        }
-      })
-    }
-  );
-
-app.get("/login-failed", (req, res) => {
-const errorMessage = req.flash("error")[0] || "Authentication failed. Please try again.";
-res.status(401).json({ error: errorMessage });
-});
-
-// app.get("/logout", (req, res) => {
-//     req.session.destroy(err => {
-//       if (err) return res.status(500).json({ error: "Logout failed" });
-//       res.redirect("/jhu/login"); 
-//     });
-//   });
-  
-  
 // GET endpoint to retrieve all tickets
 app.get("/tickets", (req, res) => {
-
     db.query("SELECT * FROM ticket", (err, result) => {
         if (err) {
             return res.status(500).json({ error: "Database query failed" });
