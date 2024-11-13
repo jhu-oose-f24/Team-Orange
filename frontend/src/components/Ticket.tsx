@@ -3,7 +3,11 @@ import editTicket from "../api/EditTicket";
 import assignTicket from "../api/AssignTicket";
 import Chat from "./Chat";
 
-import { Button, Card, Form, Input, Modal } from "antd";
+import { Button, Card, Form, Input, Modal, Select } from "antd";
+import { 
+  DollarOutlined, 
+} from '@ant-design/icons';
+import TicketType from "../types/Ticket";
 
 interface TicketProps {
   id: string;
@@ -48,6 +52,9 @@ const Ticket: React.FC<TicketProps> = ({
   const [isOwner, setIsOwner] = useState(false);
   const [isAssignedUser, setIsAssignedUser] = useState(false);
   const [isAssigning, setIsAssigning] = useState(false);
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const [form] = Form.useForm();
+
   useEffect(() => {
     const userId = localStorage.getItem("activeUID");
     if (userId && userId === owner_id) {
@@ -72,8 +79,9 @@ const Ticket: React.FC<TicketProps> = ({
     };
 
     try {
+      console.log("Updating ticket:", updatedTicket);
       await editTicket(id, updatedTicket);
-      setIsEditing(false);
+      setIsEditModalVisible(false);
       setRefresh((prev) => !prev); // trigger refresh
     } catch (error) {
       console.error("Failed to update ticket:", error);
@@ -128,6 +136,13 @@ const Ticket: React.FC<TicketProps> = ({
     setIsChatModalOpen(false);
   };
 
+  const showEditModal = () => {
+    setIsEditModalVisible(true);
+  };
+  const handleCancel = () => {
+    setIsEditModalVisible(false);
+  };
+
   return (
     <Card
       title={title}
@@ -150,7 +165,7 @@ const Ticket: React.FC<TicketProps> = ({
         <strong>Deadline:</strong> {new Date(deadline).toLocaleString()}
       </p>
 
-      {isOwner && status !== "Done" && <Button type="primary" onClick={() => setIsEditing(true)}>
+      {isOwner && <Button type="primary" onClick={showEditModal}>
         Edit Ticket
       </Button>}
 
@@ -174,90 +189,104 @@ const Ticket: React.FC<TicketProps> = ({
         </div>
       )}
 
-      {isEditing && status !== "Done" && (
-        <div className="modal">
-          <Form
-            name="EditTicketForm"
-            labelCol={{ span: 8 }}
-            wrapperCol={{ span: 16 }}
-            style={{ maxWidth: 600 }}
-            initialValues={{
-              editTitle: title,
-              editDescription: description,
-              editCategory: category,
-              editDeadline: deadline.slice(0, -1),
-              editPayment: payment,
-            }}
-            onFinish={handleSubmit}
-            autoComplete="off"
+      <Modal
+        title="Edit Ticket"
+        open={isEditModalVisible}
+        onCancel={handleCancel}
+        footer={null}
+      >
+        <Form
+          form={form}
+          name="EditTicketForm"
+          labelCol={{ span: 8 }}
+          wrapperCol={{ span: 16 }}
+          style={{ maxWidth: 600 }}
+          initialValues={{
+            editTitle: title,
+            editDescription: description,
+            editCategory: category,
+            editDeadline: deadline.slice(0, -1),
+            editPayment: payment,
+          }}
+          onFinish={handleSubmit}
+          autoComplete="off"
+        >
+          <Form.Item<EditTicketForm>
+            label="Title"
+            name="editTitle"
+            rules={[{ required: true, message: "Please input your new title!" }]}
+            style={{ height: '40px', width: '100%' }}
           >
-            <Form.Item<EditTicketForm>
-              label="EditTitle"
-              name="editTitle"
-              rules={[
-                { required: true, message: "Please input your new title!" },
-              ]}
-            >
-              <Input placeholder="Title" />
-            </Form.Item>
+            <Input placeholder="Title" />
+          </Form.Item>
 
-            <Form.Item<EditTicketForm>
-              label="EditDescription"
-              name="editDescription"
-              rules={[
-                {
-                  required: true,
-                  message: "Please input your new description!",
-                },
-              ]}
-            >
-              <Input placeholder="Description" />
-            </Form.Item>
+          <Form.Item<EditTicketForm>
+            label="Description"
+            name="editDescription"
+            rules={[{ required: true, message: "Please input your new description!" }]}
+            style={{ width: '100%' }}
+          >
+            <Input.TextArea 
+              placeholder="Description"
+              autoSize={{ minRows: 3, maxRows: 6 }}
+              style={{ width: '100%' }}
+            />
+          </Form.Item>
 
-            <Form.Item<EditTicketForm>
-              label="EditCategory"
-              name="editCategory"
-              rules={[
-                { required: true, message: "Please input your new category!" },
-              ]}
-            >
-              <Input placeholder="Category" />
-            </Form.Item>
+          <Form.Item<EditTicketForm>
+            label="Category"
+            name="editCategory"
+            rules={[{ required: true, message: "Please input your new category!" }]}
+            style={{ width: '100%' }}
+          >
+            <Select placeholder="Select a Category">
+              <Select.Option value="Errands">Errands</Select.Option>
+              <Select.Option value="Landscaping">Landscaping</Select.Option>
+              <Select.Option value="Delivery">Delivery</Select.Option>
+              <Select.Option value="Pet Care">Pet Care</Select.Option>
+              <Select.Option value="Cleaning">Cleaning</Select.Option>
+              <Select.Option value="Gear Rental">Gear Rental</Select.Option>
+              <Select.Option value="Other">Other</Select.Option>
+            </Select>
+          </Form.Item>
 
-            <Form.Item<EditTicketForm>
-              label="EditDeadline"
-              name="editDeadline"
-              rules={[
-                { required: true, message: "Please input your new deadline!" },
-              ]}
-            >
-              <Input
-                type="datetime-local"
-                placeholder="Deadline"
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  setEditDeadline(e.target.value)
-                }
-                required
-              />
-            </Form.Item>
+          <Form.Item<EditTicketForm>
+            label="Deadline"
+            name="editDeadline"
+            rules={[{ required: true, message: "Please input your new deadline!" }]}
+            style={{ width: '100%' }}
+          >
+            <Input
+              type="datetime-local"
+              placeholder="Deadline"
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setEditDeadline(e.target.value)
+              }
+              required
+              style={{ width: '100%' }}
+            />
+          </Form.Item>
 
-            <Form.Item<EditTicketForm>
-              label="EditPayment"
-              name="editPayment"
-              rules={[
-                { required: true, message: "Please input your new payment!" },
-              ]}
-            >
-              <Input placeholder="Payment" />
-            </Form.Item>
+          <Form.Item<EditTicketForm>
+            label="Payment"
+            name="editPayment"
+            rules={[{ required: true, message: "Please input your new payment!" }]}
+            style={{ width: '100%' }}
+          >
+            <Input 
+              prefix={<DollarOutlined />} 
+              placeholder="Enter payment amount"
+              type="number"
+              min={0}
+            />
+          </Form.Item>
+          <Form.Item style={{ textAlign: 'right' }}>
             <Button type="primary" htmlType="submit">
               Update Ticket
             </Button>
-          </Form>
-          <Button onClick={() => setIsEditing(false)}>Cancel</Button>
-        </div>
-
-      )}
+          </Form.Item>
+        </Form>
+      </Modal>
 
       
       {isAssigning && status !== "Done" && (
