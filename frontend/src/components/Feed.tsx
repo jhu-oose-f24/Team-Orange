@@ -16,25 +16,14 @@ interface FeedProps {
     category?: string;
     minPayment?: string;
   };
+  refetch: boolean;
+  onUpdate: () => void;
 }
 
-const Feed: React.FC<FeedProps> = ({ statusFilter, searchParams }) => {
-  const [tickets, setTickets] = useState<
-    List<{
-      id: string;
-      title: string;
-      description: string;
-      category: string;
-      deadline: string;
-      owner_id: string;
-      assigneduser_id: string | null;
-      payment: number;
-      status: string;
-    }>
-  >(List());
+const Feed: React.FC<FeedProps> = ({ statusFilter, searchParams, refetch, onUpdate }) => {
+  const [tickets, setTickets] = useState<List<TicketType>>(List());
 
   const [error, setError] = useState<string | null>(null);
-  const [refetch, setRefetch] = useState(false);
 
   useEffect(() => {
     const fetchTickets = async () => {
@@ -52,9 +41,9 @@ const Feed: React.FC<FeedProps> = ({ statusFilter, searchParams }) => {
         setError("Failed to fetch tickets. Please try again later.");
       }
     };
-
+    console.log("Refetching tickets...");
     fetchTickets();
-  }, [searchParams, statusFilter]);
+  }, [searchParams, statusFilter, refetch]);
 
 
   useEffect(() => {
@@ -81,15 +70,23 @@ const Feed: React.FC<FeedProps> = ({ statusFilter, searchParams }) => {
       await deleteTicket(ticketId);
       const updatedTickets = tickets.filter((ticket) => ticket.id !== ticketId);
       setTickets(List(updatedTickets));
-      setRefetch(!refetch);
+      onUpdate();
     } catch (error) {
       console.error("Failed to delete ticket:", error);
     }
   };
 
+  const handleUpdateTicket = (updatedTicket: TicketType) => {
+    setTickets((prevTickets) =>
+      prevTickets.map((ticket) =>
+        ticket.id === updatedTicket.id ? updatedTicket : ticket
+      ) as List<TicketType>
+    );
+  };
+
   return (
     <div className="feed">
-      <h2 style={{ fontSize: "24px", color: "#61dafb" }}>
+      <h2 style={{ fontSize: "24px", color: "#1890ff" }}>
         {statusFilter}
       </h2>
       {error && <div className="error">{error}</div>}
@@ -106,7 +103,7 @@ const Feed: React.FC<FeedProps> = ({ statusFilter, searchParams }) => {
             assigneduser_id={ticket.assigneduser_id}
             payment={ticket.payment}
             onDelete={handleDeleteTicket}
-            onUpdate={() => setRefetch(!refetch)}
+            onUpdate={handleUpdateTicket}
           />
         </Space>
       ))}

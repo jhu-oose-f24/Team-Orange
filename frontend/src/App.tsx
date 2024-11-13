@@ -31,9 +31,15 @@ const App: React.FC = () => {
   ];
 
   const [searchParams, setSearchParams] = useState({});
+  const [refetch, setRefetch] = useState(false);
 
   const handleSearch = (params: any) => {
     setSearchParams(params);
+  };
+
+  const triggerRefetch = () => {
+    console.log("Triggering refetch...");
+    setRefetch(!refetch); 
   };
 
   return (
@@ -59,9 +65,9 @@ const App: React.FC = () => {
                       <SearchBar onSearch={handleSearch} />
                     </div>
                     <div className="feed-container">
-                      <Feed statusFilter="Open" searchParams={searchParams} />
-                      <Feed statusFilter="InProgress" searchParams={searchParams} />
-                      <Feed statusFilter="Done" searchParams={searchParams} />
+                      <Feed statusFilter="Open" searchParams={searchParams} refetch={refetch} onUpdate={triggerRefetch} />
+                      <Feed statusFilter="InProgress" searchParams={searchParams} refetch={refetch} onUpdate={triggerRefetch} />
+                      <Feed statusFilter="Done" searchParams={searchParams} refetch={refetch} onUpdate={triggerRefetch} />
                     </div>
                   </div>
                 }
