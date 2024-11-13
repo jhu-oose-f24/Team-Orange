@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Menu, Layout } from "antd";
-import UsersDropdown from "./UsersDropdown.dev";
 
 const { Header } = Layout;
 
