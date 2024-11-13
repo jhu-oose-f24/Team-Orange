@@ -77,6 +77,7 @@ const Feed: React.FC<FeedProps> = ({ statusFilter, searchParams, refetch, onUpda
   };
 
   const handleUpdateTicket = (updatedTicket: TicketType) => {
+    onUpdate();
     setTickets((prevTickets) =>
       prevTickets.map((ticket) =>
         ticket.id === updatedTicket.id ? updatedTicket : ticket
