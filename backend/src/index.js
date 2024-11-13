@@ -19,7 +19,7 @@ const jwt = require("jsonwebtoken");
 
 const JHU_SSO_URL = "https://idp.jh.edu/idp/profile/SAML2/Redirect/SSO";
 const SP_NAME = "glacial-plateau-47269";  // replace this with out app name
-const BASE_URL = "https://glacial-plateau-47269.herokuapp.com"; // need to deploy ours
+const BASE_URL = "https://chorehop-cc7c0bf7a12c.herokuapp.com/"; // need to deploy ours
 // key
 const fs = require("fs");
 const PbK = fs.readFileSync(__dirname + "/certs/cert.pem", "utf8");
@@ -127,7 +127,7 @@ app.post(
 
       // user login info
       console.log(`welcome ${req.user.first_name}`);
-      const userName = req.user.username;
+      const userName = req.user.jhed;
       const firstName = req.user.first_name;
       const lastName = req.user.last_name;
       const email = req.user.email;
