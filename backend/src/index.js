@@ -42,9 +42,6 @@ const samlStrategy = new saml.Strategy(
     callbackUrl: `${BASE_URL}/jhu/login/callback`,
     decryptionPvk: PvK,
     privateCert: PvK,
-    cert: `-----BEGIN CERTIFICATE-----
-    YOUR_IDP_PUBLIC_CERT_HERE
-    -----END CERTIFICATE-----` 
   },
   (profile, done) => {
      
@@ -78,8 +75,6 @@ app.use(cors());
 
 require('dotenv').config();
 
-require('dotenv').config();
-
 const db = new pg.Client({
     user: process.env.DB_USER,
     host: process.env.DB_HOST,
@@ -108,12 +103,13 @@ passport.deserializeUser((user, cb) =>{
 app.get(
     "/jhu/login",
     (req, res, next) => {
+        console.log(req);
+        console.log(res);
       next();
     },
     passport.authenticate("samlStrategy")
   );
 
-const JWT_SECRET = "Team-Orange";
 
 // Callback routes: JHU SSO authenticate user and send 1. assertion and 2. POST request
 app.post(
@@ -127,7 +123,7 @@ app.post(
     }),
     (req, res) => {
        req.session.user = req.user; // Store the user in session
-
+       res.send(`welcome ${req.user.first_name}`);
       // user login info
       console.log(`welcome ${req.user.first_name}`);
       const userName = req.user.jhed;
@@ -171,12 +167,12 @@ const errorMessage = req.flash("error")[0] || "Authentication failed. Please try
 res.status(401).json({ error: errorMessage });
 });
 
-// app.get("/logout", (req, res) => {
-//     req.session.destroy(err => {
-//       if (err) return res.status(500).json({ error: "Logout failed" });
-//       res.redirect("/jhu/login"); 
-//     });
-//   });
+app.get("/logout", (req, res) => {
+    req.session.destroy(err => {
+      if (err) return res.status(500).json({ error: "Logout failed" });
+      res.redirect("/jhu/login"); 
+    });
+  });
   
   
 
