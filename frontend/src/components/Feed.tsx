@@ -6,6 +6,7 @@ import TicketType from "../types/Ticket";
 import Ticket from "./Ticket";
 import getTickets from "../api/GetTickets";
 import deleteTicket from "../api/DeleteTicket";
+import deleteMessagesByTicket from "../api/DeleteMessagesByTicket";
 
 interface FeedProps {
   statusFilter: string;
@@ -78,6 +79,7 @@ const Feed: React.FC<FeedProps> = ({ statusFilter, searchParams, refresh, setRef
 
   const handleDeleteTicket = async (ticketId: string) => {
     try {
+      await deleteMessagesByTicket(ticketId)
       await deleteTicket(ticketId);
       const updatedTickets = tickets.filter((ticket) => ticket.id !== ticketId);
       setTickets(List(updatedTickets));

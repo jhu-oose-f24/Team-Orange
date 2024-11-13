@@ -27,7 +27,6 @@ const Chat: React.FC<ChatProps> = ({ ticketId, ownerID, assignedID }) => {
     const fetchMessages = async () => {
       try {
         const fetchedMessages = await getMessages(ticketId);
-        console.log(fetchedMessages);
         setMessages(fetchedMessages);
       } catch (err) {
         console.error('Failed to fetch messages:', err);
