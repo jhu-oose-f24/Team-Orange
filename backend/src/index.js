@@ -18,7 +18,7 @@ const saltRound = 10;
 const jwt = require("jsonwebtoken");
 
 const JHU_SSO_URL = "https://idp.jh.edu/idp/profile/SAML2/Redirect/SSO";
-const SP_NAME = "glacial-plateau-47269";  // replace this with out app name
+const SP_NAME = "chorehop-cc7c0bf7a12c";  // replace this with out app name
 const BASE_URL = "https://chorehop-cc7c0bf7a12c.herokuapp.com/"; // need to deploy ours
 // key
 const fs = require("fs");
