@@ -8,6 +8,7 @@ const bcrypt = require("bcrypt");
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const session = require('express-session');
+
 const saml = require("passport-saml");
 
 const { v4: uuidv4 } = require('uuid');
@@ -16,9 +17,6 @@ const port = 3000;
 const saltRound = 10;
 const jwt = require("jsonwebtoken");
 
-
-
-
 const JHU_SSO_URL = "https://idp.jh.edu/idp/profile/SAML2/Redirect/SSO";
 const SP_NAME = "glacial-plateau-47269";  // replace this with out app name
 const BASE_URL = "https://glacial-plateau-47269.herokuapp.com"; // need to deploy ours
@@ -26,6 +24,13 @@ const BASE_URL = "https://glacial-plateau-47269.herokuapp.com"; // need to deplo
 const fs = require("fs");
 const PbK = fs.readFileSync(__dirname + "/certs/cert.pem", "utf8");
 const PvK = fs.readFileSync(__dirname + "/certs/key.pem", "utf8");
+
+app.use(session({
+    secret: "ORANGESECRET",
+    resave: false,
+    saveUninitialized: true ,// store uninitialized session to server memory
+    cookie: { secure: false, maxAge: 3600000 } // 1-hour session expiry
+  }));
   
 // Setup SAML strategy
 const samlStrategy = new saml.Strategy(
@@ -68,12 +73,12 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.static("public"));
-app.use(session({
-    secret: "ORANGESECRET",
-    resave: false,
-    saveUninitialized: true ,// store uninitialized session to server memory
-    cookie: { secure: false, maxAge: 3600000 } // 1-hour session expiry
-  }));
+// app.use(session({
+//     secret: "ORANGESECRET",
+//     resave: false,
+//     saveUninitialized: true ,// store uninitialized session to server memory
+//     cookie: { secure: false, maxAge: 3600000 } // 1-hour session expiry
+//   }));
 // Enable CORS for all routes
 app.use(cors());
 
@@ -132,7 +137,7 @@ app.post(
         failureFlash: "Authentication failed, please try again."
     }),
     (req, res) => {
-    //    req.session.user = req.user; // Store the user in session
+       req.session.user = req.user; // Store the user in session
 
       // user login info
       console.log(`welcome ${req.user.first_name}`);
