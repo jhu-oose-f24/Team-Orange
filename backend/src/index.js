@@ -18,6 +18,7 @@ const jwt = require("jsonwebtoken");
 
 
 
+
 const JHU_SSO_URL = "https://idp.jh.edu/idp/profile/SAML2/Redirect/SSO";
 const SP_NAME = "glacial-plateau-47269";  // replace this with out app name
 const BASE_URL = "https://glacial-plateau-47269.herokuapp.com"; // need to deploy ours
@@ -78,6 +79,13 @@ app.use(cors());
 
 require('dotenv').config();
 
+console.log('Database Connection Parameters:');
+console.log('DB_USER:', process.env.DB_USER);
+console.log('DB_HOST:', process.env.DB_HOST);
+console.log('DB_NAME:', process.env.DB_NAME);
+console.log('DB_PASSWORD:', process.env.DB_PASSWORD);
+console.log('DB_PORT:', process.env.DB_PORT);
+
 const db = new pg.Client({
     user: process.env.DB_USER,
     host: process.env.DB_HOST,
@@ -124,7 +132,7 @@ app.post(
         failureFlash: "Authentication failed, please try again."
     }),
     (req, res) => {
-       req.session.user = req.user; // Store the user in session
+    //    req.session.user = req.user; // Store the user in session
 
       // user login info
       console.log(`welcome ${req.user.first_name}`);
@@ -169,12 +177,12 @@ const errorMessage = req.flash("error")[0] || "Authentication failed. Please try
 res.status(401).json({ error: errorMessage });
 });
 
-app.get("/logout", (req, res) => {
-    req.session.destroy(err => {
-      if (err) return res.status(500).json({ error: "Logout failed" });
-      res.redirect("/jhu/login"); 
-    });
-  });
+// app.get("/logout", (req, res) => {
+//     req.session.destroy(err => {
+//       if (err) return res.status(500).json({ error: "Logout failed" });
+//       res.redirect("/jhu/login"); 
+//     });
+//   });
   
   
 // GET endpoint to retrieve all tickets
