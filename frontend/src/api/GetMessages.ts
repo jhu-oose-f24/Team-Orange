@@ -3,7 +3,6 @@ const BASE_URL = "http://localhost:3000/messages";
 
 const getMessages = async (ticketId: string) => {
     try {
-        console.log(`${BASE_URL}/${ticketId}`);
         const response = await fetch(`${BASE_URL}/${ticketId}`);
       if (!response.ok) {
         throw new Error("Network response was not ok");

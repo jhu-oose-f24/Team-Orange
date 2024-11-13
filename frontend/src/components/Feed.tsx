@@ -6,6 +6,7 @@ import TicketType from "../types/Ticket";
 import Ticket from "./Ticket";
 import getTickets from "../api/GetTickets";
 import deleteTicket from "../api/DeleteTicket";
+import deleteMessagesByTicket from "../api/DeleteMessagesByTicket";
 
 interface FeedProps {
   statusFilter: string;
@@ -15,10 +16,12 @@ interface FeedProps {
     endDate?: string;
     category?: string;
     minPayment?: string;
-  };
+  },
+  refresh: boolean;
+  setRefresh: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const Feed: React.FC<FeedProps> = ({ statusFilter, searchParams }) => {
+const Feed: React.FC<FeedProps> = ({ statusFilter, searchParams, refresh, setRefresh }) => {
   const [tickets, setTickets] = useState<
     List<{
       id: string;
@@ -34,8 +37,6 @@ const Feed: React.FC<FeedProps> = ({ statusFilter, searchParams }) => {
   >(List());
 
   const [error, setError] = useState<string | null>(null);
-  const [refetch, setRefetch] = useState(false);
-
   useEffect(() => {
     const fetchTickets = async () => {
       try {
@@ -54,7 +55,7 @@ const Feed: React.FC<FeedProps> = ({ statusFilter, searchParams }) => {
     };
 
     fetchTickets();
-  }, [searchParams, statusFilter]);
+  }, [searchParams, statusFilter, refresh]);
 
 
   useEffect(() => {
@@ -78,10 +79,11 @@ const Feed: React.FC<FeedProps> = ({ statusFilter, searchParams }) => {
 
   const handleDeleteTicket = async (ticketId: string) => {
     try {
+      await deleteMessagesByTicket(ticketId)
       await deleteTicket(ticketId);
       const updatedTickets = tickets.filter((ticket) => ticket.id !== ticketId);
       setTickets(List(updatedTickets));
-      setRefetch(!refetch);
+      setRefresh((prev) => !prev);
     } catch (error) {
       console.error("Failed to delete ticket:", error);
     }
@@ -106,7 +108,7 @@ const Feed: React.FC<FeedProps> = ({ statusFilter, searchParams }) => {
             assigneduser_id={ticket.assigneduser_id}
             payment={ticket.payment}
             onDelete={handleDeleteTicket}
-            onUpdate={() => setRefetch(!refetch)}
+            setRefresh={setRefresh}
           />
         </Space>
       ))}

@@ -24,7 +24,6 @@ const postMessage = async (data: MessageData) : Promise<Message> => {
     }
 
     const result = await response.json();
-    console.log("Message posted:", result);
     return result as Message;
   } catch (error) {
     console.error("Error posting message:", error);
