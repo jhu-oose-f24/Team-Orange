@@ -8,9 +8,6 @@ const { v4: uuidv4 } = require('uuid');
 const app = express();
 // const port = 3000;
 const port = process.env.PORT || 3000;
-app.listen(port, () => {
-    console.log(`Server started on port ${port}`);
-});
 
 app.use(bodyParser.json());
 // Enable CORS for all routes
