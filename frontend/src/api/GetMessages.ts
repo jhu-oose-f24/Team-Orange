@@ -1,4 +1,4 @@
-const BASE_URL = "http://localhost:3000/messages";
+const BASE_URL = "https://chorehop-cc7c0bf7a12c.herokuapp.com/messages";
 
 
 const getMessages = async (ticketId: string) => {
