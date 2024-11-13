@@ -39,6 +39,7 @@ CREATE TABLE IF NOT EXISTS public.ticket (
     owner_id UUID NOT NULL,
     assigneduser_id UUID,
     payment INTEGER DEFAULT 0,
+    payment_confirmed BOOLEAN DEFAULT FALSE,
     FOREIGN KEY (assigneduser_id) REFERENCES public.users (id),
     FOREIGN KEY (owner_id) REFERENCES public.users (id)
 );

@@ -176,7 +176,7 @@ app.post("/users", (req, res) => {
 // PUT endpoint to partially update a ticket by ID
 app.put("/tickets/:id", (req, res) => {
     const ticketId = req.params.id;
-    const { title, category, description, deadline, status, owner_id, assigneduser_id, payment } = req.body;
+    const { title, category, description, deadline, status, owner_id, assigneduser_id, payment, payment_confirmed } = req.body;
 
     db.query("SELECT * FROM ticket WHERE id = $1", [ticketId], (err, result) => {
         if (err) {
@@ -197,20 +197,21 @@ app.put("/tickets/:id", (req, res) => {
             owner_id: owner_id || currentTicket.owner_id,
             assigneduser_id: assigneduser_id !== undefined ? assigneduser_id : currentTicket.assigneduser_id, //allow null value
             payment: payment !== undefined ? payment : currentTicket.payment, // allow zero value
+            payment_confirmed: payment_confirmed || currentTicket.payment_confirmed,
         };
 
         // update the ticket in the database
         const query = `
             UPDATE ticket
-            SET title = $1, category = $2, description = $3, deadline = $4, status = $5, owner_id = $6, assigneduser_id = $7, payment = $8
-            WHERE id = $9
+            SET title = $1, category = $2, description = $3, deadline = $4, status = $5, owner_id = $6, assigneduser_id = $7, payment = $8, payment_confirmed = $9
+            WHERE id = $10
             RETURNING *;
         `;
 
         db.query(query, [
             updatedTicket.title, updatedTicket.category, updatedTicket.description,
             updatedTicket.deadline, updatedTicket.status, updatedTicket.owner_id,
-            updatedTicket.assigneduser_id, updatedTicket.payment, ticketId
+            updatedTicket.assigneduser_id, updatedTicket.payment, updatedTicket.payment_confirmed, ticketId
         ], (err, result) => {
             if (err) {
                 return res.status(500).json({ error: "Database update failed" });
