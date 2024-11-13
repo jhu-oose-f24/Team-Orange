@@ -8,8 +8,8 @@ const editTicket = async (
     category?: string;
     deadline?: string;
     status?: string;
-    owner_id?: number;
-    assigneduser_id?: number | null;
+    owner_id?: string;
+    assigneduser_id?: string | null;
     payment?: number | null;
     payment_confirmed?: boolean | null;
   },
