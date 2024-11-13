@@ -31,10 +31,10 @@ const UsersDropdown: React.FC = () => {
 
   const items = UserList.map((user, index) => ({
     key: index.toString(),
-    label: user.name,
+    label: `${user.firstname} ${user.lastname}`,
     onClick: () => {
         localStorage.setItem("activeUID", user.id);
-        setActiveUser(user.name);
+        setActiveUser(user.username);
       },
   })).toArray();
 

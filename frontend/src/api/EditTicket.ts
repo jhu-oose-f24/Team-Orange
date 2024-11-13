@@ -1,4 +1,4 @@
-const BASE_URL = "http://localhost:3000/tickets";
+const BASE_URL = "https://chorehop-cc7c0bf7a12c.herokuapp.com/tickets";
 
 const editTicket = async (
   id: string,
@@ -8,8 +8,8 @@ const editTicket = async (
     category?: string;
     deadline?: string;
     status?: string;
-    owner_id?: number;
-    assigneduser_id?: number | null;
+    owner_id?: string;
+    assigneduser_id?: string | null;
     payment?: number | null;
     payment_confirmed?: boolean | null;
   },

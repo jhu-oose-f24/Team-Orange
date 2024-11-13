@@ -13,7 +13,8 @@ const saml = require("passport-saml");
 
 const { v4: uuidv4 } = require('uuid');
 const app = express();
-const port = 3000;
+// const port = 3000;
+const port = process.env.PORT || 3000;
 const saltRound = 10;
 const jwt = require("jsonwebtoken");
 
@@ -77,6 +78,8 @@ app.use(cors());
 
 require('dotenv').config();
 
+require('dotenv').config();
+
 const db = new pg.Client({
     user: process.env.DB_USER,
     host: process.env.DB_HOST,
@@ -89,9 +92,20 @@ const db = new pg.Client({
     }
 });
 
+    user: process.env.DB_USER,
+    host: process.env.DB_HOST,
+    database: process.env.DB_NAME,
+    password: process.env.DB_PASSWORD,
+    port: parseInt(process.env.DB_PORT, 10),
+    ssl: {
+        require: true,
+        rejectUnauthorized: false
+    }
+});
+
 db.connect()
-    .then(() => console.log('Connected to Supabase PostgreSQL'))
-    .catch(err => console.error('Connection error1', err.stack));
+    .then(() => console.log('Connected to Supabase Supabase PostgreSQL'))
+    .catch(err => console.error('Connection error11', err.stack));
 
 
 passport.serializeUser((user, cb) =>{
@@ -176,6 +190,7 @@ res.status(401).json({ error: errorMessage });
 //   });
   
   
+
 // GET endpoint to retrieve all tickets
 app.get("/tickets", (req, res) => {
 
@@ -279,10 +294,11 @@ app.post("/tickets", (req, res) => {
     }
 
     const ticketId = uuidv4();
+    const ticketId = uuidv4();
 
     const query = `
-        INSERT INTO ticket (id, title, category, status, description, deadline, owner_id, payment, payment_confirmed)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, FALSE)
+        INSERT INTO ticket (id, title, category, status, description, deadline, owner_id, payment, payment_confirmed, payment_confirmed)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, FALSE, FALSE)
         RETURNING *;
     `;
 
@@ -297,6 +313,7 @@ app.post("/tickets", (req, res) => {
 // GET endpoint to retrieve all users
 app.get("/users", (req, res) => {
     db.query("SELECT id, Username, Lastname, Firstname, Email FROM users", (err, result) => {
+    db.query("SELECT id, Username, Lastname, Firstname, Email FROM users", (err, result) => {
         if (err) {
             return res.status(500).json({ error: "Database query failed" });
         }
@@ -307,11 +324,15 @@ app.get("/users", (req, res) => {
 // POST endpoint to create a new user
 app.post("/users", (req, res) => {
     const { Username, Lastname, Firstname, Email } = req.body;
+    const { Username, Lastname, Firstname, Email } = req.body;
 
+    if (!Username || !Lastname || !Firstname || !Email) {
+        return res.status(400).json({ error: "All fields are required" });
     if (!Username || !Lastname || !Firstname || !Email) {
         return res.status(400).json({ error: "All fields are required" });
     }
 
+    const userId = uuidv4();
     const userId = uuidv4();
 
     const query = `
@@ -319,7 +340,13 @@ app.post("/users", (req, res) => {
         VALUES ($1, $2, $3, $4, $5)
         RETURNING *;
     `;
+    const query = `
+        INSERT INTO users (id, Username, Lastname, Firstname, Email)
+        VALUES ($1, $2, $3, $4, $5)
+        RETURNING *;
+    `;
 
+    db.query(query, [userId, Username, Lastname, Firstname, Email], (err, result) => {
     db.query(query, [userId, Username, Lastname, Firstname, Email], (err, result) => {
         if (err) {
             return res.status(500).json({ error: "Database insert failed" });
@@ -354,11 +381,15 @@ app.put("/tickets/:id", (req, res) => {
             assigneduser_id: assigneduser_id !== undefined ? assigneduser_id : currentTicket.assigneduser_id,
             payment: payment !== undefined ? payment : currentTicket.payment,
             payment_confirmed: payment_confirmed !== undefined ? payment_confirmed : currentTicket.payment_confirmed,
+            assigneduser_id: assigneduser_id !== undefined ? assigneduser_id : currentTicket.assigneduser_id,
+            payment: payment !== undefined ? payment : currentTicket.payment,
+            payment_confirmed: payment_confirmed !== undefined ? payment_confirmed : currentTicket.payment_confirmed,
         };
 
         const query = `
             UPDATE ticket
             SET title = $1, category = $2, description = $3, deadline = $4, status = $5,
+               
                 owner_id = $6, assigneduser_id = $7, payment = $8, payment_confirmed = $9
             WHERE id = $10
             RETURNING *;
@@ -521,6 +552,7 @@ app.delete("/messages", (req, res) => {
       });
     });
   });
+  
   
 // Home route
 app.get("/", (req, res) => {

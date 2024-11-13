@@ -1,4 +1,4 @@
-const SEARCH_URL = "http://localhost:3000/tickets/search";
+const SEARCH_URL = "https://chorehop-cc7c0bf7a12c.herokuapp.com/tickets/search";
 
 const searchTickets = async (searchParams = {}) => {
   try {
