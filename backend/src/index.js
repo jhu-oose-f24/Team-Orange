@@ -50,6 +50,7 @@ const samlStrategy = new saml.Strategy(
     callbackUrl: `${BASE_URL}/jhu/login/callback`,
     decryptionPvk: PvK,
     privateCert: PvK,
+    cert: PbK,    
     // cert: fs.readFileSync(path.join(__dirname, 'certs', 'cert.pem'), 'utf-8'),
   },
   (profile, done) => {
