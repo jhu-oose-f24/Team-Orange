@@ -50,8 +50,7 @@ const Profile: React.FC = () => {
       </Row>
       <Divider />
       {/* Post Grid */}
-      <Feed statusFilter="Done" searchParams={searchParams} refresh={refresh} setRefresh={setRefresh}/>{" "}
-      {/* This would represent your user's posts displayed in a grid */}
+      {/* Moved this part to App.tsx */}
     </div>
   );
 };
