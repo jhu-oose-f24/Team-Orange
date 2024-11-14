@@ -15,7 +15,7 @@ const keyPath = path.join(__dirname, 'certs', 'key.pem');
 const PbK = fs.readFileSync(certPath, 'utf8');
 const PvK = fs.readFileSync(keyPath, 'utf8');
 
-const JHU_SSO_URL = "https://idp.jh.edu/idp/profile/SAML2/Redirect/SSO";
+const JHU_SSO_URL = "https://idp.jhu.edu/idp/profile/SAML2/Redirect/SSO";
 const SP_NAME = process.env.SP_NAME || "chorehop-sso-99eceafc63f6";
 const BASE_URL = process.env.BASE_URL || "https://chorehop-sso-99eceafc63f6.herokuapp.com";
 
