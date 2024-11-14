@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Input, Button, Typography, message } from "antd";
 import loginUser from "../api/LoginUser";
+import {useNavigate} from "react-router-dom";
 
 const { Title } = Typography;
 
@@ -8,12 +9,17 @@ const LoginScreen: React.FC = () => {
   const [jhed, setJhed] = useState<string>("");
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
+  const [activeUser, setActiveUser] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const handleLogin = async () => {
     try {
       const data = await loginUser(jhed, firstName, lastName);
+      const { user } = data;
+      localStorage.setItem("activeUID", user.id);
+      setActiveUser(user.username);
       message.success(data.message);
-      console.log("User data:", data.user); // handle user data as needed
+      navigate("/feed");
     } catch (error) {
       message.error("Login failed. Please try again.");
     }
