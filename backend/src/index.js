@@ -52,7 +52,7 @@ const samlStrategy = new saml.Strategy(
     entryPoint: JHU_SSO_URL,
     issuer: SP_NAME,
     callbackUrl: `${BASE_URL}/jhu/login/callback`,
-    // decryptionPvk: PvK,
+    decryptionPvk: PvK,
     cert: PbK, 
     privateCert: PvK,   
     // privateCert: PvK,
