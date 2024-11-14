@@ -3,6 +3,7 @@ import { Input, Button, Card } from 'antd';
 import getMessages from '../api/GetMessages';
 import postMessage from '../api/PostMessage';
 import Message from '../types/Message';
+import ChatMessage from './ChatMessage';
 
 interface ChatProps {
   ticketId: string;
@@ -73,26 +74,13 @@ const Chat: React.FC<ChatProps> = ({ ticketId, ownerID, assignedID }) => {
           <p style={{ textAlign: 'center', color: '#888' }}>No messages yet</p>
         ) : (
           messages.map((message) => (
-            <div 
-              key={message.id} 
-              style={{
-                display: 'flex',
-                justifyContent: message.sending_id === activeUID ? 'flex-end' : 'flex-start',
-                marginBottom: '10px',
-              }}
-            >
-              <div
-                style={{
-                  maxWidth: '70%',
-                  padding: '10px',
-                  borderRadius: '10px',
-                  backgroundColor: message.sending_id === activeUID ? '#0084ff' : '#e5e5ea',
-                  color: message.sending_id === activeUID ? 'white' : 'black',
-                }}
-              >
-                {message.message}
-              </div>
-            </div>
+            <ChatMessage
+              key={message.id}
+              message={message.message}
+              isUser={message.sending_id === activeUID}
+              timestamp={message.create_time}
+              avatar={"https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp"}
+            />
           ))
         )}
       </div>
