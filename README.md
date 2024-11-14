@@ -1,7 +1,7 @@
 ## Team-Orange
 
 ## Backend
-Our backend api is running remotely at [https://chorehop-cc7c0bf7a12c.herokuapp.com]([https://pages.github.com/](https://chorehop-cc7c0bf7a12c.herokuapp.com)
+Our backend api is running remotely at [https://chorehop-cc7c0bf7a12c.herokuapp.com](https://chorehop-cc7c0bf7a12c.herokuapp.com)
 
 Testing Backend
 ```
