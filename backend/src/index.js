@@ -121,7 +121,7 @@ app.post("/jhu/login/callback", passport.authenticate("samlStrategy"), (req, res
   res.redirect('/'); // or other route
 });
 
-metadata (optional)
+// metadata (optional)
 app.get("/jhu/metadata", (req, res) => {
   res.type("application/xml");
   res.status(200).send(
