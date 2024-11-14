@@ -18,11 +18,11 @@ const port = process.env.PORT || 3000;
 const saltRound = 10;
 
 const JHU_SSO_URL = "https://idp.jh.edu/idp/profile/SAML2/Redirect/SSO";
-// const SP_NAME = "chorehop-cc7c0bf7a12c";  // replace this with out app name
-// const BASE_URL = "https://chorehop-cc7c0bf7a12c.herokuapp.com/"; // need to deploy ours
+const SP_NAME = "chorehop-cc7c0bf7a12c";  // replace this with out app name
+const BASE_URL = "https://chorehop-cc7c0bf7a12c.herokuapp.com/"; // need to deploy ours
 
-const SP_NAME = "glacial-plateau-47269";
-const BASE_URL = "https://glacial-plateau-47269.herokuapp.com";
+// const SP_NAME = "glacial-plateau-47269";
+// const BASE_URL = "https://glacial-plateau-47269.herokuapp.com";
 
 // key
 const fs = require("fs");
