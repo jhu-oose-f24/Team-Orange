@@ -1,73 +1,9 @@
-# Team-Orange
+## Team-Orange
 
-# Setting Up the PostgreSQL Database
-
-Install PostgreSQL using your preferred package manager. On macOS, you can install it with Homebrew:
-
-```
-brew install postgresql
-brew services start postgresql
-```
-
-For other operating systems, follow the instructions on the official PostgreSQL website.
-
-Open a psql session to create a new PostgreSQL user and database.
-Run the following commands to create a new user (replace your_username with your preferred username) and set a password for the user:
-
-```
-psql postgres
-CREATE USER your_username WITH SUPERUSER CREATEDB CREATEROLE PASSWORD 'your_password';
-CREATE DATABASE your_db_name OWNER your_username;
-```
-
-Exit psql by typing \q.
-
-Navigate to the backend/src directory and install the required database migration tools:
-
-```
-npm install -g db-migrate
-npm install -g db-migrate-pg
-```
-
-Run the database migrations to initialize the database:
-
-```
-db-migrate up initialize
-```
-
-Your PostgreSQL database is now set up and ready to be used with the backend of the project.
-
-## Note:
-
-backend/src/index.js and backend src/database.json must be modified with the credentials created locally:
-
-`"driver": "pg",
-"user": "postgres",
-"password": "1234",
-"host": "localhost",
-"database": "TicketSystem" `
-
-# Starting the Backend (If db already ran for Iteration1, no need to re-migrate)
-
-Start Database
-
-```
-Navigate to the backend/src directory
-npm install -g db-migrate
-npm install -g db-migrate-pg
-npx db-migrate up initialize
-```
-
-Run Backend
-
-```
-Navigate to the backend/src directory
-npm install
-node index.js
-```
+## Backend
+Our backend api is running remotely at [https://chorehop-cc7c0bf7a12c.herokuapp.com]([https://pages.github.com/](https://chorehop-cc7c0bf7a12c.herokuapp.com)
 
 Testing Backend
-
 ```
 #Test Get
 https://chorehop-cc7c0bf7a12c.herokuapp.com/tickets
@@ -101,16 +37,8 @@ https://chorehop-cc7c0bf7a12c.herokuapp.com/tickets/TICKET-ID
 
 ```
 
-Note: if you restart the database, you must also restart the backend server to regain getting and posting functionality.
-
-## Starting the Frontend (Separate terminal)
-
-```
-Navigate to the frontend directory
-npm install
-npm start
-Click the link printed in the console or go to http://localhost:3001 to start adding tickets!
-```
+## Frontend
+Our frontend can be accessed remotely from the host [https://team-orange-66uk.vercel.app/](https://team-orange-66uk.vercel.app/)
 
 ## App Features Currently Implemented
 
@@ -125,6 +53,26 @@ For this iteration we added a Navigation Bar, a Search Bar, functions to edit an
 In iteration 3, we focused on our chat functionality, which also required the addition of users. We added devUsers that can be chosen from a dropdown menu, which assigns a UUID as the ownerID, allowing us to associate the owner and assigned users id's to each ticket. To change users, see the top of the screen on the nav bar where you select DevUser and choose your user from a dropdown. We then implemented the chat feature, with each ticket having an associated chat between the owner of the ticket and the assigned user. Currently, this is available for all tickets, but it will eventually only be available for those that are unclosed. This takes our application above a simple CRUD app, allowing for communication between the owner and assignee of each ticket. Additionally, we refined the search filter on both the backend and frontend. We altered the searchbar so that it only appears once on the primary page, searching through each of the three feeds. We also added the ability to filter tickets by category and minimum payment, improving the user experience on the front end.
 
 Please note one minor bug for this iteration: When you assign yourself to a ticket during a user session, you need to update the page for the assign button to go away and the chat button to appear. We were focused on chat for this iteration so pushed this bug fix to it4, but it will be fixed shortly.
+
+### Iteration 4
+
+In iteration 4, we worked on setting up the remote hosts. We are hosting our backend using heroku and out frontend using vercel. Each can be accesses at the url's above. The backend can be accesses independently of the frontned on api interfaces such as Postman, and the frontend has been configured to update the remote database so that all users have one shared expirience. 
+
+We also added many new features. First, we finished the ticket completion flow. An Open ticket can be "picked up" by any non-owner, which will automatically assign the ticket to the user who is logged in. This same (assigned) user can then chat with the owner through the chat feature from it3, and can also mark the ticket as "Done" when they are finished. Marking done will then automatically move the ticket into the Done feed. From the done feed, once the (assigned) user has been payed by the owner, through chat conversations, they can click "payment received" which will close out the ticket and remove it from all feeds. (Note: owners are always able to edit and delete tickets from any feed; assigned users can never edit or delete tickets. Non-owners and non-assigned users can never modify tickets which have already been assigned but can see them in the feed.) 
+
+We also updated the Profile tab significantly. On the profile page, we created three feeds: The first feed shows all of the tickets you have created. The second feed shows all of the tickets you are currently working on or have picked up. The third feed shows all of the tickets you have completed but have not been paid for yet, and also on those tickets show a button allowing you to confirm payment once you have been paid. Additionally, we updated the name on the profile page to reflect the name of your current log in. Bio and avatar are currently static because we have not updated the database to handle these fields. We also updated the UI for create and edit ticket adding in a '+' icon at the bottom of the feeds page for better user expirience. Lastly, we implemented a new login feature when a user first visits the URL. They can login with their jhed, firstname, and lastname, which will store their session and allow them a personalized expirience over the entire app. If the user is not a current user, they will be automatically registered and logged in. 
+
+Currently registed users include:
+```
+jhed          lastname    firstname    email
+"jyang231"	  "Yang"	    "Jishuo"	  "jyang231@jh.edu"
+"dwhitne5"	  "Whitney"	  "Dylan"	    "dwhitne5@jhu.edu"
+"jroloff1"	  "Roloff"	  "Jackson"	  "jroloff1@jhu.edu"
+"xwei40"	    "Wei"	      "Xuemeng"	  "xwei40@jh.edu"
+```
+and new users can me registed at any time!
+
+Note: we have not created a logout feature yet. We also want to add an edit profile page where users can modify avatar and bio. These changes can be added in it5.
 
 ## What we are building
 
