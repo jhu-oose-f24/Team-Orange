@@ -29,7 +29,6 @@ const App: React.FC = () => {
     { key: "feed", label: "Feed", path: "/feed" },
     { key: "create-ticket", label: "Create Ticket", path: "/create-ticket" },
     { key: "profile", label: "Profile", path: "/profile" },
-    { key: "dev-user", label: "DevUser", path: "/dev-user" },
   ];
 
   const [searchParams, setSearchParams] = useState({});
