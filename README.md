@@ -63,13 +63,14 @@ We also added many new features. First, we finished the ticket completion flow. 
 We also updated the Profile tab significantly. On the profile page, we created three feeds: The first feed shows all of the tickets you have created. The second feed shows all of the tickets you are currently working on or have picked up. The third feed shows all of the tickets you have completed but have not been paid for yet, and also on those tickets show a button allowing you to confirm payment once you have been paid. Additionally, we updated the name on the profile page to reflect the name of your current log in. Bio and avatar are currently static because we have not updated the database to handle these fields. We also updated the UI for create and edit ticket adding in a '+' icon at the bottom of the feeds page for better user expirience. Lastly, we implemented a new login feature when a user first visits the URL. They can login with their jhed, firstname, and lastname, which will store their session and allow them a personalized expirience over the entire app. If the user is not a current user, they will be automatically registered and logged in. 
 
 Currently registed users include:
-```
-jhed          lastname    firstname    email
-"jyang231"	  "Yang"	    "Jishuo"	  "jyang231@jh.edu"
-"dwhitne5"	  "Whitney"	  "Dylan"	    "dwhitne5@jhu.edu"
-"jroloff1"	  "Roloff"	  "Jackson"	  "jroloff1@jhu.edu"
-"xwei40"	    "Wei"	      "Xuemeng"	  "xwei40@jh.edu"
-```
+
+| jhed       |  lastname  | firstname   | email              |
+|------------|------------|-------------| -------------------|
+| "jyang231" |  "Yang"	  | "Jishuo"	  | "jyang231@jh.edu"  |
+| "dwhitne5" |  "Whitney"	| "Dylan"	    | "dwhitne5@jhu.edu" |
+| "jroloff1" |  "Roloff"	| "Jackson"	  | "jroloff1@jhu.edu" |
+| "xwei40"	 |  "Wei"	    | "Xuemeng"	  | "xwei40@jh.edu"    |
+
 and new users can me registed at any time!
 
 Note: we have not created a logout feature yet. We also want to add an edit profile page where users can modify avatar and bio. These changes can be added in it5.
