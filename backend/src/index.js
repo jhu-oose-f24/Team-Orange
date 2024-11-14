@@ -30,7 +30,7 @@ const samlStrategy = new saml(
     },
     (profile, done) => {
       // poential error here with username
-    //   const username = profile['user_name'] || '';
+
       const username = profile['username'] || '';
       const firstName = profile['first_name'] || '';
       const lastName = profile['last_name'] || '';
@@ -121,13 +121,13 @@ app.post("/jhu/login/callback", passport.authenticate("samlStrategy"), (req, res
   res.redirect('/'); // or other route
 });
 
-// metadata (optional)
-// app.get("/jhu/metadata", (req, res) => {
-//   res.type("application/xml");
-//   res.status(200).send(
-//     samlStrategy.generateServiceProviderMetadata(PbK, PvK)
-//   );
-// });
+metadata (optional)
+app.get("/jhu/metadata", (req, res) => {
+  res.type("application/xml");
+  res.status(200).send(
+    samlStrategy.generateServiceProviderMetadata(PbK, PvK)
+  );
+});
 
 function ensureAuthenticated(req, res, next) {
     if (req.isAuthenticated()) {
