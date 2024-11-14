@@ -1,16 +1,92 @@
 const express = require("express");
 const path = require("path");
 const bodyParser = require("body-parser");
+// const { Client } = require('pg');
 const pg = require('pg');
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
+const passport = require('passport');
+const saml = require('passport-saml').Strategy;
+const session = require('express-session');
+const fs = require('fs');
+
+const certPath = path.join(__dirname, 'certs', 'cert.pem');
+const keyPath = path.join(__dirname, 'certs', 'key.pem');
+const PbK = fs.readFileSync(certPath, 'utf8');
+const PvK = fs.readFileSync(keyPath, 'utf8');
+
+const JHU_SSO_URL = "https://idp.jh.edu/idp/profile/SAML2/Redirect/SSO";
+const SP_NAME = process.env.SP_NAME || "chorehop-cc7c0bf7a12c";
+const BASE_URL = process.env.BASE_URL || "https://chorehop-cc7c0bf7a12c.herokuapp.com";
+
+const samlStrategy = new saml(
+    {
+      entryPoint: JHU_SSO_URL,
+      issuer: SP_NAME,
+      callbackUrl: `${BASE_URL}/jhu/login/callback`,
+      cert: PbK, 
+      decryptionPvk: PvK,
+      privateCert: PvK,
+    },
+    (profile, done) => {
+      // poential error here with username
+      const username = profile['user_name'] || '';
+    //   const username = profile['username'] || '';
+    //   const username = profile['urn:oid:0.9.2342.19200300.100.1.1'];
+      const firstName = profile['first_name'] || '';
+      const lastName = profile['last_name'] || '';
+      const email = profile['email'] || '';
+  
+      db.query('SELECT * FROM users WHERE Username = $1', [username], (err, result) => {
+        if (err) {
+          return done(err);
+        }
+        if (result.rows.length > 0) {
+          return done(null, result.rows[0]);
+        } else {
+          const userId = uuidv4();
+          const newUser = {
+            id: userId,
+            Username: username,
+            Lastname: lastName,
+            Firstname: firstName,
+            Email: email
+          };
+          const insertQuery = `
+            INSERT INTO users (id, Username, Lastname, Firstname, Email)
+            VALUES ($1, $2, $3, $4, $5)
+            RETURNING *;
+          `;
+          db.query(insertQuery, [newUser.id, newUser.Username, newUser.Lastname, newUser.Firstname, newUser.Email], (err, result) => {
+            if (err) {
+              return done(err);
+            }
+            return done(null, result.rows[0]);
+          });
+        }
+      });
+    }
+  );
+
+  passport.use("samlStrategy", samlStrategy);
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
+// first line could be removed. 
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-// Enable CORS for all routes
 app.use(cors());
+
+app.use(session({
+    // secret: process.env.SESSION_SECRET || 'your_secret_key',
+    secret: "use-any-secret",
+    resave: false,
+    saveUninitialized: true
+  }));
+  
+  app.use(passport.initialize());
+  app.use(passport.session());
 
 require('dotenv').config();
 
@@ -30,6 +106,47 @@ db.connect()
     .then(() => console.log('Connected to Supabase PostgreSQL'))
     .catch(err => console.error('Connection error1', err.stack));
 
+
+passport.serializeUser(function (user, done) {
+  done(null, user);
+});
+
+passport.deserializeUser(function (user, done) {
+  done(null, user);
+});
+
+
+app.get("/jhu/login", passport.authenticate("samlStrategy"));
+
+app.post("/jhu/login/callback", passport.authenticate("samlStrategy"), (req, res) => {
+  res.redirect('/'); // or other route
+});
+
+// metadata (optional)
+// app.get("/jhu/metadata", (req, res) => {
+//   res.type("application/xml");
+//   res.status(200).send(
+//     samlStrategy.generateServiceProviderMetadata(PbK, PvK)
+//   );
+// });
+
+function ensureAuthenticated(req, res, next) {
+    if (req.isAuthenticated()) {
+      return next();
+    }
+    res.redirect('/jhu/login');
+  }
+
+
+// //ensure Authenticated
+// app.get("/tickets", ensureAuthenticated, (req, res) => {
+//     // code here
+//   });
+  
+//   app.post("/tickets", ensureAuthenticated, (req, res) => {
+//     // code here
+//   });
+  
 
 // GET endpoint to retrieve all tickets
 app.get("/tickets", (req, res) => {
