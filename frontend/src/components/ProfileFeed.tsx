@@ -34,17 +34,17 @@ const ProfileFeed: React.FC<ProfileFeedProps> = ({ statusFilter, refresh, setRef
       try {
         // handle filters here 
           const allTickets = await getTickets();
-          if (statusFilter == "My Created Tickets") {
+          if (statusFilter === "My Created Tickets") {
             const filteredTickets = allTickets.filter(
               (ticket: TicketType) => ticket.owner_id === localStorage.getItem("activeUID")
             );
             setTickets(List(filteredTickets));
-          } else if (statusFilter == "My Tasks") {
+          } else if (statusFilter === "My Tasks") {
             const filteredTickets = allTickets.filter(
               (ticket: TicketType) => ticket.assigneduser_id === localStorage.getItem("activeUID") && ticket.status === "InProgress"
             );
             setTickets(List(filteredTickets));
-          } else if (statusFilter == "Awaiting Payment") {
+          } else if (statusFilter === "Awaiting Payment") {
             const filteredTickets = allTickets.filter(
               (ticket: TicketType) => ticket.assigneduser_id === localStorage.getItem("activeUID") && ticket.status === "Done"
             );
