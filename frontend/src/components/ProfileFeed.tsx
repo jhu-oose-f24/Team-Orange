@@ -34,6 +34,7 @@ const ProfileFeed: React.FC<ProfileFeedProps> = ({ statusFilter, refresh, setRef
       try {
         // handle filters here 
           const allTickets = await getTickets();
+
           if (statusFilter === "My Created Tickets") {
             const filteredTickets = allTickets.filter(
               (ticket: TicketType) => ticket.owner_id === localStorage.getItem("activeUID")

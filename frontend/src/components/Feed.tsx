@@ -50,6 +50,7 @@ const Feed: React.FC<FeedProps> = ({ statusFilter, searchParams, refresh, setRef
           handleSearch(searchParams);
         }
       } catch (error) {
+        console.log(error)
         setError("Failed to fetch tickets. Please try again later.");
       }
     };

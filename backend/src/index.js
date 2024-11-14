@@ -376,6 +376,43 @@ app.delete("/messages", (req, res) => {
       });
     });
   });
+
+// POST endpoint for logging in or registering a user
+app.post("/login", async (req, res) => {
+    const { jhed, firstName, lastName } = req.body;
+
+    if (!jhed || !firstName || !lastName) {
+        return res.status(400).json({ error: "JHED, First Name, and Last Name are required" });
+    }
+
+    try {
+        // Check if a user with this JHED already exists
+        const checkUserQuery = "SELECT * FROM users WHERE username = $1";
+        const existingUserResult = await db.query(checkUserQuery, [jhed]);
+
+        if (existingUserResult.rows.length > 0) {
+            const user = existingUserResult.rows[0];
+            return res.status(200).json({ message: "User logged in", user });
+        } else {
+            // User doesn't exist, register a new one
+            const newUserId = uuidv4();
+            const email = `${jhed}@jhu.edu`;
+            const insertUserQuery = `
+                INSERT INTO users (id, username, lastname, firstname, email)
+                VALUES ($1, $2, $3, $4, $5)
+                RETURNING *;
+            `;
+            const newUserResult = await db.query(insertUserQuery, [newUserId, jhed, lastName, firstName, email]);
+            const newUser = newUserResult.rows[0];
+
+            return res.status(201).json({ message: "User registered and logged in", user: newUser });
+        }
+    } catch (err) {
+        console.error("Error logging in or registering user:", err);
+        return res.status(500).json({ error: "Internal server error" });
+    }
+});
+
   
 // Home route
 app.get("/", (req, res) => {
