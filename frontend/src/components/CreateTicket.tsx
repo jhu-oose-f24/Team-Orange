@@ -34,7 +34,7 @@ const CreateTicket: React.FC = () => {
         title: formData.title,
         description: formData.description,
         category: formData.category,
-        status: formData.status,
+        status: "Open",
         deadline,
         owner_id: String(localStorage.getItem('activeUID')),
         assigneduser_id: undefined,
@@ -109,24 +109,6 @@ const CreateTicket: React.FC = () => {
                 </Select>
               </Form.Item>
 
-              <Form.Item<CreateTicketForm>
-                label={
-                  <Space>
-                    <OrderedListOutlined />
-                    Status
-                  </Space>
-                }
-                name="status"
-                rules={[{ required: true, message: "Please select a status!" }]}
-                style={{ height: '40px', width: '50%' }}
-              >
-                <Select placeholder="Select a Status" >
-                  <Select.Option value="Open">Open</Select.Option>
-                  <Select.Option value="InProgress">InProgress</Select.Option>
-                  <Select.Option value="Done">Done</Select.Option>
-                  <Select.Option value="Closed">Closed</Select.Option>
-                </Select>
-              </Form.Item>
 
               <Form.Item<CreateTicketForm>
                 label="Payment"
