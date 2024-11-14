@@ -11,6 +11,7 @@ import Feed from "./components/Feed";
 import CreateTicket from "./components/CreateTicket";
 import Profile from "./components/Profile";
 import AppHeader from "./components/AppHeader";
+import LoginScreen from "./components/LoginScreen";
 import SearchBar from "./components/SearchBar";
 import "./App.css";
 import UsersDropdown from "./components/UsersDropdown.dev";
@@ -55,6 +56,7 @@ const App: React.FC = () => {
             }}
           >
             <Routes>
+              <Route path="/" element={<LoginScreen />} />
               <Route path="/create-ticket" element={<CreateTicket />} />
               <Route
                 path="/feed"
