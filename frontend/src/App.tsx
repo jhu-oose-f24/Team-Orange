@@ -28,7 +28,6 @@ const App: React.FC = () => {
     { key: "feed", label: "Feed", path: "/feed" },
     { key: "create-ticket", label: "Create Ticket", path: "/create-ticket" },
     { key: "profile", label: "Profile", path: "/profile" },
-    { key: "dev-user", label: "DevUser", path: "/dev-user" },
   ];
 
   const [searchParams, setSearchParams] = useState({});
@@ -73,7 +72,6 @@ const App: React.FC = () => {
                 }
               />
               <Route path="/profile" element={<Profile />} />
-              <Route path="/dev-user" element={<UsersDropdown />} />
               <Route path="/" element={<Navigate to="/feed" replace />} />
             </Routes>
           </div>
