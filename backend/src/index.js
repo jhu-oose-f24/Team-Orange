@@ -18,18 +18,22 @@ const port = process.env.PORT || 3000;
 const saltRound = 10;
 
 const JHU_SSO_URL = "https://idp.jh.edu/idp/profile/SAML2/Redirect/SSO";
-const SP_NAME = "chorehop-cc7c0bf7a12c";  // replace this with out app name
-const BASE_URL = "https://chorehop-cc7c0bf7a12c.herokuapp.com/"; // need to deploy ours
+// const SP_NAME = "chorehop-cc7c0bf7a12c";  // replace this with out app name
+// const BASE_URL = "https://chorehop-cc7c0bf7a12c.herokuapp.com/"; // need to deploy ours
+
+const SP_NAME = "glacial-plateau-47269";
+const BASE_URL = "https://glacial-plateau-47269.herokuapp.com";
+
 // key
 const fs = require("fs");
-// const PbK = fs.readFileSync(__dirname + "/certs/cert.pem", "utf8");
-// const PvK = fs.readFileSync(__dirname + "/certs/key.pem", "utf8");
+const PbK = fs.readFileSync(__dirname + "/certs/cert.pem", "utf8");
+const PvK = fs.readFileSync(__dirname + "/certs/key.pem", "utf8");
 
 // const certPem = Buffer.from(process.env.CERT_PEM, 'base64').toString('utf-8');
 // const privateKey = Buffer.from(process.env.PRIVATE_KEY, 'base64').toString('utf-8');
 
-const PbK = process.env.PUBLIC_KEY; // Use the public key from environment variable
-const PvK = process.env.PRIVATE_KEY; // Use the private key from environment variable
+// const PbK = process.env.PUBLIC_KEY; // Use the public key from environment variable
+// const PvK = process.env.PRIVATE_KEY; // Use the private key from environment variable
 
 
 
@@ -49,8 +53,10 @@ const samlStrategy = new saml.Strategy(
     issuer: SP_NAME,
     callbackUrl: `${BASE_URL}/jhu/login/callback`,
     decryptionPvk: PvK,
-    privateCert: PvK,
-    cert: PbK,    
+    cert: PbK, 
+    privateCert: PvK,   
+    // privateCert: PvK,
+    // cert: PbK,    
     // cert: fs.readFileSync(path.join(__dirname, 'certs', 'cert.pem'), 'utf-8'),
   },
   (profile, done) => {
@@ -68,10 +74,10 @@ passport.use("samlStrategy", samlStrategy);
 
 // trust between our app(SP) and idp (metadata XML)
 app.get("/jhu/metadata", (req, res) => {
-    res.type("application/xml");
+    res.type("application/xml");  // Set the response type as XML
     res.status(200);
-    res.send(samlStrategy.generateServiceProviderMetadata(PbK, PbK));
-});
+    res.send(samlStrategy.generateServiceProviderMetadata(PbK, PbK));  // Pass the public key for signing
+  });
   
 // middleware
 app.use(bodyParser.urlencoded({ extended: true })); 
