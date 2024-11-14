@@ -15,7 +15,7 @@ const keyPath = path.join(__dirname, 'certs', 'key.pem');
 const PbK = fs.readFileSync(certPath, 'utf8');
 const PvK = fs.readFileSync(keyPath, 'utf8');
 
-const JHU_SSO_URL = "https://idp.jhu.edu/idp/profile/SAML2/Redirect/SSO";
+const JHU_SSO_URL = "https://idp.jh.edu/idp/profile/SAML2/Redirect/SSO";
 const SP_NAME = process.env.SP_NAME || "chorehop-sso-99eceafc63f6";
 const BASE_URL = process.env.BASE_URL || "https://chorehop-sso-99eceafc63f6.herokuapp.com";
 
@@ -30,9 +30,8 @@ const samlStrategy = new saml(
     },
     (profile, done) => {
       // poential error here with username
-      const username = profile['user_name'] || '';
-    //   const username = profile['username'] || '';
-    //   const username = profile['urn:oid:0.9.2342.19200300.100.1.1'];
+    //   const username = profile['user_name'] || '';
+      const username = profile['username'] || '';
       const firstName = profile['first_name'] || '';
       const lastName = profile['last_name'] || '';
       const email = profile['email'] || '';
@@ -80,7 +79,7 @@ app.use(cors());
 
 app.use(session({
     // secret: process.env.SESSION_SECRET || 'your_secret_key',
-    secret: "use-any-secret",
+    secret: "useanysecret",
     resave: false,
     saveUninitialized: true
   }));
