@@ -7,7 +7,6 @@ import { Button, Card, Form, Input, Modal, Select } from "antd";
 import { 
   DollarOutlined, 
 } from '@ant-design/icons';
-import TicketType from "../types/Ticket";
 
 interface TicketProps {
   id: string;
@@ -44,7 +43,6 @@ const Ticket: React.FC<TicketProps> = ({
   onDelete,
   setRefresh
 }) => {
-  const [isEditing, setIsEditing] = useState(false);
   const [editDeadline, setEditDeadline] = useState(deadline.slice(0, -1));
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
   const [isConfirmingPayment, setIsConfirmingPayment] = useState(false);
@@ -54,6 +52,7 @@ const Ticket: React.FC<TicketProps> = ({
   const [isAssigning, setIsAssigning] = useState(false);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [form] = Form.useForm();
+  const [isMarkingAsDone, setIsMarkingAsDone] = useState(false);
 
   useEffect(() => {
     const userId = localStorage.getItem("activeUID");
@@ -101,9 +100,21 @@ const Ticket: React.FC<TicketProps> = ({
     }
   };
 
+  const handleMarkAsDone = async () => {
+    const updatedTicket = {
+      status: "Done"
+    };
+    try {
+      await editTicket(id, (updatedTicket))
+      setRefresh((prev) => !prev); // trigger refresh
+    } catch (error) {
+      console.error("Failed to mark ticket as Done:", error);
+    }
+  }
+
   const handleConfirmPayment = async () => {
     const updatedTicket = {
-      status: "Done",
+      status: "Closed",
       payment_confirmed: true,
     };
     try {
@@ -142,6 +153,11 @@ const Ticket: React.FC<TicketProps> = ({
   const handleCancel = () => {
     setIsEditModalVisible(false);
   };
+
+  const handleConfirmMarkAsDone = () => {
+    handleMarkAsDone();
+    setIsMarkingAsDone(false);
+  }
 
   return (
     <Card
@@ -289,7 +305,7 @@ const Ticket: React.FC<TicketProps> = ({
       </Modal>
 
       
-      {isAssigning && status !== "Done" && (
+      {isAssigning && status === "Open" && (
         <div className="modal">
           <p>Do you want to assign yourself to this ticket?</p>
           <Button type="primary" onClick={handleAssign}>
@@ -300,8 +316,14 @@ const Ticket: React.FC<TicketProps> = ({
       )}
 
       { (isAssignedUser && status === "InProgress") && (
-        <Button type="primary" onClick={() => setIsConfirmingPayment(true)}>
+        <Button type="primary" onClick={() => setIsMarkingAsDone(true)}>
         Mark as Done
+      </Button>
+      )}
+
+      { (isAssignedUser && status === "Done") && (
+        <Button type="primary" onClick={() => setIsConfirmingPayment(true)}>
+        Confirm Payment
       </Button>
       )}
 
@@ -312,6 +334,16 @@ const Ticket: React.FC<TicketProps> = ({
           Yes, Confirm Payment Received
         </Button>
         <Button onClick={() => setIsConfirmingPayment(false)}>Cancel</Button>
+      </div>
+      )}
+
+      {isMarkingAsDone && (
+        <div className="modal">
+        <p>Do you want to mark this ticket as Done?</p>
+        <Button type="primary" onClick={handleMarkAsDone}>
+          Yes, Mark as Done
+        </Button>
+        <Button onClick={() => setIsMarkingAsDone(false)}>Cancel</Button>
       </div>
       )}
 
