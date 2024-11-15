@@ -1,17 +1,90 @@
 const express = require("express");
 const path = require("path");
 const bodyParser = require("body-parser");
+// const { Client } = require('pg');
 const pg = require('pg');
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
+const passport = require('passport');
+const saml = require('passport-saml').Strategy;
+const session = require('express-session');
+const fs = require('fs');
+
+const certPath = path.join(__dirname, 'certs', 'cert.pem');
+const keyPath = path.join(__dirname, 'certs', 'key.pem');
+const PbK = fs.readFileSync(certPath, 'utf8');
+const PvK = fs.readFileSync(keyPath, 'utf8');
+
+const JHU_SSO_URL = "https://idp.jh.edu/idp/profile/SAML2/Redirect/SSO";
+const SP_NAME = process.env.SP_NAME || "chorehop-cc7c0bf7a12c";
+const BASE_URL = process.env.BASE_URL || "https://chorehop-cc7c0bf7a12c.herokuapp.com";
+
+const samlStrategy = new saml(
+    {
+        entryPoint: JHU_SSO_URL,
+        issuer: SP_NAME,
+        callbackUrl: `${BASE_URL}/jhu/login/callback`,
+        // should be public cert from provider
+        cert: PbK,
+        decryptionPvk: PvK,
+        privateCert: PvK,
+    },
+    (profile, done) => {
+        // poential formatting error here
+        const username = profile['username'] || '';
+        const firstName = profile['first_name'] || '';
+        const lastName = profile['last_name'] || '';
+        const email = profile['email'] || '';
+
+        db.query('SELECT * FROM users WHERE Username = $1', [username], (err, result) => {
+            if (err) {
+                return done(err);
+            }
+            if (result.rows.length > 0) {
+                return done(null, result.rows[0]);
+            } else {
+                const userId = uuidv4();
+                const newUser = {
+                    id: userId,
+                    Username: username,
+                    Lastname: lastName,
+                    Firstname: firstName,
+                    Email: email
+                };
+                const insertQuery = `
+            INSERT INTO users (id, Username, Lastname, Firstname, Email)
+            VALUES ($1, $2, $3, $4, $5)
+            RETURNING *;
+          `;
+                db.query(insertQuery, [newUser.id, newUser.Username, newUser.Lastname, newUser.Firstname, newUser.Email], (err, result) => {
+                    if (err) {
+                        return done(err);
+                    }
+                    return done(null, result.rows[0]);
+                });
+            }
+        });
+    }
+);
+
+passport.use("samlStrategy", samlStrategy);
 
 const app = express();
-// const port = 3000;
 const port = process.env.PORT || 3000;
 
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-// Enable CORS for all routes
 app.use(cors());
+
+app.use(session({
+    // secret: process.env.SESSION_SECRET || 'your_secret_key',
+    secret: "useanysecret",
+    resave: false,
+    saveUninitialized: true
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 require('dotenv').config();
 
@@ -31,6 +104,45 @@ db.connect()
     .then(() => console.log('Connected to Supabase PostgreSQL'))
     .catch(err => console.error('Connection error1', err.stack));
 
+passport.serializeUser(function (user, done) {
+    done(null, user);
+});
+
+passport.deserializeUser(function (user, done) {
+    done(null, user);
+});
+
+app.get("/jhu/login", passport.authenticate("samlStrategy"));
+
+app.post("/jhu/login/callback", passport.authenticate("samlStrategy"), (req, res) => {
+    res.redirect('/'); // or other route
+});
+
+// metadata
+app.get("/jhu/metadata", (req, res) => {
+    res.type("application/xml");
+    res.status(200).send(
+        samlStrategy.generateServiceProviderMetadata(PbK, PvK)
+    );
+});
+
+function ensureAuthenticated(req, res, next) {
+    if (req.isAuthenticated()) {
+        return next();
+    }
+    res.redirect('/jhu/login');
+}
+
+//HOW TO USE
+// //ensure Authenticated
+// app.get("/tickets", ensureAuthenticated, (req, res) => {
+//     // code here
+//   });
+
+//   app.post("/tickets", ensureAuthenticated, (req, res) => {
+//     // code here
+//   });
+
 
 // GET endpoint to retrieve all tickets
 app.get("/tickets", (req, res) => {
@@ -44,7 +156,7 @@ app.get("/tickets", (req, res) => {
 
 // GET endpoint to search for specific tickets
 app.get("/tickets/search", (req, res) => {
-    const { title, startDate, endDate, owner_id, status, priority, ticket_id, minPayment, maxPayment, sortBy, sortOrder, category} = req.query;
+    const { title, startDate, endDate, owner_id, status, priority, ticket_id, minPayment, maxPayment, sortBy, sortOrder, category } = req.query;
 
     let query = "SELECT * FROM ticket WHERE 1=1";
     let queryParams = [];
@@ -339,43 +451,43 @@ app.post("/messages", (req, res) => {
 });
 
 app.delete("/messages", (req, res) => {
-    const { ticket_id } = req.body; 
-  
+    const { ticket_id } = req.body;
+
     // validate that ticket_id is provided
     if (!ticket_id) {
-      return res.status(400).json({ error: "ticket_id is required" });
+        return res.status(400).json({ error: "ticket_id is required" });
     }
-  
+
     // UUID validation for ticket_id
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
     if (!uuidRegex.test(ticket_id)) {
-      return res.status(400).json({ error: "Invalid ticket_id format" });
+        return res.status(400).json({ error: "Invalid ticket_id format" });
     }
-  
+
     // check if the ticket exists in the database
     const checkExistenceQuery = "SELECT * FROM ticket WHERE id = $1";
     db.query(checkExistenceQuery, [ticket_id], (err, result) => {
-      if (err) {
-        console.error('Database query error:', err);
-        return res.status(500).json({ error: "Database query failed" });
-      }
-  
-      if (result.rows.length === 0) {
-        return res.status(404).json({ error: "Ticket not found" });
-      }
-  
-      // delete all messages for this ticket
-      const deleteQuery = "DELETE FROM messages WHERE ticket_id = $1";
-      db.query(deleteQuery, [ticket_id], (err) => {
         if (err) {
-          console.error('Database delete error:', err);
-          return res.status(500).json({ error: "Failed to delete messages" });
+            console.error('Database query error:', err);
+            return res.status(500).json({ error: "Database query failed" });
         }
-  
-        res.status(204).send(); // No content, successful deletion
-      });
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: "Ticket not found" });
+        }
+
+        // delete all messages for this ticket
+        const deleteQuery = "DELETE FROM messages WHERE ticket_id = $1";
+        db.query(deleteQuery, [ticket_id], (err) => {
+            if (err) {
+                console.error('Database delete error:', err);
+                return res.status(500).json({ error: "Failed to delete messages" });
+            }
+
+            res.status(204).send(); // No content, successful deletion
+        });
     });
-  });
+});
 
 // POST endpoint for logging in or registering a user
 app.post("/login", async (req, res) => {
@@ -413,7 +525,7 @@ app.post("/login", async (req, res) => {
     }
 });
 
-  
+
 // Home route
 app.get("/", (req, res) => {
     res.send("<h1>Hello world</h1>");  // sending back HTML
