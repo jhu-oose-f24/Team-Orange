@@ -30,7 +30,6 @@ const samlStrategy = new saml(
     },
     (profile, done) => {
       // poential error here with username
-
       const username = profile['username'] || '';
       const firstName = profile['first_name'] || '';
       const lastName = profile['last_name'] || '';
