@@ -267,10 +267,14 @@ const Ticket: React.FC<TicketProps> = ({
       {isConfirmingDelete && (
         <div className="modal">
           <p>Are you sure you want to delete this ticket?</p>
-          <Button type="primary" onClick={handleConfirmDelete}>
-            Yes
-          </Button>
-          <Button onClick={handleCancelDelete}>Cancel</Button>
+          <Space>
+            <Button type="primary" onClick={handleConfirmDelete}>
+              Yes
+            </Button>
+            <Button onClick={handleCancelDelete}>
+              Cancel
+            </Button>
+          </Space>
         </div>
       )}
 
