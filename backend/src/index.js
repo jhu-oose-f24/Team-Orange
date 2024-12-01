@@ -21,21 +21,16 @@ const JHU_SSO_URL = "https://idp.jh.edu/idp/profile/SAML2/Redirect/SSO";
 const SP_NAME = "chorehop-cc7c0bf7a12c";  // replace this with out app name
 const BASE_URL = "https://chorehop-cc7c0bf7a12c.herokuapp.com"; // need to deploy ours
 
-// const SP_NAME = "glacial-plateau-47269";
-// const BASE_URL = "https://glacial-plateau-47269.herokuapp.com";
-
 // key
 const fs = require("fs");
-const PbK = fs.readFileSync(__dirname + "/certs/cert.pem", "utf8");
-const PvK = fs.readFileSync(__dirname + "/certs/key.pem", "utf8");
+const PbK = fs.readFileSync(__dirname + "/certs_final/cert.pem", "utf8");
+const PvK = fs.readFileSync(__dirname + "/certs_final/key.pem", "utf8");
 
 // const certPem = Buffer.from(process.env.CERT_PEM, 'base64').toString('utf-8');
 // const privateKey = Buffer.from(process.env.PRIVATE_KEY, 'base64').toString('utf-8');
 
 // const PbK = process.env.PUBLIC_KEY; // Use the public key from environment variable
 // const PvK = process.env.PRIVATE_KEY; // Use the private key from environment variable
-
-
 
 
 app.use(session({
