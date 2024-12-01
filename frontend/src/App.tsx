@@ -11,9 +11,12 @@ import Feed from "./components/Feed";
 import CreateTicket from "./components/CreateTicket";
 import Profile from "./components/Profile";
 import AppHeader from "./components/AppHeader";
+import LoginScreen from "./components/LoginScreen";
 import SearchBar from "./components/SearchBar";
 import "./App.css";
 import UsersDropdown from "./components/UsersDropdown.dev";
+import FloatingActionButton from "./components/FloatingActionButton";
+import ProfileFeed from "./components/ProfileFeed";
 
 const { Header, Content, Footer } = Layout;
 
@@ -26,7 +29,6 @@ const App: React.FC = () => {
     { key: "feed", label: "Feed", path: "/feed" },
     { key: "create-ticket", label: "Create Ticket", path: "/create-ticket" },
     { key: "profile", label: "Profile", path: "/profile" },
-    { key: "dev-user", label: "DevUser", path: "/dev-user" },
   ];
 
   const [searchParams, setSearchParams] = useState({});
@@ -53,6 +55,7 @@ const App: React.FC = () => {
             }}
           >
             <Routes>
+              <Route path="/" element={<LoginScreen />} />
               <Route path="/create-ticket" element={<CreateTicket />} />
               <Route
                 path="/feed"
@@ -69,7 +72,20 @@ const App: React.FC = () => {
                   </div>
                 }
               />
-              <Route path="/profile" element={<Profile />} />
+              <Route 
+                path="/profile" 
+                element={
+                  <div>
+                    <Profile />
+                    <div className="feed-container">
+                      <ProfileFeed statusFilter="My Created Tickets" refresh={refresh} setRefresh={setRefresh} />
+                      <ProfileFeed statusFilter="My Tasks" refresh={refresh} setRefresh={setRefresh}/>
+                      <ProfileFeed statusFilter="Awaiting Payment" refresh={refresh} setRefresh={setRefresh}/>
+                    </div>
+                  </div>
+                
+              } 
+              />
               <Route path="/dev-user" element={<UsersDropdown />} />
               <Route path="/" element={<Navigate to="/feed" replace />} />
             </Routes>
@@ -78,6 +94,7 @@ const App: React.FC = () => {
         <Footer style={{ textAlign: "center" }}>
           ChoreHop ©{new Date().getFullYear()} Created for jhu-oose-24
         </Footer>
+        <FloatingActionButton />
       </Layout>
     </Router>
   );

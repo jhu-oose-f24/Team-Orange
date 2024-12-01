@@ -1,7 +1,16 @@
 import React, { useState } from "react";
-import { Button, Form, Input, Select } from "antd";
-
+import { Button, Form, Input, Select, Card, Row, Col, Typography, Space, message } from "antd";
+import { 
+  DollarOutlined, 
+  CalendarOutlined, 
+  TagOutlined, 
+  ProfileOutlined, 
+  FlagOutlined, 
+  OrderedListOutlined
+} from '@ant-design/icons';
 import createTicket from "../api/CreateTicket";
+
+const { Title } = Typography;
 
 type CreateTicketForm = {
   title: string;
@@ -17,131 +26,153 @@ type CreateTicketForm = {
 
 const CreateTicket: React.FC = () => {
   const [deadline, setDeadline] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
+  const [form] = Form.useForm();
 
-  const handleSubmit = async (form: CreateTicketForm) => {
-    const newTicket = {
-      title: form.title,
-      description: form.description,
-      category: form.category,
-      status: form.status,
-      deadline,
-      owner_id: String(localStorage.getItem('activeUID')), 
-      assigneduser_id: undefined, // currently all new tickets are unassigned. Do we want to assign at creation later?
-      payment: Number(form.payment),
-      priority: form.priority,
-    };
-
+  const handleSubmit = async (formData: CreateTicketForm) => {
     try {
+      const newTicket = {
+        title: formData.title,
+        description: formData.description,
+        category: formData.category,
+        status: "Open",
+        deadline,
+        owner_id: String(localStorage.getItem('activeUID')),
+        assigneduser_id: undefined,
+        payment: Number(formData.payment),
+        priority: formData.priority,
+      };
+
       await createTicket(newTicket);
+      message.success("Ticket created successfully!");
+      form.resetFields();
       setDeadline("");
-      setSuccess(
-        "Successfully Created your new ticket. View it in the Feed page.",
-      );
     } catch (error) {
-      setError("Failed to create ticket. Please try again later.");
+      message.error("Failed to create ticket. Please try again.");
     }
   };
 
   return (
-    <div>
-      <h2>Create Ticket</h2>
-      {error && <div className="error">{error}</div>}
-      {success && <div className="success">{success}</div>}
-      <Form
-        name="CreateTicketForm"
-        labelCol={{ span: 8 }}
-        wrapperCol={{ span: 16 }}
-        style={{ maxWidth: 600 }}
-        initialValues={{ remember: true }}
-        onFinish={handleSubmit}
-      >
-        <Form.Item<CreateTicketForm>
-          label="Title"
-          name="title"
-          rules={[{ required: true, message: "Please input a title!" }]}
-        >
-          <Input />
-        </Form.Item>
+    <Row justify="center" style={{ padding: '24px' }}>
+      <Col xs={24} sm={22} md={20} lg={18} xl={16}>
+        <Card bordered={false} style={{ borderRadius: '8px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)', width: '100%' }}>
+          <Space direction="vertical" size="large" style={{ width: '100%' }}>
+            <Title level={2} style={{ textAlign: 'center', margin: 0 }}>Create New Ticket</Title>
+            
+            <Form
+              form={form}
+              name="CreateTicketForm"
+              layout="vertical"
+              onFinish={handleSubmit}
+              requiredMark="optional"
+              style={{ maxWidth: '100%' }}
+            >
+              <Form.Item<CreateTicketForm>
+                label="Title"
+                name="title"
+                rules={[{ required: true, message: "Please input a title!" }]}
+                style={{ height: '40px', width: '50%' }}
+              >
+                <Input prefix={<ProfileOutlined />} placeholder="Enter ticket title" />
+              </Form.Item>
 
-        <Form.Item<CreateTicketForm>
-          label="Description"
-          name="description"
-          rules={[{ required: true, message: "Please input a description!" }]}
-        >
-          <Input />
-        </Form.Item>
+              <Form.Item<CreateTicketForm>
+                label="Description"
+                name="description"
+                rules={[{ required: true, message: "Please input a description!" }]}
+                style={{ width: '50%' }}
+              >
+                <Input.TextArea 
+                  placeholder="Enter ticket description"
+                  autoSize={{ minRows: 3, maxRows: 6 }}
+                />
+              </Form.Item>
 
-        {/* Do we want a dropdown for assigned user here? */}
+              <Form.Item<CreateTicketForm>
+                label={
+                  <Space>
+                    <TagOutlined />
+                    Category
+                  </Space>
+                }
+                name="category"
+                rules={[{ required: true, message: "Please select a category!" }]}
+                style={{ height: '40px', width: '50%' }}
+              >
+                <Select placeholder="Select a Category">
+                  <Select.Option value="Errands">Errands</Select.Option>
+                  <Select.Option value="Landscaping">Landscaping</Select.Option>
+                  <Select.Option value="Delivery">Delivery</Select.Option>
+                  <Select.Option value="Pet Care">Pet Care</Select.Option>
+                  <Select.Option value="Cleaning">Cleaning</Select.Option>
+                  <Select.Option value="Gear Rental">Gear Rental</Select.Option>
+                  <Select.Option value="Other">Other</Select.Option>
+                </Select>
+              </Form.Item>
 
-        <Form.Item<CreateTicketForm>
-          label="Category"
-          name="category"
-          rules={[{ required: true, message: "Please input a category!" }]}
-        >
-          {/* // 'Errands', 'Landscaping', 'Delivery', 'Pet Care', 'Cleaning', 'Gear Rental', 'Other' */}
-          <Select placeholder="Select a Category">
-            <Select.Option value="Errands">Errands</Select.Option>
-            <Select.Option value="Landscaping">Landscaping</Select.Option>
-            <Select.Option value="Delivery">Delivery</Select.Option>
-            <Select.Option value="Pet Care">Pet Care</Select.Option>
-            <Select.Option value="Cleaning">Cleaning</Select.Option>
-            <Select.Option value="Gear Rental">Gear Rental</Select.Option>
-            <Select.Option value="Other">Other</Select.Option>
-          </Select>
-        </Form.Item>
 
-        <Form.Item<CreateTicketForm>
-          label="Status"
-          name="status"
-          rules={[{ required: true, message: "Select from a Status!" }]}
-        >
-          <Select placeholder="Select a status">
-            <Select.Option value="Open">Open</Select.Option>
-            <Select.Option value="InProgress">InProgress</Select.Option>
-            <Select.Option value="Done">Done</Select.Option>
-            <Select.Option value="Closed">Closed</Select.Option>
-          </Select>
-        </Form.Item>
+              <Form.Item<CreateTicketForm>
+                label="Payment"
+                name="payment"
+                rules={[{ required: true, message: "Please input a payment amount!" }]}
+                style={{ height: '40px', width: '50%' }}
+              >
+                <Input 
+                  prefix={<DollarOutlined />} 
+                  placeholder="Enter payment amount"
+                  type="number"
+                  min={0}
+                  
+                />
+              </Form.Item>
 
-        <Form.Item<CreateTicketForm>
-          label="Payment"
-          name="payment"
-          rules={[{ required: true, message: "Please input a payment!" }]}
-        >
-          <Input />
-        </Form.Item>
+              <Form.Item<CreateTicketForm>
+                label="Deadline"
+                name="deadline"
+                rules={[{ required: true, message: "Please select a deadline!" }]}
+                style={{ height: '40px', width: '50%' }}
+              >
+                <Input
+                  prefix={<CalendarOutlined />}
+                  type="datetime-local"
+                  value={deadline}
+                  onChange={(e) => setDeadline(e.target.value)}
+                />
+              </Form.Item>
 
-        <Form.Item<CreateTicketForm>
-          label="Deadline"
-          name="deadline"
-          rules={[{ required: true, message: "Please input a deadline!" }]}
-        >
-          <Input
-            type="datetime-local"
-            value={deadline}
-            onChange={(e) => setDeadline(e.target.value)}
-            required
-          />
-        </Form.Item>
-        <Form.Item<CreateTicketForm>
-          label="Priority"
-          name="priority"
-          rules={[{ required: true, message: "Please input a priority!" }]}
-        >
-          <Select placeholder="Select a priority">
-            <Select.Option value="Low">Low</Select.Option>
-            <Select.Option value="Medium">Medium</Select.Option>
-            <Select.Option value="High">High</Select.Option>
-          </Select>
-        </Form.Item>
+              <Form.Item<CreateTicketForm>
+                label={
+                  <Space>
+                    <FlagOutlined />
+                    Priority
+                  </Space>
+                }
+                name="priority"
+                rules={[{ required: true, message: "Please select a priority!" }]}
+                style={{ height: '40px', width: '50%' }}
+              >
+                <Select placeholder="Select Priority">
+                  <Select.Option value="Low">Low</Select.Option>
+                  <Select.Option value="Medium">Medium</Select.Option>
+                  <Select.Option value="High">High</Select.Option>
+                </Select>
+              </Form.Item>
 
-        <Button type="primary" htmlType="submit">
-          Create Ticket
-        </Button>
-      </Form>
-    </div>
+              <Form.Item style={{ marginTop: '24px' }}>
+                <Button 
+                  type="primary" 
+                  htmlType="submit" 
+                  block 
+                  size="large"
+                  style={{ height: '48px' }}
+                >
+                  Create Ticket
+                </Button>
+              </Form.Item>
+            </Form>
+          </Space>
+        </Card>
+      </Col>
+    </Row>
   );
 };
 

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { List } from "immutable";
-import searchTickets from "../api/SearchTicket";
 import { Space } from "antd";
 import TicketType from "../types/Ticket";
 import Ticket from "./Ticket";
@@ -8,20 +7,13 @@ import getTickets from "../api/GetTickets";
 import deleteTicket from "../api/DeleteTicket";
 import deleteMessagesByTicket from "../api/DeleteMessagesByTicket";
 
-interface FeedProps {
+interface ProfileFeedProps {
   statusFilter: string;
-  searchParams: {
-    title?: string;
-    startDate?: string;
-    endDate?: string;
-    category?: string;
-    minPayment?: string;
-  },
   refresh: boolean;
   setRefresh: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const Feed: React.FC<FeedProps> = ({ statusFilter, searchParams, refresh, setRefresh }) => {
+const ProfileFeed: React.FC<ProfileFeedProps> = ({ statusFilter, refresh, setRefresh }) => {
   const [tickets, setTickets] = useState<
     List<{
       id: string;
@@ -40,43 +32,34 @@ const Feed: React.FC<FeedProps> = ({ statusFilter, searchParams, refresh, setRef
   useEffect(() => {
     const fetchTickets = async () => {
       try {
-        if (Object.keys(searchParams).length === 0) {
+        // handle filters here 
           const allTickets = await getTickets();
-          const filteredTickets = allTickets.filter(
-            (ticket: TicketType) => ticket.status === statusFilter
-          );
-          setTickets(List(filteredTickets));
-        } else {
-          handleSearch(searchParams);
-        }
+
+          if (statusFilter === "My Created Tickets") {
+            const filteredTickets = allTickets.filter(
+              (ticket: TicketType) => ticket.owner_id === localStorage.getItem("activeUID")
+            );
+            setTickets(List(filteredTickets));
+          } else if (statusFilter === "My Tasks") {
+            const filteredTickets = allTickets.filter(
+              (ticket: TicketType) => ticket.assigneduser_id === localStorage.getItem("activeUID") && ticket.status === "InProgress"
+            );
+            setTickets(List(filteredTickets));
+          } else if (statusFilter === "Awaiting Payment") {
+            const filteredTickets = allTickets.filter(
+              (ticket: TicketType) => ticket.assigneduser_id === localStorage.getItem("activeUID") && ticket.status === "Done"
+            );
+            setTickets(List(filteredTickets));
+          }
+          
+        
       } catch (error) {
-        console.log(error)
         setError("Failed to fetch tickets. Please try again later.");
       }
     };
 
     fetchTickets();
-  }, [searchParams, statusFilter, refresh]);
-
-
-  useEffect(() => {
-    if (Object.keys(searchParams).length > 0) {
-      handleSearch(searchParams);
-    }
-  }, [searchParams]);
-
-  const handleSearch = async (params: any) => {
-    try {
-      const fetchedTickets = await searchTickets(params);
-      const feedFilteredTickets = fetchedTickets.filter(
-        (ticket: { status: string }) =>
-          ticket.status.toLowerCase() === statusFilter.toLowerCase()
-      );
-      setTickets(List(feedFilteredTickets));
-    } catch (error) {
-      setError("Failed to search tickets. Please try again later.");
-    }
-  };
+  }, [statusFilter, refresh]);
 
   const handleDeleteTicket = async (ticketId: string) => {
     try {
@@ -93,7 +76,7 @@ const Feed: React.FC<FeedProps> = ({ statusFilter, searchParams, refresh, setRef
   return (
     <div className="feed">
       <h2 style={{ fontSize: "24px", color: "#1677ff" }}>
-        {statusFilter} Tickets
+        {statusFilter}
       </h2>
       {error && <div className="error">{error}</div>}
       {tickets.map((ticket) => (
@@ -117,4 +100,4 @@ const Feed: React.FC<FeedProps> = ({ statusFilter, searchParams, refresh, setRef
   );
 };
 
-export default Feed;
+export default ProfileFeed;
