@@ -1,90 +1,88 @@
 const express = require("express");
 const path = require("path");
 const bodyParser = require("body-parser");
-// const { Client } = require('pg');
 const pg = require('pg');
 const cors = require('cors');
-const { v4: uuidv4 } = require('uuid');
+const bcrypt = require("bcrypt");
+// const { password } = require("pg/lib/defaults");
 const passport = require('passport');
-const saml = require('passport-saml').Strategy;
+const LocalStrategy = require('passport-local').Strategy;
 const session = require('express-session');
-const fs = require('fs');
 
-const certPath = path.join(__dirname, 'certs', 'cert.pem');
-const keyPath = path.join(__dirname, 'certs', 'key.pem');
-const PbK = fs.readFileSync(certPath, 'utf8');
-const PvK = fs.readFileSync(keyPath, 'utf8');
+const saml = require("passport-saml");
+
+const { v4: uuidv4 } = require('uuid');
+const app = express();
+// const port = 3000;
+const port = process.env.PORT || 3000;
+const saltRound = 10;
 
 const JHU_SSO_URL = "https://idp.jh.edu/idp/profile/SAML2/Redirect/SSO";
-const SP_NAME = process.env.SP_NAME || "chorehop-cc7c0bf7a12c";
-const BASE_URL = process.env.BASE_URL || "https://chorehop-cc7c0bf7a12c.herokuapp.com";
+const SP_NAME = "chorehop-cc7c0bf7a12c";  // replace this with out app name
+const BASE_URL = "https://chorehop-cc7c0bf7a12c.herokuapp.com"; // need to deploy ours
 
-const samlStrategy = new saml(
-    {
-        entryPoint: JHU_SSO_URL,
-        issuer: SP_NAME,
-        callbackUrl: `${BASE_URL}/jhu/login/callback`,
-        // should be public cert from provider
-        cert: PbK,
-        decryptionPvk: PvK,
-        privateCert: PvK,
-    },
-    (profile, done) => {
-        // poential formatting error here
-        const username = profile['username'] || '';
-        const firstName = profile['first_name'] || '';
-        const lastName = profile['last_name'] || '';
-        const email = profile['email'] || '';
+// key
+const fs = require("fs");
+const PbK = fs.readFileSync(__dirname + "/certs/cert.pem", "utf8");
+const PvK = fs.readFileSync(__dirname + "/certs/key.pem", "utf8");
 
-        db.query('SELECT * FROM users WHERE Username = $1', [username], (err, result) => {
-            if (err) {
-                return done(err);
-            }
-            if (result.rows.length > 0) {
-                return done(null, result.rows[0]);
-            } else {
-                const userId = uuidv4();
-                const newUser = {
-                    id: userId,
-                    Username: username,
-                    Lastname: lastName,
-                    Firstname: firstName,
-                    Email: email
-                };
-                const insertQuery = `
-            INSERT INTO users (id, Username, Lastname, Firstname, Email)
-            VALUES ($1, $2, $3, $4, $5)
-            RETURNING *;
-          `;
-                db.query(insertQuery, [newUser.id, newUser.Username, newUser.Lastname, newUser.Firstname, newUser.Email], (err, result) => {
-                    if (err) {
-                        return done(err);
-                    }
-                    return done(null, result.rows[0]);
-                });
-            }
-        });
-    }
-);
+// const certPem = Buffer.from(process.env.CERT_PEM, 'base64').toString('utf-8');
+// const privateKey = Buffer.from(process.env.PRIVATE_KEY, 'base64').toString('utf-8');
 
-passport.use("samlStrategy", samlStrategy);
+// const PbK = process.env.PUBLIC_KEY; // Use the public key from environment variable
+// const PvK = process.env.PRIVATE_KEY; // Use the private key from environment variable
 
-const app = express();
-const port = process.env.PORT || 3000;
-
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
-app.use(cors());
 
 app.use(session({
-    // secret: process.env.SESSION_SECRET || 'your_secret_key',
-    secret: "useanysecret",
+    secret: "ORANGESECRET",
     resave: false,
-    saveUninitialized: true
-}));
+    saveUninitialized: true ,// store uninitialized session to server memory
+    cookie: { secure: false, maxAge: 3600000 } // 1-hour session expiry
+  }));
+  
+// Setup SAML strategy
+const samlStrategy = new saml.Strategy(
+  {
+    // config options here
+    entryPoint: JHU_SSO_URL,
+    issuer: SP_NAME,
+    callbackUrl: `${BASE_URL}/jhu/login/callback`,
+    decryptionPvk: PvK,
+    cert: PbK, 
+    privateCert: PvK,   
+    // privateCert: PvK,
+    // cert: PbK,    
+    // cert: fs.readFileSync(path.join(__dirname, 'certs', 'cert.pem'), 'utf-8'),
+  },
+  (profile, done) => {
+     
+     if (!profile) {
+        return done(new Error("Authentication failed"));
+    }
+    // handle successful login 
+    console.log(profile);
+    return done(null, profile);
+  }
+);
+// Tell passport to use the samlStrategy
+passport.use("samlStrategy", samlStrategy);
 
+// trust between our app(SP) and idp (metadata XML)
+app.get("/jhu/metadata", (req, res) => {
+    res.type("application/xml");  // Set the response type as XML
+    res.status(200);
+    res.send(samlStrategy.generateServiceProviderMetadata(PbK, PbK));  // Pass the public key for signing
+  });
+  
+// middleware
+app.use(bodyParser.urlencoded({ extended: true })); 
+// app.use(
+//     session({ secret: "use-any-secret", resave: false, saveUninitialized: true })
+// );
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(express.static("public"));
+app.use(cors());
 
 require('dotenv').config();
 
@@ -101,51 +99,97 @@ const db = new pg.Client({
 });
 
 db.connect()
-    .then(() => console.log('Connected to Supabase PostgreSQL'))
-    .catch(err => console.error('Connection error1', err.stack));
+    .then(() => console.log('Connected to Supabase Supabase PostgreSQL'))
+    .catch(err => console.error('Connection error11', err.stack));
 
-passport.serializeUser(function (user, done) {
-    done(null, user);
+
+passport.serializeUser((user, cb) =>{
+    cb(null,user);
+});
+passport.deserializeUser((user, cb) =>{
+    cb(null,user);
 });
 
-passport.deserializeUser(function (user, done) {
-    done(null, user);
-});
+// Login route: redirect users to this when trying to access protected resourses
+app.get(
+    "/jhu/login",
+    (req, res, next) => {
+        console.log(req);
+        console.log(res);
+      next();
+    },
+    passport.authenticate("samlStrategy")
+  );
 
-app.get("/jhu/login", passport.authenticate("samlStrategy"));
 
-app.post("/jhu/login/callback", passport.authenticate("samlStrategy"), (req, res) => {
-    res.redirect('/'); // or other route
-});
+// Callback routes: JHU SSO authenticate user and send 1. assertion and 2. POST request
+app.post(
+    "/jhu/login/callback",
+    (req, res, next) => {
+      next();
+    },
+    passport.authenticate("samlStrategy",{
+        failureRedirect: "/login-failed",
+        failureFlash: "Authentication failed, please try again."
+    }),
+    (req, res) => {
+       req.session.user = req.user; // Store the user in session
+       res.send(`welcome ${req.user.first_name}`);
+      // user login info
+      console.log(`welcome ${req.user.first_name}`);
+      const userName = req.user.jhed;
+      const firstName = req.user.first_name;
+      const lastName = req.user.last_name;
+      const email = req.user.email;
+      
+      // check if user already in db
+      const query = "SELECT id FROM users WHERE Email = $1";
+      
+      db.query(query, [email], (err, res)=>{
+        if (err) {
+            return res.status(500).json({ error: "Database query failed" });
+        }
+        if (res.rows.length==0){ // user not found : add the db 
+            const userId = uuidv4();
 
-// metadata
-app.get("/jhu/metadata", (req, res) => {
-    res.type("application/xml");
-    res.status(200).send(
-        samlStrategy.generateServiceProviderMetadata(PbK, PvK)
-    );
-});
+            const addUserQuery = `
+            INSERT INTO users (id, Username, Lastname, Firstname, Email)
+            VALUES ($1, $2, $3, $4, $5)
+            RETURNING *; `;
+          db.query(addUserQuery, [userId, userName, lastName, firstName, email], (insertErr, insertResult) => {
+            if (insertErr) {
+              return res.status(500).json({ error: "Database insert failed" });
+            }
 
-function ensureAuthenticated(req, res, next) {
-    if (req.isAuthenticated()) {
-        return next();
+            // Return the newly created user
+            res.status(201).json({token, user: insertResult.rows[0]});
+          });
+        }else{
+            // user in db 
+            const user = result.rows[0];
+            res.status(200).json({ token, user });
+        }
+      })
     }
-    res.redirect('/jhu/login');
-}
+  );
 
-//HOW TO USE
-// //ensure Authenticated
-// app.get("/tickets", ensureAuthenticated, (req, res) => {
-//     // code here
-//   });
+app.get("/login-failed", (req, res) => {
+const errorMessage = req.flash("error")[0] || "Authentication failed. Please try again.";
+res.status(401).json({ error: errorMessage });
+});
 
-//   app.post("/tickets", ensureAuthenticated, (req, res) => {
-//     // code here
-//   });
-
+app.get("/logout", (req, res) => {
+    req.session.destroy(err => {
+      if (err) return res.status(500).json({ error: "Logout failed" });
+      res.redirect("/jhu/login"); 
+    });
+  });
+  
+  
 
 // GET endpoint to retrieve all tickets
 app.get("/tickets", (req, res) => {
+
     db.query("SELECT * FROM ticket", (err, result) => {
         if (err) {
             return res.status(500).json({ error: "Database query failed" });
@@ -156,7 +200,7 @@ app.get("/tickets", (req, res) => {
 
 // GET endpoint to search for specific tickets
 app.get("/tickets/search", (req, res) => {
-    const { title, startDate, endDate, owner_id, status, priority, ticket_id, minPayment, maxPayment, sortBy, sortOrder, category } = req.query;
+    const { title, startDate, endDate, owner_id, status, priority, ticket_id, minPayment, maxPayment, sortBy, sortOrder, category} = req.query;
 
     let query = "SELECT * FROM ticket WHERE 1=1";
     let queryParams = [];
@@ -248,8 +292,8 @@ app.post("/tickets", (req, res) => {
     const ticketId = uuidv4();
 
     const query = `
-        INSERT INTO ticket (id, title, category, status, description, deadline, owner_id, payment, payment_confirmed)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, FALSE)
+        INSERT INTO ticket (id, title, category, status, description, deadline, owner_id, payment, payment_confirmed, payment_confirmed)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, FALSE, FALSE)
         RETURNING *;
     `;
 
@@ -280,7 +324,6 @@ app.post("/users", (req, res) => {
     }
 
     const userId = uuidv4();
-
     const query = `
         INSERT INTO users (id, Username, Lastname, Firstname, Email)
         VALUES ($1, $2, $3, $4, $5)
@@ -321,11 +364,15 @@ app.put("/tickets/:id", (req, res) => {
             assigneduser_id: assigneduser_id !== undefined ? assigneduser_id : currentTicket.assigneduser_id,
             payment: payment !== undefined ? payment : currentTicket.payment,
             payment_confirmed: payment_confirmed !== undefined ? payment_confirmed : currentTicket.payment_confirmed,
+            assigneduser_id: assigneduser_id !== undefined ? assigneduser_id : currentTicket.assigneduser_id,
+            payment: payment !== undefined ? payment : currentTicket.payment,
+            payment_confirmed: payment_confirmed !== undefined ? payment_confirmed : currentTicket.payment_confirmed,
         };
 
         const query = `
             UPDATE ticket
             SET title = $1, category = $2, description = $3, deadline = $4, status = $5,
+               
                 owner_id = $6, assigneduser_id = $7, payment = $8, payment_confirmed = $9
             WHERE id = $10
             RETURNING *;
@@ -451,81 +498,45 @@ app.post("/messages", (req, res) => {
 });
 
 app.delete("/messages", (req, res) => {
-    const { ticket_id } = req.body;
-
+    const { ticket_id } = req.body; 
+  
     // validate that ticket_id is provided
     if (!ticket_id) {
-        return res.status(400).json({ error: "ticket_id is required" });
+      return res.status(400).json({ error: "ticket_id is required" });
     }
-
+  
     // UUID validation for ticket_id
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
     if (!uuidRegex.test(ticket_id)) {
-        return res.status(400).json({ error: "Invalid ticket_id format" });
+      return res.status(400).json({ error: "Invalid ticket_id format" });
     }
-
+  
     // check if the ticket exists in the database
     const checkExistenceQuery = "SELECT * FROM ticket WHERE id = $1";
     db.query(checkExistenceQuery, [ticket_id], (err, result) => {
+      if (err) {
+        console.error('Database query error:', err);
+        return res.status(500).json({ error: "Database query failed" });
+      }
+  
+      if (result.rows.length === 0) {
+        return res.status(404).json({ error: "Ticket not found" });
+      }
+  
+      // delete all messages for this ticket
+      const deleteQuery = "DELETE FROM messages WHERE ticket_id = $1";
+      db.query(deleteQuery, [ticket_id], (err) => {
         if (err) {
-            console.error('Database query error:', err);
-            return res.status(500).json({ error: "Database query failed" });
+          console.error('Database delete error:', err);
+          return res.status(500).json({ error: "Failed to delete messages" });
         }
-
-        if (result.rows.length === 0) {
-            return res.status(404).json({ error: "Ticket not found" });
-        }
-
-        // delete all messages for this ticket
-        const deleteQuery = "DELETE FROM messages WHERE ticket_id = $1";
-        db.query(deleteQuery, [ticket_id], (err) => {
-            if (err) {
-                console.error('Database delete error:', err);
-                return res.status(500).json({ error: "Failed to delete messages" });
-            }
-
-            res.status(204).send(); // No content, successful deletion
-        });
+  
+        res.status(204).send(); // No content, successful deletion
+      });
     });
-});
-
-// POST endpoint for logging in or registering a user
-app.post("/login", async (req, res) => {
-    const { jhed, firstName, lastName } = req.body;
-
-    if (!jhed || !firstName || !lastName) {
-        return res.status(400).json({ error: "JHED, First Name, and Last Name are required" });
-    }
-
-    try {
-        // Check if a user with this JHED already exists
-        const checkUserQuery = "SELECT * FROM users WHERE username = $1";
-        const existingUserResult = await db.query(checkUserQuery, [jhed]);
-
-        if (existingUserResult.rows.length > 0) {
-            const user = existingUserResult.rows[0];
-            return res.status(200).json({ message: "User logged in", user });
-        } else {
-            // User doesn't exist, register a new one
-            const newUserId = uuidv4();
-            const email = `${jhed}@jhu.edu`;
-            const insertUserQuery = `
-                INSERT INTO users (id, username, lastname, firstname, email)
-                VALUES ($1, $2, $3, $4, $5)
-                RETURNING *;
-            `;
-            const newUserResult = await db.query(insertUserQuery, [newUserId, jhed, lastName, firstName, email]);
-            const newUser = newUserResult.rows[0];
-
-            return res.status(201).json({ message: "User registered and logged in", user: newUser });
-        }
-    } catch (err) {
-        console.error("Error logging in or registering user:", err);
-        return res.status(500).json({ error: "Internal server error" });
-    }
-});
-
-
+  });
+  
+  
 // Home route
 app.get("/", (req, res) => {
     res.send("<h1>Hello world</h1>");  // sending back HTML
