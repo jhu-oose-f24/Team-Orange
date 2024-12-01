@@ -1,14 +1,15 @@
 const express = require("express");
 const path = require("path");
 const bodyParser = require("body-parser");
-// const { Client } = require('pg');
 const pg = require('pg');
 const cors = require('cors');
-const { v4: uuidv4 } = require('uuid');
+const bcrypt = require("bcrypt");
+// const { password } = require("pg/lib/defaults");
 const passport = require('passport');
-const saml = require('passport-saml').Strategy;
+const LocalStrategy = require('passport-local').Strategy;
 const session = require('express-session');
-const fs = require('fs');
+
+const saml = require("passport-saml");
 
 const { v4: uuidv4 } = require('uuid');
 const app = express();
@@ -22,8 +23,8 @@ const BASE_URL = "https://chorehop-cc7c0bf7a12c.herokuapp.com"; // need to deplo
 
 // key
 const fs = require("fs");
-const PbK = fs.readFileSync(__dirname + "/certs_final/cert.pem", "utf8");
-const PvK = fs.readFileSync(__dirname + "/certs_final/key.pem", "utf8");
+const PbK = fs.readFileSync(__dirname + "/certs/cert.pem", "utf8");
+const PvK = fs.readFileSync(__dirname + "/certs/key.pem", "utf8");
 
 // const certPem = Buffer.from(process.env.CERT_PEM, 'base64').toString('utf-8');
 // const privateKey = Buffer.from(process.env.PRIVATE_KEY, 'base64').toString('utf-8');
@@ -80,6 +81,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // );
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(express.static("public"));
+app.use(cors());
 
 require('dotenv').config();
 
@@ -103,9 +106,8 @@ db.connect()
 passport.serializeUser((user, cb) =>{
     cb(null,user);
 });
-
-passport.deserializeUser(function (user, done) {
-    done(null, user);
+passport.deserializeUser((user, cb) =>{
+    cb(null,user);
 });
 
 // Login route: redirect users to this when trying to access protected resourses
@@ -187,6 +189,7 @@ app.get("/logout", (req, res) => {
 
 // GET endpoint to retrieve all tickets
 app.get("/tickets", (req, res) => {
+
     db.query("SELECT * FROM ticket", (err, result) => {
         if (err) {
             return res.status(500).json({ error: "Database query failed" });
@@ -197,7 +200,7 @@ app.get("/tickets", (req, res) => {
 
 // GET endpoint to search for specific tickets
 app.get("/tickets/search", (req, res) => {
-    const { title, startDate, endDate, owner_id, status, priority, ticket_id, minPayment, maxPayment, sortBy, sortOrder, category } = req.query;
+    const { title, startDate, endDate, owner_id, status, priority, ticket_id, minPayment, maxPayment, sortBy, sortOrder, category} = req.query;
 
     let query = "SELECT * FROM ticket WHERE 1=1";
     let queryParams = [];
@@ -495,41 +498,41 @@ app.post("/messages", (req, res) => {
 });
 
 app.delete("/messages", (req, res) => {
-    const { ticket_id } = req.body;
-
+    const { ticket_id } = req.body; 
+  
     // validate that ticket_id is provided
     if (!ticket_id) {
-        return res.status(400).json({ error: "ticket_id is required" });
+      return res.status(400).json({ error: "ticket_id is required" });
     }
-
+  
     // UUID validation for ticket_id
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
     if (!uuidRegex.test(ticket_id)) {
-        return res.status(400).json({ error: "Invalid ticket_id format" });
+      return res.status(400).json({ error: "Invalid ticket_id format" });
     }
-
+  
     // check if the ticket exists in the database
     const checkExistenceQuery = "SELECT * FROM ticket WHERE id = $1";
     db.query(checkExistenceQuery, [ticket_id], (err, result) => {
+      if (err) {
+        console.error('Database query error:', err);
+        return res.status(500).json({ error: "Database query failed" });
+      }
+  
+      if (result.rows.length === 0) {
+        return res.status(404).json({ error: "Ticket not found" });
+      }
+  
+      // delete all messages for this ticket
+      const deleteQuery = "DELETE FROM messages WHERE ticket_id = $1";
+      db.query(deleteQuery, [ticket_id], (err) => {
         if (err) {
-            console.error('Database query error:', err);
-            return res.status(500).json({ error: "Database query failed" });
+          console.error('Database delete error:', err);
+          return res.status(500).json({ error: "Failed to delete messages" });
         }
-
-        if (result.rows.length === 0) {
-            return res.status(404).json({ error: "Ticket not found" });
-        }
-
-        // delete all messages for this ticket
-        const deleteQuery = "DELETE FROM messages WHERE ticket_id = $1";
-        db.query(deleteQuery, [ticket_id], (err) => {
-            if (err) {
-                console.error('Database delete error:', err);
-                return res.status(500).json({ error: "Failed to delete messages" });
-            }
-
-            res.status(204).send(); // No content, successful deletion
-        });
+  
+        res.status(204).send(); // No content, successful deletion
+      });
     });
   });
   
