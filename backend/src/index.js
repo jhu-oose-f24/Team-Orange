@@ -122,7 +122,7 @@ app.post("/jhu/login/callback", passport.authenticate("samlStrategy"), (req, res
 app.get("/jhu/metadata", (req, res) => {
     res.type("application/xml");
     res.status(200).send(
-        samlStrategy.generateServiceProviderMetadata(PbK, PvK)
+        samlStrategy.generateServiceProviderMetadata(PbK, PbK)
     );
 });
 
