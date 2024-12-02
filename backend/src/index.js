@@ -117,7 +117,6 @@ app.get(
     passport.authenticate("samlStrategy")
   );
 
-
 // Callback routes: JHU SSO authenticate user and send 1. assertion and 2. POST request
 app.post(
     "/jhu/login/callback",
