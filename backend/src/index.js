@@ -31,7 +31,7 @@ const samlStrategy = new saml.Strategy(
     // config options here
     entryPoint: JHU_SSO_URL,
     issuer: SP_NAME,
-    callbackUrl: `${BASE_URL}/jhu/login/callback`,
+    callbackUrl: `${BASE_URL}jhu/login/callback`,
     decryptionPvk: PvK,
     cert: PbK_idp, 
     privateKey: PvK,   
@@ -108,61 +108,50 @@ app.post(
     (req, res, next) => {
       next();
     },
-    passport.authenticate("samlStrategy"),
+    passport.authenticate("samlStrategy",{
+        failureRedirect: "/login-failed",
+        failureFlash: "Authentication failed, please try again."
+    }),
     (req, res) => {
-      // the user data is in req.user
-      res.send(`welcome ${req.user.first_name}`);
+       req.session.user = req.user; // Store the user in session
+       res.send(`welcome ${req.user.first_name}`);
+      // user login info
+      console.log(`welcome ${req.user.first_name}`);
+      const userName = req.user.jhed;
+      const firstName = req.user.first_name;
+      const lastName = req.user.last_name;
+      const email = req.user.email;
+      
+      // check if user already in db
+      const query = "SELECT id FROM users WHERE Email = $1";
+      
+      db.query(query, [email], (err, res)=>{
+        if (err) {
+            return res.status(500).json({ error: "Database query failed" });
+        }
+        if (res.rows.length==0){ // user not found : add the db 
+            const userId = uuidv4();
+
+            const addUserQuery = `
+            INSERT INTO users (id, Username, Lastname, Firstname, Email)
+            VALUES ($1, $2, $3, $4, $5)
+            RETURNING *; `;
+          db.query(addUserQuery, [userId, userName, lastName, firstName, email], (insertErr, insertResult) => {
+            if (insertErr) {
+              return res.status(500).json({ error: "Database insert failed" });
+            }
+
+            // Return the newly created user
+            res.status(201).json({token, user: insertResult.rows[0]});
+          });
+        }else{
+            // user in db 
+            const user = result.rows[0];
+            res.status(200).json({ token, user });
+        }
+      })
     }
   );
-// app.post(
-//     "/jhu/login/callback",
-//     (req, res, next) => {
-//       next();
-//     },
-//     passport.authenticate("samlStrategy",{
-//         failureRedirect: "/login-failed",
-//         failureFlash: "Authentication failed, please try again."
-//     }),
-//     (req, res) => {
-//        req.session.user = req.user; // Store the user in session
-//        res.send(`welcome ${req.user.first_name}`);
-//       // user login info
-//       console.log(`welcome ${req.user.first_name}`);
-//       const userName = req.user.jhed;
-//       const firstName = req.user.first_name;
-//       const lastName = req.user.last_name;
-//       const email = req.user.email;
-      
-//       // check if user already in db
-//       const query = "SELECT id FROM users WHERE Email = $1";
-      
-//       db.query(query, [email], (err, res)=>{
-//         if (err) {
-//             return res.status(500).json({ error: "Database query failed" });
-//         }
-//         if (res.rows.length==0){ // user not found : add the db 
-//             const userId = uuidv4();
-
-//             const addUserQuery = `
-//             INSERT INTO users (id, Username, Lastname, Firstname, Email)
-//             VALUES ($1, $2, $3, $4, $5)
-//             RETURNING *; `;
-//           db.query(addUserQuery, [userId, userName, lastName, firstName, email], (insertErr, insertResult) => {
-//             if (insertErr) {
-//               return res.status(500).json({ error: "Database insert failed" });
-//             }
-
-//             // Return the newly created user
-//             res.status(201).json({token, user: insertResult.rows[0]});
-//           });
-//         }else{
-//             // user in db 
-//             const user = result.rows[0];
-//             res.status(200).json({ token, user });
-//         }
-//       })
-//     }
-//   );
 
 
 // trust between our app(SP) and idp (metadata XML)
