@@ -3,19 +3,13 @@ const path = require("path");
 const bodyParser = require("body-parser");
 const pg = require('pg');
 const cors = require('cors');
-const bcrypt = require("bcrypt");
-// const { password } = require("pg/lib/defaults");
+const { v4: uuidv4 } = require('uuid');
 const passport = require('passport');
-const LocalStrategy = require('passport-local').Strategy;
+const saml = require("passport-saml");
 const session = require('express-session');
 
-const saml = require("passport-saml");
-
-const { v4: uuidv4 } = require('uuid');
 const app = express();
-// const port = 3000;
 const port = process.env.PORT || 3000;
-const saltRound = 10;
 
 const JHU_SSO_URL ="https://login.jh.edu/idp/profile/SAML2/Redirect/SSO";
 const SP_NAME = process.env.SP_NAME || "chorehop-cc7c0bf7a12c";  // replace this with out app name
@@ -30,13 +24,6 @@ MIIEGzCCAoOgAwIBAgIUJTtiXBcXQ01+vJXrxmI9WCM6Bz8wDQYJKoZIhvcNAQEL BQAwFzEVMBMGA1U
 const fs = require("fs");
 const PbK = fs.readFileSync(__dirname + "/certs/cert.pem", "utf8");
 const PvK = fs.readFileSync(__dirname + "/certs/key.pem", "utf8");
-
-app.use(session({
-    secret: "ORANGESECRET",
-    resave: false,
-    saveUninitialized: true ,// store uninitialized session to server memory
-    cookie: { secure: false, maxAge: 3600000 } // 1-hour session expiry
-  }));
   
 // Setup SAML strategy
 const samlStrategy = new saml.Strategy(
@@ -61,25 +48,24 @@ const samlStrategy = new saml.Strategy(
 );
 // Tell passport to use the samlStrategy
 passport.use("samlStrategy", samlStrategy);
-
-// trust between our app(SP) and idp (metadata XML)
-app.get("/jhu/metadata", (req, res) => {
-    res.type("application/xml");  // Set the response type as XML
-    res.status(200);
-    res.send(samlStrategy.generateServiceProviderMetadata(PbK, PbK));  // Pass the public key for signing
-  });
   
 // middleware
 app.use(bodyParser.urlencoded({ extended: false })); 
-// app.use(
-//     session({ secret: "use-any-secret", resave: false, saveUninitialized: true })
-// );
-app.use(passport.initialize());
-app.use(passport.session());
-app.use(express.static("public"));
 app.use(bodyParser.json());
 app.use(cors());
 
+
+app.use(session({
+    // secret: process.env.SESSION_SECRET || 'your_secret_key',
+    secret: "useanysecret",
+    resave: false,
+    saveUninitialized: true
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+// app.use(express.static("public"));
 require('dotenv').config();
 
 const db = new pg.Client({
@@ -110,12 +96,11 @@ passport.deserializeUser((user, cb) =>{
 app.get(
     "/jhu/login",
     (req, res, next) => {
-        // console.log(req);
-        // console.log(res);
       next();
     },
     passport.authenticate("samlStrategy")
   );
+
 
 // Callback routes: JHU SSO authenticate user and send 1. assertion and 2. POST request
 app.post(
@@ -167,6 +152,14 @@ app.post(
       })
     }
   );
+
+
+// trust between our app(SP) and idp (metadata XML)
+app.get("/jhu/metadata", (req, res) => {
+    res.type("application/xml");  // Set the response type as XML
+    res.status(200);
+    res.send(samlStrategy.generateServiceProviderMetadata(PbK, PbK));  // Pass the public key for signing
+  });
 
 app.get("/login-failed", (req, res) => {
 const errorMessage = req.flash("error")[0] || "Authentication failed. Please try again.";
