@@ -17,21 +17,19 @@ const app = express();
 const port = process.env.PORT || 3000;
 const saltRound = 10;
 
-const JHU_SSO_URL = "https://idp.jh.edu/idp/profile/SAML2/Redirect/SSO";
-const SP_NAME = "chorehop-cc7c0bf7a12c";  // replace this with out app name
-const BASE_URL = "https://chorehop-cc7c0bf7a12c.herokuapp.com"; // need to deploy ours
+const JHU_SSO_URL ="https://login.jh.edu/idp/profile/SAML2/Redirect/SSO";
+const SP_NAME = process.env.SP_NAME || "chorehop-cc7c0bf7a12c";  // replace this with out app name
+const BASE_URL = process.env.BASE_URL ||  "https://chorehop-cc7c0bf7a12c.herokuapp.com"; // need to deploy ours
 
+const PbK_idp = `
+-----BEGIN CERTIFICATE-----
+MIIEGzCCAoOgAwIBAgIUJTtiXBcXQ01+vJXrxmI9WCM6Bz8wDQYJKoZIhvcNAQEL BQAwFzEVMBMGA1UEAwwMbG9naW4uamguZWR1MB4XDTI0MDExMDE3MzYzMloXDTQ0 MDExMDE3MzYzMlowFzEVMBMGA1UEAwwMbG9naW4uamguZWR1MIIBojANBgkqhkiG 9w0BAQEFAAOCAY8AMIIBigKCAYEAwm+SLvs4AyRroVi06uX2ZIhJcIuWdnw5a1vJ 8uW50HOrqvhbBGB6qbcat3JM9WnwNPuK7gspSmB/GCV2s4vzGgdSwziZj53J+Mnv 8JQfmlHsW05u6atJI6q+ssy/P/KXuiL1gK6Ca6nO3msa/zVT7t//n6czvHJkUfeR 8BlFvwug3fEFXWxpORAfX99mJ/je+JiSM+M+9IVYDboISraoWKY0bgTKrvmXvqla Fp27r+ed7UnDWGKg4TmyNgHn6fd2j1+L5A9AvOCWIjFPhsC5KFSjNMTXEmOMr2v0 YF4Cc61v0lNBweDI7cx9IRCLtlJnuHG5BvLHU+K6MjT6Q8o7+93dLBUnqY0fy9od UsV5WZbyAANar+wDpTUSRNdrXtZbJOY0BBhGFUtyxHOkydFiq7F648blpkiDDl86 DUy+EpucTPaky9q3orVHjiDmehJwGix7vxMyWdf12qMT1e/34dBBAnbZcly9NTBE gprygch3/JSyQgVfjCpJhD5LMhkdAgMBAAGjXzBdMB0GA1UdDgQWBBSdTEIrUneu f2iXzxjv+XvcCuJO4jA8BgNVHREENTAzggxsb2dpbi5qaC5lZHWGI2h0dHBzOi8v bG9naW4uamguZWR1L2lkcC9zaGliYm9sZXRoMA0GCSqGSIb3DQEBCwUAA4IBgQBc ELRXh8jmiN/1A1Hajm51wjeepejICXRHvM3ATxwtE/Ef3jYqSOhjrRJz9V4dkn+a 5dJ/xfXp0jWFIXmtjy43Z6SNC5RK36/62N8nFOhtyy5v11ta8XFfERaAwihnmYIy PmyKc8nR7vllegJ+pB3FiparOezCkWRK1kLR3i+o28GirIgE6ZnlCSiYgWTcl+S1 NOknYRFC5DoZwzIS4ndfCGNoeAYgS+dtyCNwD3Few5UTBqyPYKhgWMNU1mu+tTd1 bMaz4PfdWPKmHP3/1zPPHg/6LZeHx3A5cCMuhBjskGYx9f/nlAhpyiFUuWbdF1Xv dJB+euWpl1fgSxREp3R2apfWCH4fXFLiZMOUNnh8AtBsj+4mgFtGtuybo7vQdS2X oBZuIb1hmbRZO/g/dBl/bZmK/wqRgETw5xuicbXYAriDvazshaG+JMyfOmqVUFCl 81VZ1CNIM8/SPJI2v7MRpBH+qvvukkb5I71FKc7HndVBRzcVghME7TLJn5hykoM=
+-----END CERTIFICATE-----
+`;
 // key
 const fs = require("fs");
 const PbK = fs.readFileSync(__dirname + "/certs/cert.pem", "utf8");
 const PvK = fs.readFileSync(__dirname + "/certs/key.pem", "utf8");
-
-// const certPem = Buffer.from(process.env.CERT_PEM, 'base64').toString('utf-8');
-// const privateKey = Buffer.from(process.env.PRIVATE_KEY, 'base64').toString('utf-8');
-
-// const PbK = process.env.PUBLIC_KEY; // Use the public key from environment variable
-// const PvK = process.env.PRIVATE_KEY; // Use the private key from environment variable
-
 
 app.use(session({
     secret: "ORANGESECRET",
@@ -48,11 +46,8 @@ const samlStrategy = new saml.Strategy(
     issuer: SP_NAME,
     callbackUrl: `${BASE_URL}/jhu/login/callback`,
     decryptionPvk: PvK,
-    cert: PbK, 
+    cert: PbK_idp, 
     privateCert: PvK,   
-    // privateCert: PvK,
-    // cert: PbK,    
-    // cert: fs.readFileSync(path.join(__dirname, 'certs', 'cert.pem'), 'utf-8'),
   },
   (profile, done) => {
      
@@ -75,13 +70,14 @@ app.get("/jhu/metadata", (req, res) => {
   });
   
 // middleware
-app.use(bodyParser.urlencoded({ extended: true })); 
+app.use(bodyParser.urlencoded({ extended: false })); 
 // app.use(
 //     session({ secret: "use-any-secret", resave: false, saveUninitialized: true })
 // );
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.static("public"));
+app.use(bodyParser.json());
 app.use(cors());
 
 require('dotenv').config();
@@ -114,8 +110,8 @@ passport.deserializeUser((user, cb) =>{
 app.get(
     "/jhu/login",
     (req, res, next) => {
-        console.log(req);
-        console.log(res);
+        // console.log(req);
+        // console.log(res);
       next();
     },
     passport.authenticate("samlStrategy")
