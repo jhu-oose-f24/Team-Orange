@@ -34,7 +34,7 @@ const samlStrategy = new saml.Strategy(
     callbackUrl: `${BASE_URL}/jhu/login/callback`,
     decryptionPvk: PvK,
     cert: PbK_idp, 
-    privateCert: PvK,   
+    privateKey: PvK,   
   },
   (profile, done) => {
      
