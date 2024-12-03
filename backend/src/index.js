@@ -249,8 +249,6 @@ app.get("/logout", (req, res) => {
 
 // GET endpoint to retrieve all tickets
 app.get("/tickets", (req, res) => {
-
-
     db.query("SELECT * FROM ticket", (err, result) => {
         if (err) {
             return res.status(500).json({ error: "Database query failed" });
@@ -705,6 +703,43 @@ app.get('/inprogress_tickets/:userId', async (req, res) =>{
             res.json({ inprogress_tickets_count: inprogressTickets });
         } else {
             res.json({ inprogress_tickets_count: 0 });
+            // res.status(404).json({ error: "No tickets found for this user" });
+        }
+        
+    }catch (error) {
+        console.error("Error fetching ticket stats:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+
+app.get('/finished_tickets/:userId', async (req, res) =>{
+    const{userId} = req.params;
+
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+    if (!uuidRegex.test(userId)) {
+        return res.status(400).json({ error: "Invalid User ID format" });
+    }
+    if (!userId) {
+        return res.status(400).json({ error: "User ID is required" });
+    }
+    try{
+        const checkUserQuery = "SELECT * FROM users WHERE id = $1";
+        const userResult = await db.query(checkUserQuery, [userId]);
+        if (userResult.rows.length != 1){
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        const getFinishedTicketNumberQuery = "SELECT COUNT(*) as finished_tickets_count FROM ticket WHERE assigneduser_id = $1 AND (status = 'Done' OR status = 'Closed' )";
+        
+        const result = await db.query(getFinishedTicketNumberQuery, [userId]);
+        if (result.rows.length > 0) {
+            const finishedTickets = parseInt(result.rows[0].finished_tickets_count, 10) || 0;
+            console.log('Query result:', finishedTickets);
+            res.json({ finished_tickets_count: finishedTickets });
+        } else {
+            res.json({ finished_tickets_count: 0 });
             // res.status(404).json({ error: "No tickets found for this user" });
         }
         
