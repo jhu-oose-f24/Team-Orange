@@ -11,7 +11,6 @@ const session = require('express-session');
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Tell passport to use the samlStrategy
 const JHU_SSO_URL ="https://login.jh.edu/idp/profile/SAML2/Redirect/SSO";
 const SP_NAME = process.env.SP_NAME || "https://chorehop-cc7c0bf7a12c.herokuapp.com/";  // replace this with out app name
 const BASE_URL = process.env.BASE_URL ||  "https://chorehop-cc7c0bf7a12c.herokuapp.com/"; // need to deploy ours
@@ -56,7 +55,6 @@ app.use(bodyParser.json());
 app.use(cors());
 
 
-
 app.use(session({
     // secret: process.env.SESSION_SECRET || 'your_secret_key',
     secret: "useanysecret",
@@ -67,7 +65,6 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-// app.use(express.static("public"));
 // app.use(express.static("public"));
 require('dotenv').config();
 
@@ -87,9 +84,11 @@ db.connect()
     .then(() => console.log('Connected to Supabase Supabase PostgreSQL'))
     .catch(err => console.error('Connection error11', err.stack));
 
+
 passport.serializeUser((user, cb) =>{
     cb(null,user);
-passport.serializeUser((user, cb) =>{
+});
+passport.deserializeUser((user, cb) =>{
     cb(null,user);
 });
 
@@ -102,59 +101,6 @@ app.get(
     passport.authenticate("samlStrategy")
   );
 
-// Callback routes: JHU SSO authenticate user and send 1. assertion and 2. POST request
-app.post(
-    "/jhu/login/callback",
-    (req, res, next) => {
-      next();
-    },
-    passport.authenticate("samlStrategy",{
-        failureRedirect: "/login-failed",
-        failureFlash: "Authentication failed, please try again."
-    }),
-    (req, res) => {
-       req.session.user = req.user; // Store the user in session
-       res.send(`welcome ${req.user.first_name}`);
-      // user login info
-      console.log(`welcome ${req.user.first_name}`);
-      const userName = req.user.jhed;
-      const firstName = req.user.first_name;
-      const lastName = req.user.last_name;
-      const email = req.user.email;
-      
-      // check if user already in db
-      const query = "SELECT id FROM users WHERE Email = $1";
-      
-      db.query(query, [email], (err, res)=>{
-        if (err) {
-            return res.status(500).json({ error: "Database query failed" });
-        }
-        if (res.rows.length==0){ // user not found : add the db 
-            const userId = uuidv4();
-
-            const addUserQuery = `
-            INSERT INTO users (id, Username, Lastname, Firstname, Email)
-            VALUES ($1, $2, $3, $4, $5)
-            RETURNING *; `;
-          db.query(addUserQuery, [userId, userName, lastName, firstName, email], (insertErr, insertResult) => {
-            if (insertErr) {
-              return res.status(500).json({ error: "Database insert failed" });
-            }
-
-            // Return the newly created user
-            res.status(201).json({token, user: insertResult.rows[0]});
-          });
-        }else{
-            // user in db 
-            const user = result.rows[0];
-            res.status(200).json({ token, user });
-        }
-      })
-    }
-  );
-
-
-// trust between our app(SP) and idp (metadata XML)
 
 // Callback routes: JHU SSO authenticate user and send 1. assertion and 2. POST request
 app.post(
@@ -228,27 +174,10 @@ app.get("/logout", (req, res) => {
   });
   
   
-    res.type("application/xml");  // Set the response type as XML
-    res.status(200);
-    res.send(samlStrategy.generateServiceProviderMetadata(PbK, PbK));  // Pass the public key for signing
-  });
-
-app.get("/login-failed", (req, res) => {
-const errorMessage = req.flash("error")[0] || "Authentication failed. Please try again.";
-res.status(401).json({ error: errorMessage });
-});
-
-app.get("/logout", (req, res) => {
-    req.session.destroy(err => {
-      if (err) return res.status(500).json({ error: "Logout failed" });
-      res.redirect("/jhu/login"); 
-    });
-  });
-  
-  
 
 // GET endpoint to retrieve all tickets
 app.get("/tickets", (req, res) => {
+
     db.query("SELECT * FROM ticket", (err, result) => {
         if (err) {
             return res.status(500).json({ error: "Database query failed" });
@@ -353,8 +282,6 @@ app.post("/tickets", (req, res) => {
     const query = `
         INSERT INTO ticket (id, title, category, status, description, deadline, owner_id, payment, payment_confirmed, payment_confirmed)
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, FALSE, FALSE)
-        INSERT INTO ticket (id, title, category, status, description, deadline, owner_id, payment, payment_confirmed, payment_confirmed)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, FALSE, FALSE)
         RETURNING *;
     `;
 
@@ -428,15 +355,11 @@ app.put("/tickets/:id", (req, res) => {
             assigneduser_id: assigneduser_id !== undefined ? assigneduser_id : currentTicket.assigneduser_id,
             payment: payment !== undefined ? payment : currentTicket.payment,
             payment_confirmed: payment_confirmed !== undefined ? payment_confirmed : currentTicket.payment_confirmed,
-            assigneduser_id: assigneduser_id !== undefined ? assigneduser_id : currentTicket.assigneduser_id,
-            payment: payment !== undefined ? payment : currentTicket.payment,
-            payment_confirmed: payment_confirmed !== undefined ? payment_confirmed : currentTicket.payment_confirmed,
         };
 
         const query = `
             UPDATE ticket
             SET title = $1, category = $2, description = $3, deadline = $4, status = $5,
-               
                
                 owner_id = $6, assigneduser_id = $7, payment = $8, payment_confirmed = $9
             WHERE id = $10
@@ -562,14 +485,13 @@ app.post("/messages", (req, res) => {
     });
 });
 
-app.delete("/messages", (req, res) => {  
+app.delete("/messages", (req, res) => {
     const { ticket_id } = req.body; 
   
     // validate that ticket_id is provided
     if (!ticket_id) {
       return res.status(400).json({ error: "ticket_id is required" });
     }
-  
   
     // UUID validation for ticket_id
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -601,7 +523,6 @@ app.delete("/messages", (req, res) => {
       });
     });
   });
-  
 
   app.get('/created_tickets/:userId', async (req, res) =>{
     const{userId} = req.params;
@@ -749,6 +670,13 @@ app.get('/finished_tickets/:userId', async (req, res) =>{
     }
 });
   
+
+  
+
+  
+
+  
+  
 // Home route
 app.get("/", (req, res) => {
     res.send("<h1>Hello world</h1>");  // sending back HTML
@@ -757,7 +685,6 @@ app.get("/", (req, res) => {
 app.listen(port, () => {
     console.log(`Server started on port ${port}`);
 });
-
 
   
 
