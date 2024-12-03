@@ -12,8 +12,8 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 const JHU_SSO_URL ="https://login.jh.edu/idp/profile/SAML2/Redirect/SSO";
-const SP_NAME = process.env.SP_NAME || "chorehop-cc7c0bf7a12c";  // replace this with out app name
-const BASE_URL = process.env.BASE_URL ||  "https://chorehop-cc7c0bf7a12c.herokuapp.com"; // need to deploy ours
+const SP_NAME = process.env.SP_NAME || "https://chorehop-cc7c0bf7a12c.herokuapp.com/";  // replace this with out app name
+const BASE_URL = process.env.BASE_URL ||  "https://chorehop-cc7c0bf7a12c.herokuapp.com/"; // need to deploy ours
 
 const PbK_idp = `
 -----BEGIN CERTIFICATE-----
@@ -31,10 +31,10 @@ const samlStrategy = new saml.Strategy(
     // config options here
     entryPoint: JHU_SSO_URL,
     issuer: SP_NAME,
-    callbackUrl: `${BASE_URL}/jhu/login/callback`,
+    callbackUrl: `${BASE_URL}jhu/login/callback`,
     decryptionPvk: PvK,
     cert: PbK_idp, 
-    privateCert: PvK,   
+    privateKey: PvK,   
   },
   (profile, done) => {
      
@@ -171,7 +171,8 @@ app.get("/logout", (req, res) => {
       if (err) return res.status(500).json({ error: "Logout failed" });
       res.redirect("/jhu/login"); 
     });
-});
+  });
+  
   
 
 // GET endpoint to retrieve all tickets
@@ -522,19 +523,118 @@ app.delete("/messages", (req, res) => {
       });
     });
   });
-
   
-app.get('/users/count_ticket', async (req, res) =>{
-    const{user_id} = req.query;
+
+  app.get('/created_tickets/:userId', async (req, res) =>{
+    const{userId} = req.params;
+
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+    if (!uuidRegex.test(userId)) {
+        return res.status(400).json({ error: "Invalid User ID format" });
+    }
+    console.log(userId);
     if (!userId) {
         return res.status(400).json({ error: "User ID is required" });
     }
     try{
-        const getCreatedTicketNumberQuery = "SELECT COUNT(*) FROM ticket where owner_id == "
+        const checkUserQuery = "SELECT * FROM users WHERE id = $1";
+        const userResult = await db.query(checkUserQuery, [userId]);
+        if (userResult.rows.length != 1){
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        const getCreatedTicketNumberQuery = "SELECT COUNT(*) as created_tickets_count FROM ticket WHERE owner_id = $1";
+        
+        const result = await db.query(getCreatedTicketNumberQuery, [userId]);
+        if (result.rows.length > 0) {
+            const createdTickets = parseInt(result.rows[0].created_tickets_count, 10) || 0;
+            console.log('Query result:', createdTickets);
+            res.json({ created_tickets_count: createdTickets });
+        } else {
+            res.json({ created_tickets_count: 0 });
+            // res.status(404).json({ error: "No tickets found for this user" });
+        }
+        
+    }catch (error) {
+        console.error("Error fetching ticket stats:", error);
+        res.status(500).json({ error: "Internal Server Error" });
     }
-
-
 });
+
+app.get('/assigned_tickets/:userId', async (req, res) =>{
+    const{userId} = req.params;
+
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+    if (!uuidRegex.test(userId)) {
+        return res.status(400).json({ error: "Invalid User ID format" });
+    }
+    if (!userId) {
+        return res.status(400).json({ error: "User ID is required" });
+    }
+    try{
+        const checkUserQuery = "SELECT * FROM users WHERE id = $1";
+        const userResult = await db.query(checkUserQuery, [userId]);
+        if (userResult.rows.length != 1){
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        const getAssignedTicketNumberQuery = "SELECT COUNT(*) as assigned_tickets_count FROM ticket WHERE assigneduser_id = $1";
+        
+        const result = await db.query(getAssignedTicketNumberQuery, [userId]);
+        if (result.rows.length > 0) {
+            const assignedTickets = parseInt(result.rows[0].assigned_tickets_count, 10) || 0;
+            console.log('Query result:', assignedTickets);
+            res.json({ assigned_tickets_count: assignedTickets });
+        } else {
+            res.json({ assigned_tickets_count: 0 });
+            // res.status(404).json({ error: "No tickets found for this user" });
+        }
+        
+    }catch (error) {
+        console.error("Error fetching ticket stats:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+app.get('/inprogress_tickets/:userId', async (req, res) =>{
+    const{userId} = req.params;
+
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+    if (!uuidRegex.test(userId)) {
+        return res.status(400).json({ error: "Invalid User ID format" });
+    }
+    if (!userId) {
+        return res.status(400).json({ error: "User ID is required" });
+    }
+    try{
+        const checkUserQuery = "SELECT * FROM users WHERE id = $1";
+        const userResult = await db.query(checkUserQuery, [userId]);
+        if (userResult.rows.length != 1){
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        const getInprogressTicketNumberQuery = "SELECT COUNT(*) as inprogress_tickets_count FROM ticket WHERE assigneduser_id = $1 AND status = 'InProgress'";
+        
+        const result = await db.query(getInprogressTicketNumberQuery, [userId]);
+        if (result.rows.length > 0) {
+            const inprogressTickets = parseInt(result.rows[0].inprogress_tickets_count, 10) || 0;
+            console.log('Query result:', inprogressTickets);
+            res.json({ inprogress_tickets_count: inprogressTickets });
+        } else {
+            res.json({ inprogress_tickets_count: 0 });
+            // res.status(404).json({ error: "No tickets found for this user" });
+        }
+        
+    }catch (error) {
+        console.error("Error fetching ticket stats:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+
   
   
 // Home route
@@ -545,3 +645,8 @@ app.get("/", (req, res) => {
 app.listen(port, () => {
     console.log(`Server started on port ${port}`);
 });
+
+
+  
+
+  
