@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { List } from "immutable";
 import searchTickets from "../api/SearchTicket";
-import { Space } from "antd";
+import { Space, Typography, Row, Col } from "antd";
 import TicketType from "../types/Ticket";
 import Ticket from "./Ticket";
 import getTickets from "../api/GetTickets";
@@ -90,29 +90,33 @@ const Feed: React.FC<FeedProps> = ({ statusFilter, searchParams, refresh, setRef
     }
   };
 
+  const { Title } = Typography;
+
   return (
     <div className="feed">
-      <h2 style={{ fontSize: "24px", color: "#1677ff" }}>
+      <Title level={2} style={{ color: '#1677ff', marginBottom: '16px', textAlign: 'center' }}>
         {statusFilter} Tickets
-      </h2>
+      </Title>
       {error && <div className="error">{error}</div>}
-      {tickets.map((ticket) => (
-        <Space direction="vertical" size={16} key={ticket.id}>
-          <Ticket
-            id={ticket.id}
-            title={ticket.title}
-            description={ticket.description}
-            category={ticket.category}
-            status={ticket.status}
-            deadline={ticket.deadline}
-            owner_id={ticket.owner_id}
-            assigneduser_id={ticket.assigneduser_id}
-            payment={ticket.payment}
-            onDelete={handleDeleteTicket}
-            setRefresh={setRefresh}
-          />
-        </Space>
-      ))}
+      <Row gutter={[16, 16]}>
+        {tickets.map((ticket) => (
+          <Col span={24} key={ticket.id}>
+            <Ticket
+              id={ticket.id}
+              title={ticket.title}
+              description={ticket.description}
+              category={ticket.category}
+              status={ticket.status}
+              deadline={ticket.deadline}
+              owner_id={ticket.owner_id}
+              assigneduser_id={ticket.assigneduser_id}
+              payment={ticket.payment}
+              onDelete={handleDeleteTicket}
+              setRefresh={setRefresh}
+            />
+          </Col>
+        ))}
+      </Row>
     </div>
   );
 };

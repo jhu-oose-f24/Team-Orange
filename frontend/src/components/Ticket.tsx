@@ -3,9 +3,26 @@ import editTicket from "../api/EditTicket";
 import assignTicket from "../api/AssignTicket";
 import Chat from "./Chat";
 
-import { Button, Card, Form, Input, Modal, Select } from "antd";
 import { 
-  DollarOutlined, 
+  Button, 
+  Card, 
+  Form, 
+  Input, 
+  Modal, 
+  Select, 
+  Space, 
+  Tooltip, 
+  Avatar,
+  Divider
+ } from "antd";
+import { 
+  DollarOutlined,
+  MessageOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  CheckOutlined,
+  FileTextOutlined,
+  UserOutlined
 } from '@ant-design/icons';
 
 interface TicketProps {
@@ -159,17 +176,25 @@ const Ticket: React.FC<TicketProps> = ({
     setIsMarkingAsDone(false);
   }
 
+  const { Meta } = Card;
+
   return (
     <Card
-      title={title}
-      style={{ minWidth: 250, maxWidth: "100%", flexGrow: 1 }}
+      style={{ width: "100%", flexGrow: 1 }}
     >
+      <Meta
+        avatar={
+          <Tooltip title={owner_id}>
+            <Avatar icon={<UserOutlined />} />
+          </Tooltip>}
+        title={title}
+      />
+
+      <Divider style={{ margin: '10px 0' }} />
+
       <p>{description}</p>
       <p>
         <strong>Category:</strong> {category}
-      </p>
-      <p>
-        <strong>Owner ID:</strong> {owner_id}
       </p>
       {assigneduser_id && (<p>
         <strong>Assigned_user ID:</strong> {assigneduser_id}
@@ -181,27 +206,75 @@ const Ticket: React.FC<TicketProps> = ({
         <strong>Deadline:</strong> {new Date(deadline).toLocaleString()}
       </p>
 
-      {isOwner && <Button type="primary" onClick={showEditModal}>
-        Edit Ticket
-      </Button>}
+      <Space direction="horizontal" size="middle">
+      {isOwner && (
+        <Tooltip title="Edit Ticket">
+          <Button 
+            shape="circle" 
+            icon={<EditOutlined />} 
+            onClick={showEditModal} 
+          />
+        </Tooltip>
+      )}
 
-      {(!isOwner && !assigneduser_id) && (<Button type="primary" onClick={() => setIsAssigning(true)}>
-        Pickup Ticket
-      </Button>)}
+      {(!isOwner && !assigneduser_id) && (
+        <Tooltip title="Pickup Ticket">
+          <Button
+            onClick={() => setIsAssigning(true)}
+            shape="circle"
+            icon={<FileTextOutlined/>}>
+          </Button>
+        </Tooltip>
+      )}
 
-      {isOwner && <Button onClick={handleDeleteClick}>Delete Ticket</Button>}
+      {isOwner && 
+        <Tooltip title="Delete Ticket">
+          <Button 
+            onClick={handleDeleteClick}
+            shape="circle"
+            icon={<DeleteOutlined />}>
+          </Button>
+        </Tooltip>
+      }
 
-      {(isOwner || isAssignedUser) && assigneduser_id && status !== "Done" && <Button onClick={() => setIsChatModalOpen(true)}>
-        Chat
-      </Button>}
+      {(isOwner || isAssignedUser) && assigneduser_id && status !== "Done" && (
+        <Tooltip title="Chat">
+          <Button
+            onClick={() => setIsChatModalOpen(true)}
+            shape="circle"
+            icon={<MessageOutlined />}>
+          </Button>
+        </Tooltip>
+      )}
+
+      {(isAssignedUser && status === "InProgress") && (
+        <Tooltip title="Mark as Done">
+          <Button
+            onClick={() => setIsMarkingAsDone(true)}
+            shape="circle"
+            icon={<CheckOutlined/>}>
+          </Button>
+        </Tooltip>
+      )}
+
+      {(isAssignedUser && status === "Done") && (
+        <Button type="primary" onClick={() => setIsConfirmingPayment(true)}>
+        Confirm Payment
+      </Button>
+      )}
+    </Space>
 
       {isConfirmingDelete && (
         <div className="modal">
           <p>Are you sure you want to delete this ticket?</p>
-          <Button type="primary" onClick={handleConfirmDelete}>
-            Yes
-          </Button>
-          <Button onClick={handleCancelDelete}>Cancel</Button>
+          <Space>
+            <Button type="primary" onClick={handleConfirmDelete}>
+              Yes
+            </Button>
+            <Button onClick={handleCancelDelete}>
+              Cancel
+            </Button>
+          </Space>
         </div>
       )}
 
@@ -313,18 +386,6 @@ const Ticket: React.FC<TicketProps> = ({
           </Button>
           <Button onClick={() => setIsAssigning(false)}>Cancel</Button>
         </div>
-      )}
-
-      { (isAssignedUser && status === "InProgress") && (
-        <Button type="primary" onClick={() => setIsMarkingAsDone(true)}>
-        Mark as Done
-      </Button>
-      )}
-
-      { (isAssignedUser && status === "Done") && (
-        <Button type="primary" onClick={() => setIsConfirmingPayment(true)}>
-        Confirm Payment
-      </Button>
       )}
 
       {isConfirmingPayment && (
