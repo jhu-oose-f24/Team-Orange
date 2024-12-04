@@ -4,15 +4,68 @@ const bodyParser = require("body-parser");
 const pg = require('pg');
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
+const passport = require('passport');
+const saml = require("passport-saml");
+const session = require('express-session');
 
 const app = express();
-// const port = 3000;
 const port = process.env.PORT || 3000;
 
+const JHU_SSO_URL ="https://login.jh.edu/idp/profile/SAML2/Redirect/SSO";
+const SP_NAME = process.env.SP_NAME || "https://chorehop-cc7c0bf7a12c.herokuapp.com/";  // replace this with out app name
+const BASE_URL = process.env.BASE_URL ||  "https://chorehop-cc7c0bf7a12c.herokuapp.com/"; // need to deploy ours
+
+const PbK_idp = `
+-----BEGIN CERTIFICATE-----
+MIIEGzCCAoOgAwIBAgIUJTtiXBcXQ01+vJXrxmI9WCM6Bz8wDQYJKoZIhvcNAQEL BQAwFzEVMBMGA1UEAwwMbG9naW4uamguZWR1MB4XDTI0MDExMDE3MzYzMloXDTQ0 MDExMDE3MzYzMlowFzEVMBMGA1UEAwwMbG9naW4uamguZWR1MIIBojANBgkqhkiG 9w0BAQEFAAOCAY8AMIIBigKCAYEAwm+SLvs4AyRroVi06uX2ZIhJcIuWdnw5a1vJ 8uW50HOrqvhbBGB6qbcat3JM9WnwNPuK7gspSmB/GCV2s4vzGgdSwziZj53J+Mnv 8JQfmlHsW05u6atJI6q+ssy/P/KXuiL1gK6Ca6nO3msa/zVT7t//n6czvHJkUfeR 8BlFvwug3fEFXWxpORAfX99mJ/je+JiSM+M+9IVYDboISraoWKY0bgTKrvmXvqla Fp27r+ed7UnDWGKg4TmyNgHn6fd2j1+L5A9AvOCWIjFPhsC5KFSjNMTXEmOMr2v0 YF4Cc61v0lNBweDI7cx9IRCLtlJnuHG5BvLHU+K6MjT6Q8o7+93dLBUnqY0fy9od UsV5WZbyAANar+wDpTUSRNdrXtZbJOY0BBhGFUtyxHOkydFiq7F648blpkiDDl86 DUy+EpucTPaky9q3orVHjiDmehJwGix7vxMyWdf12qMT1e/34dBBAnbZcly9NTBE gprygch3/JSyQgVfjCpJhD5LMhkdAgMBAAGjXzBdMB0GA1UdDgQWBBSdTEIrUneu f2iXzxjv+XvcCuJO4jA8BgNVHREENTAzggxsb2dpbi5qaC5lZHWGI2h0dHBzOi8v bG9naW4uamguZWR1L2lkcC9zaGliYm9sZXRoMA0GCSqGSIb3DQEBCwUAA4IBgQBc ELRXh8jmiN/1A1Hajm51wjeepejICXRHvM3ATxwtE/Ef3jYqSOhjrRJz9V4dkn+a 5dJ/xfXp0jWFIXmtjy43Z6SNC5RK36/62N8nFOhtyy5v11ta8XFfERaAwihnmYIy PmyKc8nR7vllegJ+pB3FiparOezCkWRK1kLR3i+o28GirIgE6ZnlCSiYgWTcl+S1 NOknYRFC5DoZwzIS4ndfCGNoeAYgS+dtyCNwD3Few5UTBqyPYKhgWMNU1mu+tTd1 bMaz4PfdWPKmHP3/1zPPHg/6LZeHx3A5cCMuhBjskGYx9f/nlAhpyiFUuWbdF1Xv dJB+euWpl1fgSxREp3R2apfWCH4fXFLiZMOUNnh8AtBsj+4mgFtGtuybo7vQdS2X oBZuIb1hmbRZO/g/dBl/bZmK/wqRgETw5xuicbXYAriDvazshaG+JMyfOmqVUFCl 81VZ1CNIM8/SPJI2v7MRpBH+qvvukkb5I71FKc7HndVBRzcVghME7TLJn5hykoM=
+-----END CERTIFICATE-----
+`;
+// key
+const fs = require("fs");
+const PbK = fs.readFileSync(__dirname + "/certs/cert.pem", "utf8");
+const PvK = fs.readFileSync(__dirname + "/certs/key.pem", "utf8");
+  
+// Setup SAML strategy
+const samlStrategy = new saml.Strategy(
+  {
+    // config options here
+    entryPoint: JHU_SSO_URL,
+    issuer: SP_NAME,
+    callbackUrl: `${BASE_URL}jhu/login/callback`,
+    decryptionPvk: PvK,
+    cert: PbK_idp, 
+    privateKey: PvK,   
+  },
+  (profile, done) => {
+     
+     if (!profile) {
+        return done(new Error("Authentication failed"));
+    }
+    // handle successful login 
+    console.log(profile);
+    return done(null, profile);
+  }
+);
+// Tell passport to use the samlStrategy
+passport.use("samlStrategy", samlStrategy);
+  
+// middleware
+app.use(bodyParser.urlencoded({ extended: false })); 
 app.use(bodyParser.json());
-// Enable CORS for all routes
 app.use(cors());
 
+
+app.use(session({
+    // secret: process.env.SESSION_SECRET || 'your_secret_key',
+    secret: "useanysecret",
+    resave: false,
+    saveUninitialized: true
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+// app.use(express.static("public"));
 require('dotenv').config();
 
 const db = new pg.Client({
@@ -28,12 +81,114 @@ const db = new pg.Client({
 });
 
 db.connect()
-    .then(() => console.log('Connected to Supabase PostgreSQL'))
-    .catch(err => console.error('Connection error1', err.stack));
+    .then(() => console.log('Connected to Supabase Supabase PostgreSQL'))
+    .catch(err => console.error('Connection error11', err.stack));
 
+
+passport.serializeUser((user, cb) =>{
+    cb(null,user);
+});
+passport.deserializeUser((user, cb) =>{
+    cb(null,user);
+});
+
+// Login route: redirect users to this when trying to access protected resourses
+app.get(
+    "/jhu/login",
+    (req, res, next) => {
+      next();
+    },
+    passport.authenticate("samlStrategy")
+  );
+
+
+// Callback routes: JHU SSO authenticate user and send 1. assertion and 2. POST request
+app.post(
+  "/jhu/login/callback",
+  (req, res, next) => {
+    next();
+  },
+  passport.authenticate("samlStrategy"),
+  (req, res) => {
+    // the user data is in req.user
+    res.send(`welcome ${req.user.first_name}`);
+  }
+);
+// app.post(
+//     "/jhu/login/callback",
+//     (req, res, next) => {
+//       next();
+//     },
+//     passport.authenticate("samlStrategy",{
+//         failureRedirect: "/login-failed",
+//         failureFlash: "Authentication failed, please try again."
+//     }),
+//     (req, res) => {
+//        req.session.user = req.user; // Store the user in session
+//        res.send(`welcome ${req.user.first_name}`);
+//       // user login info
+//       console.log(`welcome ${req.user.first_name}`);
+//       const userName = req.user.jhed;
+//       const firstName = req.user.first_name;
+//       const lastName = req.user.last_name;
+//       const email = req.user.email;
+      
+//       // check if user already in db
+//       const query = "SELECT id FROM users WHERE Email = $1";
+      
+//       db.query(query, [email], (err, res)=>{
+//         if (err) {
+//             return res.status(500).json({ error: "Database query failed" });
+//         }
+//         if (res.rows.length==0){ // user not found : add the db 
+//             const userId = uuidv4();
+
+//             const addUserQuery = `
+//             INSERT INTO users (id, Username, Lastname, Firstname, Email)
+//             VALUES ($1, $2, $3, $4, $5)
+//             RETURNING *; `;
+//           db.query(addUserQuery, [userId, userName, lastName, firstName, email], (insertErr, insertResult) => {
+//             if (insertErr) {
+//               return res.status(500).json({ error: "Database insert failed" });
+//             }
+
+//             // Return the newly created user
+//             res.status(201).json({token, user: insertResult.rows[0]});
+//           });
+//         }else{
+//             // user in db 
+//             const user = result.rows[0];
+//             res.status(200).json({ token, user });
+//         }
+//       })
+//     }
+//   );
+
+
+// trust between our app(SP) and idp (metadata XML)
+app.get("/jhu/metadata", (req, res) => {
+    res.type("application/xml");  // Set the response type as XML
+    res.status(200);
+    res.send(samlStrategy.generateServiceProviderMetadata(PbK, PbK));  // Pass the public key for signing
+  });
+
+app.get("/login-failed", (req, res) => {
+const errorMessage = req.flash("error")[0] || "Authentication failed. Please try again.";
+res.status(401).json({ error: errorMessage });
+});
+
+app.get("/logout", (req, res) => {
+    req.session.destroy(err => {
+      if (err) return res.status(500).json({ error: "Logout failed" });
+      res.redirect("/jhu/login"); 
+    });
+  });
+  
+  
 
 // GET endpoint to retrieve all tickets
 app.get("/tickets", (req, res) => {
+
     db.query("SELECT * FROM ticket", (err, result) => {
         if (err) {
             return res.status(500).json({ error: "Database query failed" });
@@ -136,8 +291,8 @@ app.post("/tickets", (req, res) => {
     const ticketId = uuidv4();
 
     const query = `
-        INSERT INTO ticket (id, title, category, status, description, deadline, owner_id, payment, payment_confirmed)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, FALSE)
+        INSERT INTO ticket (id, title, category, status, description, deadline, owner_id, payment, payment_confirmed, payment_confirmed)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, FALSE, FALSE)
         RETURNING *;
     `;
 
@@ -168,7 +323,6 @@ app.post("/users", (req, res) => {
     }
 
     const userId = uuidv4();
-
     const query = `
         INSERT INTO users (id, Username, Lastname, Firstname, Email)
         VALUES ($1, $2, $3, $4, $5)
@@ -209,11 +363,15 @@ app.put("/tickets/:id", (req, res) => {
             assigneduser_id: assigneduser_id !== undefined ? assigneduser_id : currentTicket.assigneduser_id,
             payment: payment !== undefined ? payment : currentTicket.payment,
             payment_confirmed: payment_confirmed !== undefined ? payment_confirmed : currentTicket.payment_confirmed,
+            assigneduser_id: assigneduser_id !== undefined ? assigneduser_id : currentTicket.assigneduser_id,
+            payment: payment !== undefined ? payment : currentTicket.payment,
+            payment_confirmed: payment_confirmed !== undefined ? payment_confirmed : currentTicket.payment_confirmed,
         };
 
         const query = `
             UPDATE ticket
             SET title = $1, category = $2, description = $3, deadline = $4, status = $5,
+               
                 owner_id = $6, assigneduser_id = $7, payment = $8, payment_confirmed = $9
             WHERE id = $10
             RETURNING *;
@@ -377,42 +535,158 @@ app.delete("/messages", (req, res) => {
     });
   });
 
-// POST endpoint for logging in or registering a user
-app.post("/login", async (req, res) => {
-    const { jhed, firstName, lastName } = req.body;
+  app.get('/created_tickets/:userId', async (req, res) =>{
+    const{userId} = req.params;
 
-    if (!jhed || !firstName || !lastName) {
-        return res.status(400).json({ error: "JHED, First Name, and Last Name are required" });
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+    if (!uuidRegex.test(userId)) {
+        return res.status(400).json({ error: "Invalid User ID format" });
     }
-
-    try {
-        // Check if a user with this JHED already exists
-        const checkUserQuery = "SELECT * FROM users WHERE username = $1";
-        const existingUserResult = await db.query(checkUserQuery, [jhed]);
-
-        if (existingUserResult.rows.length > 0) {
-            const user = existingUserResult.rows[0];
-            return res.status(200).json({ message: "User logged in", user });
-        } else {
-            // User doesn't exist, register a new one
-            const newUserId = uuidv4();
-            const email = `${jhed}@jhu.edu`;
-            const insertUserQuery = `
-                INSERT INTO users (id, username, lastname, firstname, email)
-                VALUES ($1, $2, $3, $4, $5)
-                RETURNING *;
-            `;
-            const newUserResult = await db.query(insertUserQuery, [newUserId, jhed, lastName, firstName, email]);
-            const newUser = newUserResult.rows[0];
-
-            return res.status(201).json({ message: "User registered and logged in", user: newUser });
+    console.log(userId);
+    if (!userId) {
+        return res.status(400).json({ error: "User ID is required" });
+    }
+    try{
+        const checkUserQuery = "SELECT * FROM users WHERE id = $1";
+        const userResult = await db.query(checkUserQuery, [userId]);
+        if (userResult.rows.length != 1){
+            return res.status(404).json({ error: "User not found" });
         }
-    } catch (err) {
-        console.error("Error logging in or registering user:", err);
-        return res.status(500).json({ error: "Internal server error" });
+
+        const getCreatedTicketNumberQuery = "SELECT COUNT(*) as created_tickets_count FROM ticket WHERE owner_id = $1";
+        
+        const result = await db.query(getCreatedTicketNumberQuery, [userId]);
+        if (result.rows.length > 0) {
+            const createdTickets = parseInt(result.rows[0].created_tickets_count, 10) || 0;
+            console.log('Query result:', createdTickets);
+            res.json({ created_tickets_count: createdTickets });
+        } else {
+            res.json({ created_tickets_count: 0 });
+            // res.status(404).json({ error: "No tickets found for this user" });
+        }
+        
+    }catch (error) {
+        console.error("Error fetching ticket stats:", error);
+        res.status(500).json({ error: "Internal Server Error" });
     }
 });
 
+app.get('/assigned_tickets/:userId', async (req, res) =>{
+    const{userId} = req.params;
+
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+    if (!uuidRegex.test(userId)) {
+        return res.status(400).json({ error: "Invalid User ID format" });
+    }
+    if (!userId) {
+        return res.status(400).json({ error: "User ID is required" });
+    }
+    try{
+        const checkUserQuery = "SELECT * FROM users WHERE id = $1";
+        const userResult = await db.query(checkUserQuery, [userId]);
+        if (userResult.rows.length != 1){
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        const getAssignedTicketNumberQuery = "SELECT COUNT(*) as assigned_tickets_count FROM ticket WHERE assigneduser_id = $1";
+        
+        const result = await db.query(getAssignedTicketNumberQuery, [userId]);
+        if (result.rows.length > 0) {
+            const assignedTickets = parseInt(result.rows[0].assigned_tickets_count, 10) || 0;
+            console.log('Query result:', assignedTickets);
+            res.json({ assigned_tickets_count: assignedTickets });
+        } else {
+            res.json({ assigned_tickets_count: 0 });
+            // res.status(404).json({ error: "No tickets found for this user" });
+        }
+        
+    }catch (error) {
+        console.error("Error fetching ticket stats:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+app.get('/inprogress_tickets/:userId', async (req, res) =>{
+    const{userId} = req.params;
+
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+    if (!uuidRegex.test(userId)) {
+        return res.status(400).json({ error: "Invalid User ID format" });
+    }
+    if (!userId) {
+        return res.status(400).json({ error: "User ID is required" });
+    }
+    try{
+        const checkUserQuery = "SELECT * FROM users WHERE id = $1";
+        const userResult = await db.query(checkUserQuery, [userId]);
+        if (userResult.rows.length != 1){
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        const getInprogressTicketNumberQuery = "SELECT COUNT(*) as inprogress_tickets_count FROM ticket WHERE assigneduser_id = $1 AND status = 'InProgress'";
+        
+        const result = await db.query(getInprogressTicketNumberQuery, [userId]);
+        if (result.rows.length > 0) {
+            const inprogressTickets = parseInt(result.rows[0].inprogress_tickets_count, 10) || 0;
+            console.log('Query result:', inprogressTickets);
+            res.json({ inprogress_tickets_count: inprogressTickets });
+        } else {
+            res.json({ inprogress_tickets_count: 0 });
+            // res.status(404).json({ error: "No tickets found for this user" });
+        }
+        
+    }catch (error) {
+        console.error("Error fetching ticket stats:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+
+app.get('/finished_tickets/:userId', async (req, res) =>{
+    const{userId} = req.params;
+
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+    if (!uuidRegex.test(userId)) {
+        return res.status(400).json({ error: "Invalid User ID format" });
+    }
+    if (!userId) {
+        return res.status(400).json({ error: "User ID is required" });
+    }
+    try{
+        const checkUserQuery = "SELECT * FROM users WHERE id = $1";
+        const userResult = await db.query(checkUserQuery, [userId]);
+        if (userResult.rows.length != 1){
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        const getFinishedTicketNumberQuery = "SELECT COUNT(*) as finished_tickets_count FROM ticket WHERE assigneduser_id = $1 AND (status = 'Done' OR status = 'Closed' )";
+        
+        const result = await db.query(getFinishedTicketNumberQuery, [userId]);
+        if (result.rows.length > 0) {
+            const finishedTickets = parseInt(result.rows[0].finished_tickets_count, 10) || 0;
+            console.log('Query result:', finishedTickets);
+            res.json({ finished_tickets_count: finishedTickets });
+        } else {
+            res.json({ finished_tickets_count: 0 });
+            // res.status(404).json({ error: "No tickets found for this user" });
+        }
+        
+    }catch (error) {
+        console.error("Error fetching ticket stats:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+  
+
+  
+
+  
+
+  
   
 // Home route
 app.get("/", (req, res) => {
@@ -422,3 +696,7 @@ app.get("/", (req, res) => {
 app.listen(port, () => {
     console.log(`Server started on port ${port}`);
 });
+
+  
+
+  
