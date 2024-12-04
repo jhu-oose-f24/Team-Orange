@@ -35,6 +35,8 @@ const samlStrategy = new saml.Strategy(
     decryptionPvk: PvK,
     cert: PbK_idp, 
     privateKey: PvK,   
+    logger: console,
+    loggingLevel: 'debug',
   },
   (profile, done) => {
      
