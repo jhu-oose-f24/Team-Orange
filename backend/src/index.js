@@ -291,8 +291,8 @@ app.post("/tickets", (req, res) => {
     const ticketId = uuidv4();
 
     const query = `
-        INSERT INTO ticket (id, title, category, status, description, deadline, owner_id, payment, payment_confirmed, payment_confirmed)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, FALSE, FALSE)
+        INSERT INTO ticket (id, title, category, status, description, deadline, owner_id, payment, payment_confirmed)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, FALSE)
         RETURNING *;
     `;
 
