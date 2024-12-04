@@ -306,7 +306,7 @@ app.post("/tickets", (req, res) => {
 
 // GET endpoint to retrieve all users
 app.get("/users", (req, res) => {
-    db.query("SELECT id, Username, Lastname, Firstname, Email FROM users", (err, result) => {
+    db.query("SELECT id, Username, Lastname, Firstname, Email, Password FROM users", (err, result) => {
         if (err) {
             return res.status(500).json({ error: "Database query failed" });
         }
@@ -316,27 +316,26 @@ app.get("/users", (req, res) => {
 
 // POST endpoint to create a new user
 app.post("/users", (req, res) => {
-    const { Username, Lastname, Firstname, Email } = req.body;
+    const { Username, Lastname, Firstname, Email, Password } = req.body;
 
-    if (!Username || !Lastname || !Firstname || !Email) {
+    if (!Username || !Lastname || !Firstname || !Email || !Password) {
         return res.status(400).json({ error: "All fields are required" });
     }
 
     const userId = uuidv4();
     const query = `
-        INSERT INTO users (id, Username, Lastname, Firstname, Email)
-        VALUES ($1, $2, $3, $4, $5)
+        INSERT INTO users (id, Username, Lastname, Firstname, Email, Password)
+        VALUES ($1, $2, $3, $4, $5, $6)
         RETURNING *;
     `;
 
-    db.query(query, [userId, Username, Lastname, Firstname, Email], (err, result) => {
+    db.query(query, [userId, Username, Lastname, Firstname, Email, Password], (err, result) => {
         if (err) {
             return res.status(500).json({ error: "Database insert failed" });
         }
         res.status(201).json(result.rows[0]);
     });
 });
-
 
 // PUT endpoint to partially update a ticket by ID
 app.put("/tickets/:id", (req, res) => {
