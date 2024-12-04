@@ -1,29 +1,30 @@
 import React, { useState, useEffect } from "react";
 import editTicket from "../api/EditTicket";
 import assignTicket from "../api/AssignTicket";
+import getUsers from "../api/GetUsers";
 import Chat from "./Chat";
 
-import { 
-  Button, 
-  Card, 
-  Form, 
-  Input, 
-  Modal, 
-  Select, 
-  Space, 
-  Tooltip, 
+import {
+  Button,
+  Card,
+  Form,
+  Input,
+  Modal,
+  Select,
+  Space,
+  Tooltip,
   Avatar,
-  Divider
- } from "antd";
-import { 
+  Divider,
+} from "antd";
+import {
   DollarOutlined,
   MessageOutlined,
   EditOutlined,
   DeleteOutlined,
   CheckOutlined,
   FileTextOutlined,
-  UserOutlined
-} from '@ant-design/icons';
+  UserOutlined,
+} from "@ant-design/icons";
 
 interface TicketProps {
   id: string;
@@ -48,18 +49,18 @@ type EditTicketForm = {
 };
 
 const Ticket: React.FC<TicketProps> = ({
-  id,
-  title,
-  description,
-  status,
-  category,
-  deadline,
-  owner_id,
-  assigneduser_id,
-  payment,
-  onDelete,
-  setRefresh
-}) => {
+                                         id,
+                                         title,
+                                         description,
+                                         status,
+                                         category,
+                                         deadline,
+                                         owner_id,
+                                         assigneduser_id,
+                                         payment,
+                                         onDelete,
+                                         setRefresh,
+                                       }) => {
   const [editDeadline, setEditDeadline] = useState(deadline.slice(0, -1));
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
   const [isConfirmingPayment, setIsConfirmingPayment] = useState(false);
@@ -70,6 +71,8 @@ const Ticket: React.FC<TicketProps> = ({
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [form] = Form.useForm();
   const [isMarkingAsDone, setIsMarkingAsDone] = useState(false);
+  const [ownerName, setOwnerName] = useState<string | null>(null);
+  const [assignedUserName, setAssignedUserName] = useState<string | null>(null);
 
   useEffect(() => {
     const userId = localStorage.getItem("activeUID");
@@ -84,6 +87,30 @@ const Ticket: React.FC<TicketProps> = ({
       setIsAssignedUser(true);
     }
   }, [assigneduser_id]);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const users = await getUsers();
+
+        // Fetch owner name
+        const owner = users.find((user: any) => user.id === owner_id);
+        setOwnerName(owner ? `${owner.firstname} ${owner.lastname}` : "Unknown Owner");
+
+        // Fetch assigned user name
+        if (assigneduser_id) {
+          const assignedUser = users.find((user: any) => user.id === assigneduser_id);
+          setAssignedUserName(
+            assignedUser ? `${assignedUser.firstname} ${assignedUser.lastname}` : "Unknown User"
+          );
+        }
+      } catch (error) {
+        console.error("Failed to fetch users:", error);
+      }
+    };
+
+    fetchUsers();
+  }, [owner_id, assigneduser_id]);
 
   const handleSubmit = async (form: EditTicketForm) => {
     const updatedTicket = {
@@ -108,7 +135,7 @@ const Ticket: React.FC<TicketProps> = ({
     const userId = localStorage.getItem("activeUID");
     if (userId) {
       try {
-        await assignTicket(id, (userId));
+        await assignTicket(id, userId);
         setIsAssigning(false);
         setRefresh((prev) => !prev); // trigger refresh
       } catch (error) {
@@ -119,15 +146,15 @@ const Ticket: React.FC<TicketProps> = ({
 
   const handleMarkAsDone = async () => {
     const updatedTicket = {
-      status: "Done"
+      status: "Done",
     };
     try {
-      await editTicket(id, (updatedTicket))
+      await editTicket(id, updatedTicket);
       setRefresh((prev) => !prev); // trigger refresh
     } catch (error) {
       console.error("Failed to mark ticket as Done:", error);
     }
-  }
+  };
 
   const handleConfirmPayment = async () => {
     const updatedTicket = {
@@ -135,17 +162,17 @@ const Ticket: React.FC<TicketProps> = ({
       payment_confirmed: true,
     };
     try {
-      await editTicket(id, (updatedTicket))
+      await editTicket(id, updatedTicket);
       setRefresh((prev) => !prev); // trigger refresh
     } catch (error) {
       console.error("Failed to confirm ticket payment:", error);
     }
-  }
+  };
 
   const handleConfirmPaymentClick = () => {
     handleConfirmPayment();
     setIsConfirmingPayment(false);
-  }
+  };
 
   const handleDeleteClick = () => {
     setIsConfirmingDelete(true);
@@ -174,31 +201,32 @@ const Ticket: React.FC<TicketProps> = ({
   const handleConfirmMarkAsDone = () => {
     handleMarkAsDone();
     setIsMarkingAsDone(false);
-  }
+  };
 
   const { Meta } = Card;
 
   return (
-    <Card
-      style={{ width: "100%", flexGrow: 1 }}
-    >
+    <Card style={{ width: "100%", flexGrow: 1 }}>
       <Meta
         avatar={
-          <Tooltip title={owner_id}>
+          <Tooltip title={ownerName ?? "Loading..."}>
             <Avatar icon={<UserOutlined />} />
-          </Tooltip>}
+          </Tooltip>
+        }
         title={title}
       />
 
-      <Divider style={{ margin: '10px 0' }} />
+      <Divider style={{ margin: "10px 0" }} />
 
       <p>{description}</p>
       <p>
         <strong>Category:</strong> {category}
       </p>
-      {assigneduser_id && (<p>
-        <strong>Assigned_user ID:</strong> {assigneduser_id}
-      </p>)}
+      {assigneduser_id && (
+        <p>
+          <strong>Assigned User:</strong> {assignedUserName ?? "Loading..."}
+        </p>
+      )}
       <p>
         <strong>Payment: </strong> {`$${payment}`}
       </p>
@@ -207,62 +235,62 @@ const Ticket: React.FC<TicketProps> = ({
       </p>
 
       <Space direction="horizontal" size="middle">
-      {isOwner && (
-        <Tooltip title="Edit Ticket">
-          <Button 
-            shape="circle" 
-            icon={<EditOutlined />} 
-            onClick={showEditModal} 
-          />
-        </Tooltip>
-      )}
+        {isOwner && (
+          <Tooltip title="Edit Ticket">
+            <Button
+              shape="circle"
+              icon={<EditOutlined />}
+              onClick={showEditModal}
+            />
+          </Tooltip>
+        )}
 
-      {(!isOwner && !assigneduser_id) && (
-        <Tooltip title="Pickup Ticket">
-          <Button
-            onClick={() => setIsAssigning(true)}
-            shape="circle"
-            icon={<FileTextOutlined/>}>
+        {!isOwner && !assigneduser_id && (
+          <Tooltip title="Pickup Ticket">
+            <Button
+              onClick={() => setIsAssigning(true)}
+              shape="circle"
+              icon={<FileTextOutlined />}
+            />
+          </Tooltip>
+        )}
+
+        {isOwner && (
+          <Tooltip title="Delete Ticket">
+            <Button
+              onClick={handleDeleteClick}
+              shape="circle"
+              icon={<DeleteOutlined />}
+            />
+          </Tooltip>
+        )}
+
+        {(isOwner || isAssignedUser) && assigneduser_id && status !== "Done" && (
+          <Tooltip title="Chat">
+            <Button
+              onClick={() => setIsChatModalOpen(true)}
+              shape="circle"
+              icon={<MessageOutlined />}
+            />
+          </Tooltip>
+        )}
+
+        {isAssignedUser && status === "InProgress" && (
+          <Tooltip title="Mark as Done">
+            <Button
+              onClick={() => setIsMarkingAsDone(true)}
+              shape="circle"
+              icon={<CheckOutlined />}
+            />
+          </Tooltip>
+        )}
+
+        {isAssignedUser && status === "Done" && (
+          <Button type="primary" onClick={() => setIsConfirmingPayment(true)}>
+            Confirm Payment
           </Button>
-        </Tooltip>
-      )}
-
-      {isOwner && 
-        <Tooltip title="Delete Ticket">
-          <Button 
-            onClick={handleDeleteClick}
-            shape="circle"
-            icon={<DeleteOutlined />}>
-          </Button>
-        </Tooltip>
-      }
-
-      {(isOwner || isAssignedUser) && assigneduser_id && status !== "Done" && (
-        <Tooltip title="Chat">
-          <Button
-            onClick={() => setIsChatModalOpen(true)}
-            shape="circle"
-            icon={<MessageOutlined />}>
-          </Button>
-        </Tooltip>
-      )}
-
-      {(isAssignedUser && status === "InProgress") && (
-        <Tooltip title="Mark as Done">
-          <Button
-            onClick={() => setIsMarkingAsDone(true)}
-            shape="circle"
-            icon={<CheckOutlined/>}>
-          </Button>
-        </Tooltip>
-      )}
-
-      {(isAssignedUser && status === "Done") && (
-        <Button type="primary" onClick={() => setIsConfirmingPayment(true)}>
-        Confirm Payment
-      </Button>
-      )}
-    </Space>
+        )}
+      </Space>
 
       {isConfirmingDelete && (
         <div className="modal">
@@ -271,9 +299,7 @@ const Ticket: React.FC<TicketProps> = ({
             <Button type="primary" onClick={handleConfirmDelete}>
               Yes
             </Button>
-            <Button onClick={handleCancelDelete}>
-              Cancel
-            </Button>
+            <Button onClick={handleCancelDelete}>Cancel</Button>
           </Space>
         </div>
       )}
@@ -304,7 +330,7 @@ const Ticket: React.FC<TicketProps> = ({
             label="Title"
             name="editTitle"
             rules={[{ required: true, message: "Please input your new title!" }]}
-            style={{ height: '40px', width: '100%' }}
+            style={{ height: "40px", width: "100%" }}
           >
             <Input placeholder="Title" />
           </Form.Item>
@@ -312,21 +338,25 @@ const Ticket: React.FC<TicketProps> = ({
           <Form.Item<EditTicketForm>
             label="Description"
             name="editDescription"
-            rules={[{ required: true, message: "Please input your new description!" }]}
-            style={{ width: '100%' }}
+            rules={[
+              { required: true, message: "Please input your new description!" },
+            ]}
+            style={{ width: "100%" }}
           >
-            <Input.TextArea 
+            <Input.TextArea
               placeholder="Description"
               autoSize={{ minRows: 3, maxRows: 6 }}
-              style={{ width: '100%' }}
+              style={{ width: "100%" }}
             />
           </Form.Item>
 
           <Form.Item<EditTicketForm>
             label="Category"
             name="editCategory"
-            rules={[{ required: true, message: "Please input your new category!" }]}
-            style={{ width: '100%' }}
+            rules={[
+              { required: true, message: "Please input your new category!" },
+            ]}
+            style={{ width: "100%" }}
           >
             <Select placeholder="Select a Category">
               <Select.Option value="Errands">Errands</Select.Option>
@@ -342,8 +372,10 @@ const Ticket: React.FC<TicketProps> = ({
           <Form.Item<EditTicketForm>
             label="Deadline"
             name="editDeadline"
-            rules={[{ required: true, message: "Please input your new deadline!" }]}
-            style={{ width: '100%' }}
+            rules={[
+              { required: true, message: "Please input your new deadline!" },
+            ]}
+            style={{ width: "100%" }}
           >
             <Input
               type="datetime-local"
@@ -352,24 +384,26 @@ const Ticket: React.FC<TicketProps> = ({
                 setEditDeadline(e.target.value)
               }
               required
-              style={{ width: '100%' }}
+              style={{ width: "100%" }}
             />
           </Form.Item>
 
           <Form.Item<EditTicketForm>
             label="Payment"
             name="editPayment"
-            rules={[{ required: true, message: "Please input your new payment!" }]}
-            style={{ width: '100%' }}
+            rules={[
+              { required: true, message: "Please input your new payment!" },
+            ]}
+            style={{ width: "100%" }}
           >
-            <Input 
-              prefix={<DollarOutlined />} 
+            <Input
+              prefix={<DollarOutlined />}
               placeholder="Enter payment amount"
               type="number"
               min={0}
             />
           </Form.Item>
-          <Form.Item style={{ textAlign: 'right' }}>
+          <Form.Item style={{ textAlign: "right" }}>
             <Button type="primary" htmlType="submit">
               Update Ticket
             </Button>
@@ -377,7 +411,6 @@ const Ticket: React.FC<TicketProps> = ({
         </Form>
       </Modal>
 
-      
       {isAssigning && status === "Open" && (
         <div className="modal">
           <p>Do you want to assign yourself to this ticket?</p>
@@ -390,22 +423,22 @@ const Ticket: React.FC<TicketProps> = ({
 
       {isConfirmingPayment && (
         <div className="modal">
-        <p>Do you want to confirm that you have been paid for this ticket?</p>
-        <Button type="primary" onClick={handleConfirmPaymentClick}>
-          Yes, Confirm Payment Received
-        </Button>
-        <Button onClick={() => setIsConfirmingPayment(false)}>Cancel</Button>
-      </div>
+          <p>Do you want to confirm that you have been paid for this ticket?</p>
+          <Button type="primary" onClick={handleConfirmPaymentClick}>
+            Yes, Confirm Payment Received
+          </Button>
+          <Button onClick={() => setIsConfirmingPayment(false)}>Cancel</Button>
+        </div>
       )}
 
       {isMarkingAsDone && (
         <div className="modal">
-        <p>Do you want to mark this ticket as Done?</p>
-        <Button type="primary" onClick={handleMarkAsDone}>
-          Yes, Mark as Done
-        </Button>
-        <Button onClick={() => setIsMarkingAsDone(false)}>Cancel</Button>
-      </div>
+          <p>Do you want to mark this ticket as Done?</p>
+          <Button type="primary" onClick={handleMarkAsDone}>
+            Yes, Mark as Done
+          </Button>
+          <Button onClick={() => setIsMarkingAsDone(false)}>Cancel</Button>
+        </div>
       )}
 
       {/* Chat modal */}
@@ -416,11 +449,11 @@ const Ticket: React.FC<TicketProps> = ({
         footer={null} // Optional: remove default footer
         width={400} // Adjust width as needed
       >
-        <Chat ticketId={id} ownerID={owner_id} assignedID={assigneduser_id || ""}/>
+        <Chat ticketId={id} ownerID={owner_id} assignedID={assigneduser_id || ""} />
       </Modal>
-
     </Card>
   );
 };
 
 export default Ticket;
+
