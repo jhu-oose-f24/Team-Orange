@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { List } from "immutable";
-import { Space } from "antd";
+import { Space, Typography, Row, Col } from "antd";
 import TicketType from "../types/Ticket";
 import Ticket from "./Ticket";
 import getTickets from "../api/GetTickets";
@@ -87,14 +87,19 @@ const ProfileFeed: React.FC<ProfileFeedProps> = ({
     }
   };
 
+  const { Title } = Typography;
+
   return (
     <>
       {statusFilter === "Closed" ? (
         <div className="comp_feed">
-          <h2 style={{ fontSize: "24px", color: "#1677ff" }}>{statusFilter}</h2>
+          <Title level={2} style={{ color: '#1677ff', marginBottom: '16px', textAlign: 'center' }}>
+            {statusFilter}
+          </Title>
           {error && <div className="error">{error}</div>}
+          <Row gutter={[16, 16]}>
           {tickets.map((ticket) => (
-            <Space direction="vertical" size={16} key={ticket.id}>
+            <Col span={24} key={ticket.id}>
               <Ticket
                 id={ticket.id}
                 title={ticket.title}
@@ -108,15 +113,19 @@ const ProfileFeed: React.FC<ProfileFeedProps> = ({
                 onDelete={handleDeleteTicket}
                 setRefresh={setRefresh}
               />
-            </Space>
+            </Col>
           ))}
+          </Row>
         </div>
       ) : (
         <div className="feed">
-          <h2 style={{ fontSize: "24px", color: "#1677ff" }}>{statusFilter}</h2>
+          <Title level={2} style={{ color: '#1677ff', marginBottom: '16px', textAlign: 'center' }}>
+            {statusFilter}
+          </Title>
           {error && <div className="error">{error}</div>}
+          <Row gutter={[16, 16]}>
           {tickets.map((ticket) => (
-            <Space direction="vertical" size={16} key={ticket.id}>
+            <Col span={24} key={ticket.id}>
               <Ticket
                 id={ticket.id}
                 title={ticket.title}
@@ -130,8 +139,9 @@ const ProfileFeed: React.FC<ProfileFeedProps> = ({
                 onDelete={handleDeleteTicket}
                 setRefresh={setRefresh}
               />
-            </Space>
+            </Col>
           ))}
+          </Row>
         </div>
       )}
     </>
