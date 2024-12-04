@@ -12,7 +12,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 const JHU_SSO_URL ="https://login.jh.edu/idp/profile/SAML2/Redirect/SSO";
-const SP_NAME = process.env.SP_NAME || "https://chorehop-cc7c0bf7a12c.herokuapp.com/";  // replace this with out app name
+const SP_NAME = process.env.SP_NAME || "chorehop-cc7c0bf7a12c";  // replace this with out app name
 const BASE_URL = process.env.BASE_URL ||  "https://chorehop-cc7c0bf7a12c.herokuapp.com/"; // need to deploy ours
 
 const PbK_idp = `
