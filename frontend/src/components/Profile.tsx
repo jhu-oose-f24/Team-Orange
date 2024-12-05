@@ -48,6 +48,12 @@ const Profile: React.FC = () => {
     window.location.assign("/"); 
   };
 
+  const getInitials = (user: User | null): string => {
+    if (!user) return "";
+    const { firstname, lastname } = user;
+    return `${firstname.charAt(0)}${lastname.charAt(0)}`.toUpperCase();
+  };
+
   const bio = activeUser ? "I make cool apps" : "Loading bio...";
   const avatarUrl = activeUser
     ? "https://i.pravatar.cc/150?img=3" // A placeholder avatar URL
@@ -77,11 +83,25 @@ const Profile: React.FC = () => {
       </Button>
 
       {/* Avatar and Name */}
-      <Avatar size={120} src={avatarUrl} style={{ marginBottom: "10px" }} />
+      <Avatar
+        size={120}
+        style={{
+          backgroundColor: "#d9d9d9",
+          color: "#595959",
+          fontSize: "36px",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        {getInitials(activeUser)}
+      </Avatar>
+
       <Title level={3} style={{ marginBottom: "5px" }}>
         {activeUser ? `${activeUser.firstname} ${activeUser.lastname}` : "Loading..."}
       </Title>
-      <Text type="secondary">{bio}</Text>
+
+      {/* <Text type="secondary">{bio}</Text> */}
+
       {/* Profile Stats */}
       <Row justify="center" gutter={16} style={{ marginTop: "20px" }}>
         <Col>
