@@ -112,7 +112,8 @@ app.post(
   passport.authenticate("samlStrategy"),
   (req, res) => {
     // the user data is in req.user
-    res.send(`welcome ${req.user.first_name}`);
+    console.log("User profile from SAML response:", req.user);
+    res.send("welcome ${req.user.first_name}");
   }
 );
 // app.post(
