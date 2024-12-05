@@ -17,7 +17,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, isUser, timestamp, a
   <Row justify={isUser ? 'end' : 'start'} style={{ marginBottom: '16px' }}>
     {!isUser && (
       <Col>
-        <Avatar src={avatar} style={{ marginRight: '12px' }}></Avatar>
+        <Avatar style={{ marginRight: '6px' }}>{avatar}</Avatar>
       </Col>
     )}
     <Col>
@@ -41,7 +41,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, isUser, timestamp, a
     </Col>
     {isUser && (
       <Col>
-        <Avatar>{avatar}</Avatar>
+        <Avatar style={{ marginLeft: '4px' }}>{avatar}</Avatar>
       </Col>
     )}
   </Row>

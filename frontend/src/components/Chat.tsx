@@ -69,6 +69,9 @@ const Chat: React.FC<ChatProps> = ({ ticketId, ownerID, assignedID, ownerName, a
     return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
   };
 
+  const activeName = activeUID === ownerID ? ownerName : assignedName;
+  const otherName = activeUID === ownerID ? assignedName : ownerName;
+
   return (
     <Card style={{ width: '100%', maxWidth: '800px', height: '100%', padding: '1rem', margin: '0 auto' }}>
       <div
@@ -89,7 +92,7 @@ const Chat: React.FC<ChatProps> = ({ ticketId, ownerID, assignedID, ownerName, a
               message={message.message}
               isUser={message.sending_id === activeUID}
               timestamp={message.create_time}
-              avatar={getInitials(activeUID === ownerID ? ownerName : assignedName)}
+              avatar={getInitials(message.sending_id === activeUID ? activeName : otherName)}
             />
           ))
         )}
