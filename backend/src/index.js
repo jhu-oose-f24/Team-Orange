@@ -34,7 +34,8 @@ const samlStrategy = new saml.Strategy(
     callbackUrl: "https://chorehop-cc7c0bf7a12c.herokuapp.com/jhu/login/callback",
     decryptionPvk: PvK,
     cert: PbK_idp, 
-    privateKey: PvK,   
+    privateKey: PvK,  
+    authnContext: [], 
   },
   (profile, done) => {
      
