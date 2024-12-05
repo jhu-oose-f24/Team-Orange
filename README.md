@@ -75,6 +75,11 @@ and new users can me registed at any time!
 
 Note: we have not created a logout feature yet. We also want to add an edit profile page where users can modify avatar and bio. These changes can be added in it5.
 
+### Iteration 5
+For iteration 5 we had focused on login and registration. We were able to successfully update our backend users table to include the necessary information we needed. From here we were able to improve our login functionality. The login screen now simply asks for a username and password. Appropriate error handling has been added for this. Additionally we now have the ability to register new users into the users table with a username, first name, last name, and password. Beyond this, we protected our app by ensuring only logged in user's can see profile pages, create tickets, and edit / pickup tickets. We had some trouble configuring the JHU SSO login, and are still waiting for responses to our email. In the future, we are either going to hash our passwords and keep the login that we have right now or move forward with the JHU SSO login. 
+
+Additionally we made several improvements on styling. First, the ticket's themselves have much improved styling. Additionally, the profile page has been styled much better. The counts for completed and created tickets are not static anymore and show accurate numbers. The avatar on the profile page is also no longer static and shows the users initials. Our ticket feeds have been improved as well, including flex improvements. 
+
 ## What we are building
 
 Our plan is to build an app that allows users (specifically from within the Hopkins community) to sign on and do one of two things; First, users can create a ticket for any chore whether it be landscaping, cleaning, pickup, babysitting, etc. and other users on the app will be able to see what they are requesting. Second, these other users will have the ability to pick up these tickets, and complete the chore in exchange for pay. Basically, our app will be an all in one ticketing app for users in the JHU community to be able to request help with their chores and these users to be able to pick up jobs to make some quick money from helping out their fellow blue jays.
