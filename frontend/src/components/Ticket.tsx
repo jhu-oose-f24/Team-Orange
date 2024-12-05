@@ -3,7 +3,7 @@ import editTicket from "../api/EditTicket";
 import assignTicket from "../api/AssignTicket";
 import getUsers from "../api/GetUsers";
 import Chat from "./Chat";
-
+import { $isLoggedIn } from "../store/store";
 import {
   Button,
   Card,
@@ -245,7 +245,7 @@ const Ticket: React.FC<TicketProps> = ({
           </Tooltip>
         )}
 
-        {!isOwner && !assigneduser_id && (
+        {!isOwner && !assigneduser_id && $isLoggedIn && (
           <Tooltip title="Pickup Ticket">
             <Button
               onClick={() => setIsAssigning(true)}

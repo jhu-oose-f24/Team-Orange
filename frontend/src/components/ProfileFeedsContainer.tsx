@@ -19,26 +19,21 @@ const ProfileFeedContainer: React.FC<ProfileFeedContainerProps> = ({
 
   return (
     <div>
-      <div
-        style={{
-          justifyContent: "center",
-          marginBottom: "16px",
-          width: "100%",
-        }}
-      >
+      <div>
         <Button type="primary" onClick={toggleShowCompleted}>
           {showCompleted ? "Show All" : "Show Closed"}
         </Button>
       </div>
-      <div className="feed-container">
         {showCompleted ? (
-          <ProfileFeed
-            statusFilter="Closed"
-            refresh={refresh}
-            setRefresh={setRefresh}
-          />
+          <div className="feed">
+            <ProfileFeed
+              statusFilter="Closed"
+              refresh={refresh}
+              setRefresh={setRefresh}
+            />
+          </div>
         ) : (
-          <>
+          <div className="feed-container">
             <ProfileFeed
               statusFilter="My Created Tickets"
               refresh={refresh}
@@ -54,9 +49,8 @@ const ProfileFeedContainer: React.FC<ProfileFeedContainerProps> = ({
               refresh={refresh}
               setRefresh={setRefresh}
             />
-          </>
+          </div>
         )}
-      </div>
     </div>
   );
 };
