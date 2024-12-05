@@ -38,12 +38,6 @@ const samlStrategy = new saml.Strategy(
     authnContext: [], 
   },
   (profile, done) => {
-     
-     if (!profile) {
-        return done(new Error("Authentication failed"));
-    }
-    // handle successful login 
-    console.log(profile);
     return done(null, profile);
   }
 );
@@ -113,7 +107,7 @@ app.post(
   (req, res) => {
     // the user data is in req.user
     console.log("User profile from SAML response:", req.user);
-    res.send("welcome ${req.user.first_name}");
+    res.send(`welcome ${req.user.first_name}`);
   }
 );
 // app.post(
