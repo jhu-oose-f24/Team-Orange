@@ -11,7 +11,7 @@ import Feed from "./components/Feed";
 import CreateTicket from "./components/CreateTicket";
 import Profile from "./components/Profile";
 import AppHeader from "./components/AppHeader";
-import LoginScreen from "./components/LoginScreen";
+import Login from "./components/Login";
 import SearchBar from "./components/SearchBar";
 import "./App.css";
 import FloatingActionButton from "./components/FloatingActionButton";
@@ -40,7 +40,7 @@ const App: React.FC = () => {
       <Layout>
         <Content>
           <Routes>
-            <Route path="/" element={<LoginScreen />} />
+            <Route path="/" element={<Login />} />
             <Route
               path="/create-ticket"
               element={
@@ -88,6 +88,7 @@ const App: React.FC = () => {
                       setRefresh={setRefresh}
                     />
                   </div>
+                  <FloatingActionButton />
                 </div>
               }
             />
@@ -114,7 +115,6 @@ const App: React.FC = () => {
         <Footer style={{ textAlign: "center" }}>
           ChoreHop ©{new Date().getFullYear()} Created for jhu-oose-24
         </Footer>
-        <FloatingActionButton />
       </Layout>
     </Router>
   );
