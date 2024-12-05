@@ -1,8 +1,14 @@
-import User from "../types/User";
-
 const BASE_URL = "https://chorehop-cc7c0bf7a12c.herokuapp.com/users";
 
-const registerUser = async (user: User) => {
+interface registerUserType {
+  username: string;
+  firstname: string;
+  lastname: string;
+  email: string;
+  password: string;
+}
+
+const registerUser = async (user: registerUserType) => {
   try {
     const response = await fetch(BASE_URL, {
       method: "POST",

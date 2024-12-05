@@ -96,48 +96,49 @@ const Login: React.FC = () => {
 
       <Modal
         title="Register a New Account"
-        visible={isModalVisible}
+        open={isModalVisible}
         onOk={handleRegister}
         onCancel={handleCancel}
         okText="Register"
         cancelText="Cancel"
       >
         <Form layout="vertical" form={registerForm}>
+        <Form.Item
+            label="Username"
+            name="Username"
+            rules={[{ required: true, message: "Please enter a username!" }]}
+          >
+            <Input placeholder="Choose a username" />
+          </Form.Item>
           <Form.Item
             label="First Name"
-            name="firstname"
+            name="Firstname"
             rules={[{ required: true, message: "Please enter your first name!" }]}
           >
             <Input placeholder="Enter your first name" />
           </Form.Item>
           <Form.Item
             label="Last Name"
-            name="lastname"
+            name="Lastname"
             rules={[{ required: true, message: "Please enter your last name!" }]}
           >
             <Input placeholder="Enter your last name" />
           </Form.Item>
           <Form.Item
-            label="Username"
-            name="username"
-            rules={[{ required: true, message: "Please enter a username!" }]}
-          >
-            <Input placeholder="Choose a username" />
-          </Form.Item>
-          <Form.Item
-            label="Password"
-            name="password"
-            rules={[{ required: true, message: "Please enter a password!" }]}
-          >
-            <Input.Password placeholder="Choose a password" />
-          </Form.Item>
-          <Form.Item
             label="Email"
-            name="email"
+            name="Email"
             rules={[{ required: true, type: "email", message: "Please enter a valid email!" }]}
           >
             <Input placeholder="Enter your email address" />
           </Form.Item>
+          <Form.Item
+            label="Password"
+            name="Password"
+            rules={[{ required: true, message: "Please enter a password!" }]}
+          >
+            <Input.Password placeholder="Choose a password" />
+          </Form.Item>
+          
         </Form>
       </Modal>
     </div>
