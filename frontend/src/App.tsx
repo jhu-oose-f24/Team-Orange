@@ -5,7 +5,7 @@ import {
   Routes,
   Navigate,
 } from "react-router-dom";
-import { Layout } from "antd";
+import { Layout, theme } from "antd";
 
 import Feed from "./components/Feed";
 import CreateTicket from "./components/CreateTicket";
@@ -14,12 +14,18 @@ import AppHeader from "./components/AppHeader";
 import Login from "./components/Login";
 import SearchBar from "./components/SearchBar";
 import "./App.css";
+import UsersDropdown from "./components/UsersDropdown.dev";
 import FloatingActionButton from "./components/FloatingActionButton";
+import ProfileFeed from "./components/ProfileFeed";
 import ProfileFeedContainer from "./components/ProfileFeedsContainer";
 
 const { Header, Content, Footer } = Layout;
 
 const App: React.FC = () => {
+  const {
+    token: { colorBgContainer, borderRadiusLG },
+  } = theme.useToken();
+
   const tabs = [
     { key: "feed", label: "Feed", path: "/feed" },
     { key: "create-ticket", label: "Create Ticket", path: "/create-ticket" },
@@ -33,7 +39,8 @@ const App: React.FC = () => {
     setSearchParams(params);
   };
 
-  useEffect(() => {}, [refresh]);
+  useEffect(() => {
+  }, [refresh]);
 
   return (
     <Router>
@@ -62,8 +69,9 @@ const App: React.FC = () => {
                   <div
                     style={{
                       display: "flex",
-                      justifyContent: "center",
-                      marginBottom: "16px",
+                      justifyContent: "center", // Center horizontally
+                      marginTop: "16px",
+                      marginLeft: "48px", 
                     }}
                   >
                     <SearchBar onSearch={handleSearch} />
@@ -100,7 +108,7 @@ const App: React.FC = () => {
                     <AppHeader tabs={tabs} />
                   </Header>
                   <Profile />
-                  <div className="feed-container">
+                  <div>
                     <ProfileFeedContainer
                       refresh={refresh}
                       setRefresh={setRefresh}
