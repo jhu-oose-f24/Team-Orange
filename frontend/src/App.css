@@ -15,8 +15,8 @@
 
 .feed-container {
   display: flex;
-  justify-content: space-between;
-  gap: 20px;
+  justify-content: center;
+  gap: 40px;
   padding: 20px;
   max-width: 100%;
   box-sizing: border-box;

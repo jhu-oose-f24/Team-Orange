@@ -19,18 +19,20 @@ const ProfileFeedContainer: React.FC<ProfileFeedContainerProps> = ({
 
   return (
     <div>
-      <div>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
         <Button type="primary" onClick={toggleShowCompleted}>
-          {showCompleted ? "Show All" : "Show Closed"}
+          {showCompleted ? "Show All Tickets" : "Show Completed Tickets"}
         </Button>
       </div>
         {showCompleted ? (
-          <div className="feed">
+          <div className="feed-container">
+            <div className="feed">
             <ProfileFeed
               statusFilter="Closed"
               refresh={refresh}
               setRefresh={setRefresh}
             />
+            </div>
           </div>
         ) : (
           <div className="feed-container">

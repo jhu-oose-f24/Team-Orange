@@ -11,7 +11,7 @@ import Feed from "./components/Feed";
 import CreateTicket from "./components/CreateTicket";
 import Profile from "./components/Profile";
 import AppHeader from "./components/AppHeader";
-import LoginScreen from "./components/LoginScreen";
+import Login from "./components/Login";
 import SearchBar from "./components/SearchBar";
 import "./App.css";
 import UsersDropdown from "./components/UsersDropdown.dev";
@@ -45,54 +45,84 @@ const App: React.FC = () => {
   return (
     <Router>
       <Layout>
-        <AppHeader tabs={tabs} />
-        <Content style={{ padding: "0 48px" }}>
-          <div
-            style={{
-              background: colorBgContainer,
-              minHeight: 280,
-              padding: 24,
-              borderRadius: borderRadiusLG,
-            }}
-          >
-            <Routes>
-              <Route path="/" element={<LoginScreen />} />
-              <Route path="/create-ticket" element={<CreateTicket />} />
-              <Route
-                path="/feed"
-                element={
-                  <div>
-                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}>
-                      <SearchBar onSearch={handleSearch} />
-                    </div>
-                    <div className="feed-container">
-                      <Feed statusFilter="Open" searchParams={searchParams} refresh={refresh} setRefresh={setRefresh} />
-                      <Feed statusFilter="InProgress" searchParams={searchParams} refresh={refresh} setRefresh={setRefresh}/>
-                      <Feed statusFilter="Done" searchParams={searchParams} refresh={refresh} setRefresh={setRefresh}/>
-                    </div>
+        <Content>
+          <Routes>
+            <Route path="/" element={<Login />} />
+            <Route
+              path="/create-ticket"
+              element={
+                <div>
+                  <Header>
+                    <AppHeader tabs={tabs} />
+                  </Header>
+                  <CreateTicket />
+                </div>
+              }
+            />
+            <Route
+              path="/feed"
+              element={
+                <div>
+                  <Header>
+                    <AppHeader tabs={tabs} />
+                  </Header>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "center", // Center horizontally
+                      marginTop: "16px",
+                      marginLeft: "48px", 
+                    }}
+                  >
+                    <SearchBar onSearch={handleSearch} />
                   </div>
-                }
-              />
-              <Route 
-                path="/profile" 
-                element={
+                  <div className="feed-container">
+                    <Feed
+                      statusFilter="Open"
+                      searchParams={searchParams}
+                      refresh={refresh}
+                      setRefresh={setRefresh}
+                    />
+                    <Feed
+                      statusFilter="InProgress"
+                      searchParams={searchParams}
+                      refresh={refresh}
+                      setRefresh={setRefresh}
+                    />
+                    <Feed
+                      statusFilter="Done"
+                      searchParams={searchParams}
+                      refresh={refresh}
+                      setRefresh={setRefresh}
+                    />
+                  </div>
+                  <FloatingActionButton />
+                </div>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <div>
+                  <Header>
+                    <AppHeader tabs={tabs} />
+                  </Header>
+                  <Profile />
                   <div>
-                    <Profile />
-                    <div>
-                      <ProfileFeedContainer refresh={refresh} setRefresh={setRefresh} />
-                    </div>
-                  </div>  
-              } 
-              />
-              <Route path="/dev-user" element={<UsersDropdown />} />
-              <Route path="/" element={<Navigate to="/feed" replace />} />
-            </Routes>
-          </div>
+                    <ProfileFeedContainer
+                      refresh={refresh}
+                      setRefresh={setRefresh}
+                    />
+                  </div>
+                </div>
+              }
+            />
+            <Route path="/" element={<Navigate to="/feed" replace />} />
+          </Routes>
         </Content>
         <Footer style={{ textAlign: "center" }}>
           ChoreHop ©{new Date().getFullYear()} Created for jhu-oose-24
         </Footer>
-        <FloatingActionButton />
       </Layout>
     </Router>
   );
