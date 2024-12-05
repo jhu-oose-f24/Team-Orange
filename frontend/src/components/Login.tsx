@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import getUsers from "../api/GetUsers";
 import User from "../types/User";
 import registerUser from "../api/registerUser";
+import { setIsLoggedIn } from "../store/store";
 
 const { Title } = Typography;
 
@@ -25,6 +26,7 @@ const Login: React.FC = () => {
         localStorage.setItem("activeUID", attemptedUser.id);
         message.success(`Welcome, ${attemptedUser.firstname}!`);
         navigate("/feed");
+        setIsLoggedIn(true);
       } else {
         message.error("Invalid username or password. Please try again.");
       }

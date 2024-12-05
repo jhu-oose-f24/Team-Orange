@@ -3,7 +3,10 @@ import { Avatar, Row, Col, Typography, Divider, Button } from "antd";
 import getUsers from "../api/GetUsers";
 import { getCreatedTicketsCount, getCompletedTicketsCount } from "../api/TicketCount";
 import User from "../types/User";
-import { List } from "immutable";
+import { List, set } from "immutable";
+import { $isLoggedIn, setIsLoggedIn } from "../store/store";
+import { useStore } from "@nanostores/react";
+import { useNavigate } from "react-router-dom";
 
 const { Title, Text } = Typography;
 
@@ -13,6 +16,9 @@ const Profile: React.FC = () => {
   const [activeUser, setActiveUser] = useState<User | null>(null);
   const [createdTickets, setCreatedTickets] = useState<number>(0);
   const [completedTickets, setCompletedTickets] = useState<number>(0);
+  const navigate = useNavigate();
+  const isLoggedIn = useStore($isLoggedIn);
+
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -45,7 +51,8 @@ const Profile: React.FC = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("activeUID"); 
-    window.location.assign("/"); 
+    window.location.assign("/");
+    setIsLoggedIn(false); 
   };
 
   const getInitials = (user: User | null): string => {
@@ -58,6 +65,23 @@ const Profile: React.FC = () => {
   const avatarUrl = activeUser
     ? "https://i.pravatar.cc/150?img=3" // A placeholder avatar URL
     : "";
+
+    if (!isLoggedIn) {
+      return (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100vh", // Full viewport height
+          }}
+        >
+          <Button type="primary" onClick={() => navigate("/")}>
+            Login
+          </Button>
+        </div>
+      );
+    }
 
   return (
     <div
