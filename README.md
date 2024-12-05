@@ -64,21 +64,23 @@ We also updated the Profile tab significantly. On the profile page, we created t
 
 Currently registed users include:
 
-| jhed       |  lastname  | firstname   | email              |
-|------------|------------|-------------| -------------------|
-| "jyang231" |  "Yang"	  | "Jishuo"	  | "jyang231@jh.edu"  |
-| "dwhitne5" |  "Whitney"	| "Dylan"	    | "dwhitne5@jhu.edu" |
-| "jroloff1" |  "Roloff"	| "Jackson"	  | "jroloff1@jhu.edu" |
-| "xwei40"	 |  "Wei"	    | "Xuemeng"	  | "xwei40@jh.edu"    |
+| jhed       |  lastname  | firstname   | email              | password |
+|------------|------------|-------------| -------------------| -------- |
+| "jyang231" |  "Yang"	  | "Jishuo"	  | "jyang231@jh.edu"  | 12345678 |
+| "dwhitne5" |  "Whitney"	| "Dylan"	    | "dwhitne5@jhu.edu" | 12345678 |
+| "jroloff1" |  "Roloff"	| "Jackson"	  | "jroloff1@jhu.edu" | 12345678 |
+| "xwei40"	 |  "Wei"	    | "Xuemeng"	  | "xwei40@jh.edu"    | 12345678 |
 
 and new users can me registed at any time!
 
 Note: we have not created a logout feature yet. We also want to add an edit profile page where users can modify avatar and bio. These changes can be added in it5.
 
 ### Iteration 5
-For iteration 5 we had focused on login and registration. We were able to successfully update our backend users table to include the necessary information we needed. From here we were able to improve our login functionality. The login screen now simply asks for a username and password. Appropriate error handling has been added for this. Additionally we now have the ability to register new users into the users table with a username, first name, last name, and password. Beyond this, we protected our app by ensuring only logged in user's can see profile pages, create tickets, and edit / pickup tickets. We had some trouble configuring the JHU SSO login, and are still waiting for responses to our email. In the future, we are either going to hash our passwords and keep the login that we have right now or move forward with the JHU SSO login. 
+For iteration 5 we had focused on login and registration. We were able to successfully update our backend users table to include the necessary information we needed such as passwords for each user. From here we were able to improve our login functionality. The login screen now simply asks for a username and password. Appropriate error handling has been added for this such as invalid username or password. Additionally we now have the ability to register new users into the users table with a username, first name, last name, email, and password. Beyond this, we protected our app by ensuring only logged in user's can see profile pages, create tickets, and edit / pickup tickets. We had some trouble configuring the JHU SSO login, as we are still waiting for responses to our multiple emails. Before the portfolio and presentation, we are either going to hash our passwords and keep the login that we have right now or move forward with the JHU SSO login. 
 
-Additionally we made several improvements on styling. First, the ticket's themselves have much improved styling. Additionally, the profile page has been styled much better. The counts for completed and created tickets are not static anymore and show accurate numbers. The avatar on the profile page is also no longer static and shows the users initials. Our ticket feeds have been improved as well, including flex improvements. 
+We also made improvements to to the Profile page. Now a logged in user can view their completed tickets (which are tasks they own and have been fully completed) by clicking the view completed button. We also added a logout button on the Profile page which logs the user out and redirects them back to the login page. 
+
+Additionally we made several improvements on styling. First, the ticket's themselves have much improved styling. The counts for completed and created tickets are not static anymore and show accurate numbers on the profile page. The avatar on the profile page is also no longer static and shows the users initials. Our ticket feeds have been improved as well, including flex improvements. 
 
 ## What we are building
 
