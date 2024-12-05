@@ -25,6 +25,7 @@ import {
   FileTextOutlined,
   UserOutlined,
 } from "@ant-design/icons";
+import { useStore } from "@nanostores/react";
 
 interface TicketProps {
   id: string;
@@ -73,6 +74,8 @@ const Ticket: React.FC<TicketProps> = ({
   const [isMarkingAsDone, setIsMarkingAsDone] = useState(false);
   const [ownerName, setOwnerName] = useState<string | null>(null);
   const [assignedUserName, setAssignedUserName] = useState<string | null>(null);
+
+  const isLoggedIn = useStore($isLoggedIn);
 
   useEffect(() => {
     const userId = localStorage.getItem("activeUID");
@@ -203,6 +206,14 @@ const Ticket: React.FC<TicketProps> = ({
     setIsMarkingAsDone(false);
   };
 
+  const getInitials = (name: string | null): string => {
+    if (!name) {
+      return "?";
+    }
+    const [firstName, lastName] = name.split(" ");
+    return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+  };
+
   const { Meta } = Card;
 
   return (
@@ -210,7 +221,7 @@ const Ticket: React.FC<TicketProps> = ({
       <Meta
         avatar={
           <Tooltip title={ownerName ?? "Loading..."}>
-            <Avatar icon={<UserOutlined />} />
+            <Avatar>{getInitials(ownerName)}</Avatar>
           </Tooltip>
         }
         title={title}
@@ -245,7 +256,7 @@ const Ticket: React.FC<TicketProps> = ({
           </Tooltip>
         )}
 
-        {!isOwner && !assigneduser_id && $isLoggedIn && (
+        {!isOwner && !assigneduser_id && isLoggedIn && (
           <Tooltip title="Pickup Ticket">
             <Button
               onClick={() => setIsAssigning(true)}
@@ -449,7 +460,7 @@ const Ticket: React.FC<TicketProps> = ({
         footer={null} // Optional: remove default footer
         width={400} // Adjust width as needed
       >
-        <Chat ticketId={id} ownerID={owner_id} assignedID={assigneduser_id || ""} />
+        <Chat ticketId={id} ownerID={owner_id} assignedID={assigneduser_id || ""} ownerName={ownerName} assignedName={assignedUserName}/>
       </Modal>
     </Card>
   );

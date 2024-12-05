@@ -9,6 +9,8 @@ interface ChatProps {
   ticketId: string;
   ownerID: string;
   assignedID: string | null;
+  ownerName: string | null;
+  assignedName: string | null;
 }
 
 interface MessageData {
@@ -18,7 +20,7 @@ interface MessageData {
   message: string;
 }
 
-const Chat: React.FC<ChatProps> = ({ ticketId, ownerID, assignedID }) => {
+const Chat: React.FC<ChatProps> = ({ ticketId, ownerID, assignedID, ownerName, assignedName }) => {
   const [inputValue, setInputValue] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
 
@@ -59,6 +61,14 @@ const Chat: React.FC<ChatProps> = ({ ticketId, ownerID, assignedID }) => {
     }
   };
 
+  const getInitials = (name: string | null): string => {
+    if (!name) {
+      return "?";
+    }
+    const [firstName, lastName] = name.split(" ");
+    return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+  };
+
   return (
     <Card style={{ width: '100%', maxWidth: '800px', height: '100%', padding: '1rem', margin: '0 auto' }}>
       <div
@@ -79,7 +89,7 @@ const Chat: React.FC<ChatProps> = ({ ticketId, ownerID, assignedID }) => {
               message={message.message}
               isUser={message.sending_id === activeUID}
               timestamp={message.create_time}
-              avatar={"https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp"}
+              avatar={getInitials(activeUID === ownerID ? ownerName : assignedName)}
             />
           ))
         )}

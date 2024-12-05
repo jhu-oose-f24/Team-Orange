@@ -9,6 +9,9 @@ import {
   OrderedListOutlined
 } from '@ant-design/icons';
 import createTicket from "../api/CreateTicket";
+import { $isLoggedIn } from "../store/store";
+import { useStore } from "@nanostores/react";
+import { useNavigate } from "react-router-dom";
 
 const { Title } = Typography;
 
@@ -27,6 +30,8 @@ type CreateTicketForm = {
 const CreateTicket: React.FC = () => {
   const [deadline, setDeadline] = useState("");
   const [form] = Form.useForm();
+  const navigate = useNavigate();
+  const isLoggedIn = useStore($isLoggedIn);
 
   const handleSubmit = async (formData: CreateTicketForm) => {
     try {
@@ -50,6 +55,23 @@ const CreateTicket: React.FC = () => {
       message.error("Failed to create ticket. Please try again.");
     }
   };
+
+  if (!isLoggedIn) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh", // Full viewport height
+        }}
+      >
+        <Button type="primary" onClick={() => navigate("/")}>
+          Login
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <Row justify="center" style={{ padding: '24px' }}>

@@ -18,6 +18,8 @@ import UsersDropdown from "./components/UsersDropdown.dev";
 import FloatingActionButton from "./components/FloatingActionButton";
 import ProfileFeed from "./components/ProfileFeed";
 import ProfileFeedContainer from "./components/ProfileFeedsContainer";
+import { $isLoggedIn } from "./store/store";
+import { useStore } from "@nanostores/react";
 
 const { Header, Content, Footer } = Layout;
 
@@ -34,6 +36,7 @@ const App: React.FC = () => {
 
   const [searchParams, setSearchParams] = useState({});
   const [refresh, setRefresh] = useState(false);
+  const isLoggedIn = useStore($isLoggedIn);
 
   const handleSearch = (params: any) => {
     setSearchParams(params);
@@ -96,7 +99,7 @@ const App: React.FC = () => {
                       setRefresh={setRefresh}
                     />
                   </div>
-                  <FloatingActionButton />
+                  {isLoggedIn && <FloatingActionButton />}
                 </div>
               }
             />
@@ -108,12 +111,15 @@ const App: React.FC = () => {
                     <AppHeader tabs={tabs} />
                   </Header>
                   <Profile />
-                  <div>
-                    <ProfileFeedContainer
-                      refresh={refresh}
-                      setRefresh={setRefresh}
-                    />
-                  </div>
+                  {isLoggedIn && (
+                    <div>
+                      <ProfileFeedContainer
+                        refresh={refresh}
+                        setRefresh={setRefresh}
+                      />
+                    </div>
+                  )}
+                  {isLoggedIn && <FloatingActionButton />}
                 </div>
               }
             />
