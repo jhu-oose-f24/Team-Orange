@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Avatar, Row, Col, Typography, Divider } from "antd";
+import { Avatar, Row, Col, Typography, Divider, Button } from "antd";
 import getUsers from "../api/GetUsers";
 import { getCreatedTicketsCount, getCompletedTicketsCount } from "../api/TicketCount";
 import User from "../types/User";
@@ -43,6 +43,11 @@ const Profile: React.FC = () => {
     fetchUsers();
   }, []);
 
+  const handleLogout = () => {
+    localStorage.removeItem("activeUID"); 
+    window.location.assign("/"); 
+  };
+
   const bio = activeUser ? "I make cool apps" : "Loading bio...";
   const avatarUrl = activeUser
     ? "https://i.pravatar.cc/150?img=3" // A placeholder avatar URL
@@ -57,6 +62,20 @@ const Profile: React.FC = () => {
         textAlign: "center",
       }}
     >
+
+      <Button
+        type="primary"
+        danger
+        onClick={handleLogout}
+        style={{
+          position: "absolute",
+          top: 10,
+          right: 10,
+        }}
+      >
+        Logout
+      </Button>
+
       {/* Avatar and Name */}
       <Avatar size={120} src={avatarUrl} style={{ marginBottom: "10px" }} />
       <Title level={3} style={{ marginBottom: "5px" }}>
