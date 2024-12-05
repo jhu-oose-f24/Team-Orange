@@ -18,7 +18,7 @@ const Login: React.FC = () => {
     try {
       const users: User[] = await getUsers();
       const attemptedUser = users.find(
-        (user) => user.username === username && user.password === password
+        (user) => user.username === username && user.password === password,
       );
 
       if (attemptedUser) {
@@ -44,10 +44,9 @@ const Login: React.FC = () => {
       message.success("Registration successful!");
       setIsModalVisible(false);
       registerForm.resetFields();
-    }
-    catch (error) {
+    } catch (error) {
       message.error("Failed to register new user. Please try again.");
-    };
+    }
   };
 
   const handleCancel = () => {
@@ -56,7 +55,15 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100vh" }}>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        height: "100vh",
+      }}
+    >
       <Title level={2}>Enter Details to Use ChoreHop</Title>
       <Form layout="vertical" onFinish={handleLogin}>
         <Form.Item
@@ -103,7 +110,7 @@ const Login: React.FC = () => {
         cancelText="Cancel"
       >
         <Form layout="vertical" form={registerForm}>
-        <Form.Item
+          <Form.Item
             label="Username"
             name="Username"
             rules={[{ required: true, message: "Please enter a username!" }]}
@@ -113,21 +120,31 @@ const Login: React.FC = () => {
           <Form.Item
             label="First Name"
             name="Firstname"
-            rules={[{ required: true, message: "Please enter your first name!" }]}
+            rules={[
+              { required: true, message: "Please enter your first name!" },
+            ]}
           >
             <Input placeholder="Enter your first name" />
           </Form.Item>
           <Form.Item
             label="Last Name"
             name="Lastname"
-            rules={[{ required: true, message: "Please enter your last name!" }]}
+            rules={[
+              { required: true, message: "Please enter your last name!" },
+            ]}
           >
             <Input placeholder="Enter your last name" />
           </Form.Item>
           <Form.Item
             label="Email"
             name="Email"
-            rules={[{ required: true, type: "email", message: "Please enter a valid email!" }]}
+            rules={[
+              {
+                required: true,
+                type: "email",
+                message: "Please enter a valid email!",
+              },
+            ]}
           >
             <Input placeholder="Enter your email address" />
           </Form.Item>
@@ -138,7 +155,6 @@ const Login: React.FC = () => {
           >
             <Input.Password placeholder="Choose a password" />
           </Form.Item>
-          
         </Form>
       </Modal>
     </div>
