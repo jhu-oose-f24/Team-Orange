@@ -22,8 +22,7 @@ import {
   EditOutlined,
   DeleteOutlined,
   CheckOutlined,
-  FileTextOutlined,
-  UserOutlined,
+  FileTextOutlined
 } from "@ant-design/icons";
 import { useStore } from "@nanostores/react";
 
@@ -128,7 +127,7 @@ const Ticket: React.FC<TicketProps> = ({
       console.log("Updating ticket:", updatedTicket);
       await editTicket(id, updatedTicket);
       setIsEditModalVisible(false);
-      setRefresh((prev) => !prev); // trigger refresh
+      setRefresh((prev) => !prev);
     } catch (error) {
       console.error("Failed to update ticket:", error);
     }
@@ -140,7 +139,7 @@ const Ticket: React.FC<TicketProps> = ({
       try {
         await assignTicket(id, userId);
         setIsAssigning(false);
-        setRefresh((prev) => !prev); // trigger refresh
+        setRefresh((prev) => !prev);
       } catch (error) {
         console.error("Failed to assign ticket:", error);
       }
@@ -153,7 +152,7 @@ const Ticket: React.FC<TicketProps> = ({
     };
     try {
       await editTicket(id, updatedTicket);
-      setRefresh((prev) => !prev); // trigger refresh
+      setRefresh((prev) => !prev);
     } catch (error) {
       console.error("Failed to mark ticket as Done:", error);
     }
@@ -166,7 +165,7 @@ const Ticket: React.FC<TicketProps> = ({
     };
     try {
       await editTicket(id, updatedTicket);
-      setRefresh((prev) => !prev); // trigger refresh
+      setRefresh((prev) => !prev);
     } catch (error) {
       console.error("Failed to confirm ticket payment:", error);
     }
@@ -457,8 +456,8 @@ const Ticket: React.FC<TicketProps> = ({
         title="Chat"
         open={isChatModalOpen}
         onCancel={handleChatModalClose}
-        footer={null} // Optional: remove default footer
-        width={400} // Adjust width as needed
+        footer={null}
+        width={400}
       >
         <Chat ticketId={id} ownerID={owner_id} assignedID={assigneduser_id || ""} ownerName={ownerName} assignedName={assignedUserName}/>
       </Modal>

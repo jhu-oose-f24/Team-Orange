@@ -14,9 +14,7 @@ import AppHeader from "./components/AppHeader";
 import Login from "./components/Login";
 import SearchBar from "./components/SearchBar";
 import "./App.css";
-import UsersDropdown from "./components/UsersDropdown.dev";
 import FloatingActionButton from "./components/FloatingActionButton";
-import ProfileFeed from "./components/ProfileFeed";
 import ProfileFeedContainer from "./components/ProfileFeedsContainer";
 import { $isLoggedIn } from "./store/store";
 import { useStore } from "@nanostores/react";
@@ -72,7 +70,7 @@ const App: React.FC = () => {
                   <div
                     style={{
                       display: "flex",
-                      justifyContent: "center", // Center horizontally
+                      justifyContent: "center",
                       marginTop: "16px",
                       marginLeft: "48px", 
                     }}
