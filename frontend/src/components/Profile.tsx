@@ -31,7 +31,6 @@ const Profile: React.FC = () => {
           const user = fetchedUsers.find((u: User) => u.id === activeUID);
           if (user) {
             setActiveUser(user);
-
             // Fetch ticket counts
             const [createdCount, completedCount] = await Promise.all([
               getCreatedTicketsCount(activeUID),
@@ -63,8 +62,8 @@ const Profile: React.FC = () => {
     return `${firstname.charAt(0)}${lastname.charAt(0)}`.toUpperCase();
   };
 
-
     // prompt user to login if they are not
+
     if (!isLoggedIn) {
       return (
         <div
@@ -72,7 +71,7 @@ const Profile: React.FC = () => {
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            height: "100vh", // Full viewport height
+            height: "100vh",
           }}
         >
           <Button type="primary" onClick={() => navigate("/")}>

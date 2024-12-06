@@ -5,8 +5,7 @@ import {
   CalendarOutlined, 
   TagOutlined, 
   ProfileOutlined, 
-  FlagOutlined, 
-  OrderedListOutlined
+  FlagOutlined
 } from '@ant-design/icons';
 import createTicket from "../api/CreateTicket";
 import { $isLoggedIn } from "../store/store";
@@ -67,7 +66,7 @@ const CreateTicket: React.FC = () => {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          height: "100vh", // Full viewport height
+          height: "100vh",
         }}
       >
         <Button type="primary" onClick={() => navigate("/")}>
