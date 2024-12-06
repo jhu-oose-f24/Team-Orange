@@ -38,6 +38,7 @@ const samlStrategy = new saml.Strategy(
     authnContext: [], 
   },
   (profile, done) => {
+    // Executing the callback and sending it the profile object unchanged.
     return done(null, profile);
   }
 );
@@ -49,9 +50,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cors());
 
-
+// for user login
 app.use(session({
-    // secret: process.env.SESSION_SECRET || 'your_secret_key',
     secret: "useanysecret",
     resave: false,
     saveUninitialized: true
@@ -169,6 +169,7 @@ app.get("/jhu/metadata", (req, res) => {
     res.send(samlStrategy.generateServiceProviderMetadata(PbK, PbK));  // Pass the public key for signing
   });
 
+  // Execute when login failed 
 app.get("/login-failed", (req, res) => {
 const errorMessage = req.flash("error")[0] || "Authentication failed. Please try again.";
 res.status(401).json({ error: errorMessage });
@@ -492,6 +493,7 @@ app.post("/messages", (req, res) => {
     });
 });
 
+// delete api for deleting messages for ticket with ticket id 
 app.delete("/messages", (req, res) => {
     const { ticket_id } = req.body; 
   
@@ -530,20 +532,23 @@ app.delete("/messages", (req, res) => {
       });
     });
   });
-
+ 
+// Get the number of created tickets of the user 
   app.get('/created_tickets/:userId', async (req, res) =>{
     const{userId} = req.params;
 
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
+    
     if (!uuidRegex.test(userId)) {
         return res.status(400).json({ error: "Invalid User ID format" });
     }
+    // check user id is given 
     console.log(userId);
     if (!userId) {
         return res.status(400).json({ error: "User ID is required" });
     }
     try{
+        // Check if user exists 
         const checkUserQuery = "SELECT * FROM users WHERE id = $1";
         const userResult = await db.query(checkUserQuery, [userId]);
         if (userResult.rows.length != 1){
@@ -559,7 +564,6 @@ app.delete("/messages", (req, res) => {
             res.json({ created_tickets_count: createdTickets });
         } else {
             res.json({ created_tickets_count: 0 });
-            // res.status(404).json({ error: "No tickets found for this user" });
         }
         
     }catch (error) {
@@ -568,6 +572,7 @@ app.delete("/messages", (req, res) => {
     }
 });
 
+// Get the number of assigned tickets of the user 
 app.get('/assigned_tickets/:userId', async (req, res) =>{
     const{userId} = req.params;
 
@@ -604,6 +609,7 @@ app.get('/assigned_tickets/:userId', async (req, res) =>{
     }
 });
 
+// Get the number of in progressed tickets of the user 
 app.get('/inprogress_tickets/:userId', async (req, res) =>{
     const{userId} = req.params;
 
@@ -640,7 +646,7 @@ app.get('/inprogress_tickets/:userId', async (req, res) =>{
     }
 });
 
-
+// Get the number of finished tickets of the user 
 app.get('/finished_tickets/:userId', async (req, res) =>{
     const{userId} = req.params;
 
@@ -676,13 +682,6 @@ app.get('/finished_tickets/:userId', async (req, res) =>{
         res.status(500).json({ error: "Internal Server Error" });
     }
 });
-  
-
-  
-
-  
-
-  
   
 // Home route
 app.get("/", (req, res) => {
