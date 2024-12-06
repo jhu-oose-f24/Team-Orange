@@ -1,3 +1,4 @@
+// ticket type
 interface TicketType {
   title: string;
   category: string;

@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
+// this file is not in use
 const NavBar: React.FC = () => {
   return (
     <nav>

@@ -1,6 +1,5 @@
 const BASE_URL = "https://chorehop-cc7c0bf7a12c.herokuapp.com/messages";
-
-
+// Sends a request to the specified API endpoint to retrieve all messages for the provided ticket
 const getMessages = async (ticketId: string) => {
     try {
         const response = await fetch(`${BASE_URL}/${ticketId}`);

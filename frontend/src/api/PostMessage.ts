@@ -8,7 +8,7 @@ interface MessageData {
   ticket_id: string;
   message: string;
 }
-
+// Sends a request to the specified API endpoint to post a message
 const postMessage = async (data: MessageData) : Promise<Message> => {
   try {
     const response = await fetch(BASE_URL, {

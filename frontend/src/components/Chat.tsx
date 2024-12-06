@@ -26,6 +26,7 @@ const Chat: React.FC<ChatProps> = ({ ticketId, ownerID, assignedID, ownerName, a
 
   const activeUID = localStorage.getItem("activeUID") || '';
 
+  // get the messages from the database
   useEffect(() => {
     const fetchMessages = async () => {
       try {
@@ -61,6 +62,7 @@ const Chat: React.FC<ChatProps> = ({ ticketId, ownerID, assignedID, ownerName, a
     }
   };
 
+  // get initials of user to generate avatar
   const getInitials = (name: string | null): string => {
     if (!name) {
       return "?";
@@ -69,9 +71,11 @@ const Chat: React.FC<ChatProps> = ({ ticketId, ownerID, assignedID, ownerName, a
     return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
   };
 
+  // get the users names from their user id 
   const activeName = activeUID === ownerID ? ownerName : assignedName;
   const otherName = activeUID === ownerID ? assignedName : ownerName;
 
+  // generate the chat pop up
   return (
     <Card style={{ width: '100%', maxWidth: '800px', height: '100%', padding: '1rem', margin: '0 auto' }}>
       <div

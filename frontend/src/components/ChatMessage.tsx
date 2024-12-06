@@ -1,5 +1,5 @@
 import React from 'react';
-import { Avatar, Card, Typography, Row, Col } from 'antd';
+import { Avatar, Typography, Row, Col } from 'antd';
 
 interface ChatMessageProps {
   message: string;
@@ -8,11 +8,13 @@ interface ChatMessageProps {
   avatar: string;
 }
 
+// get timestamps for the messages
 const formatTimestamp = (timestamp: string): string => {
     const date = new Date(timestamp);
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
+// generate the text bubbles
 const ChatMessage: React.FC<ChatMessageProps> = ({ message, isUser, timestamp, avatar }) => (
   <Row justify={isUser ? 'end' : 'start'} style={{ marginBottom: '16px' }}>
     {!isUser && (
@@ -26,8 +28,8 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, isUser, timestamp, a
           backgroundColor: isUser ? '#1890ff' : '#f0f2f5',
           color: isUser ? 'white' : 'inherit',
           borderRadius: '8px',
-          padding: '4px 8px', // Reduced padding
-          maxWidth: '200px', // You can control the max width here
+          padding: '4px 8px',
+          maxWidth: '200px',
           display: 'inline-block',
         }}
       >

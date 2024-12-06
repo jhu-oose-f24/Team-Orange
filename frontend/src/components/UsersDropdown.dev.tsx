@@ -5,6 +5,8 @@ import getUsers from "../api/GetUsers";
 import { List } from "immutable";
 import User from "../types/User";
 
+// this file is not in use
+
 const UsersDropdown: React.FC = () => {
   const [UserList, setUserList] = useState<List<User>>(List());
   const [error, setError] = useState<string | null>(null);

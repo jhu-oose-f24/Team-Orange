@@ -19,7 +19,7 @@ const Profile: React.FC = () => {
   const navigate = useNavigate();
   const isLoggedIn = useStore($isLoggedIn);
 
-
+// fetch the users to get user info of current user
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -31,7 +31,6 @@ const Profile: React.FC = () => {
           const user = fetchedUsers.find((u: User) => u.id === activeUID);
           if (user) {
             setActiveUser(user);
-
             // Fetch ticket counts
             const [createdCount, completedCount] = await Promise.all([
               getCreatedTicketsCount(activeUID),
@@ -49,22 +48,21 @@ const Profile: React.FC = () => {
     fetchUsers();
   }, []);
 
+  // remove id from storage and send to login screen
   const handleLogout = () => {
     localStorage.removeItem("activeUID"); 
     window.location.assign("/");
     setIsLoggedIn(false); 
   };
 
+  // get initials for avatar
   const getInitials = (user: User | null): string => {
     if (!user) return "";
     const { firstname, lastname } = user;
     return `${firstname.charAt(0)}${lastname.charAt(0)}`.toUpperCase();
   };
 
-  const bio = activeUser ? "I make cool apps" : "Loading bio...";
-  const avatarUrl = activeUser
-    ? "https://i.pravatar.cc/150?img=3" // A placeholder avatar URL
-    : "";
+    // prompt user to login if they are not
 
     if (!isLoggedIn) {
       return (
@@ -73,7 +71,7 @@ const Profile: React.FC = () => {
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            height: "100vh", // Full viewport height
+            height: "100vh",
           }}
         >
           <Button type="primary" onClick={() => navigate("/")}>
@@ -124,7 +122,6 @@ const Profile: React.FC = () => {
         {activeUser ? `${activeUser.firstname} ${activeUser.lastname}` : "Loading..."}
       </Title>
 
-      {/* <Text type="secondary">{bio}</Text> */}
 
       {/* Profile Stats */}
       <Row justify="center" gutter={16} style={{ marginTop: "20px" }}>

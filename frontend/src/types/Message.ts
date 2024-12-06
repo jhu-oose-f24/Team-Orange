@@ -1,3 +1,4 @@
+// message type
 interface Message {
     id: string;
     sending_id: string;

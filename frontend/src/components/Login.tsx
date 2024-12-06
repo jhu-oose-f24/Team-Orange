@@ -18,10 +18,11 @@ const Login: React.FC = () => {
   const handleLogin = async () => {
     try {
       const users: User[] = await getUsers();
+      // search for the user in the db
       const attemptedUser = users.find(
         (user) => user.username === username && user.password === password,
       );
-
+      // get the users id and store it
       if (attemptedUser) {
         localStorage.setItem("activeUID", attemptedUser.id);
         message.success(`Welcome, ${attemptedUser.firstname}!`);
@@ -35,10 +36,12 @@ const Login: React.FC = () => {
     }
   };
 
+  // show register button
   const showRegisterModal = () => {
     setIsModalVisible(true);
   };
 
+  // Register new users in db
   const handleRegister = async () => {
     try {
       const user = await registerForm.validateFields();
@@ -56,6 +59,7 @@ const Login: React.FC = () => {
     registerForm.resetFields();
   };
 
+  // return the FE login screen
   return (
     <div
       style={{

@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { List } from "immutable";
 import searchTickets from "../api/SearchTicket";
-import { Space, Typography, Row, Col } from "antd";
+import { Typography, Row, Col } from "antd";
 import TicketType from "../types/Ticket";
 import Ticket from "./Ticket";
 import getTickets from "../api/GetTickets";
 import deleteTicket from "../api/DeleteTicket";
 import deleteMessagesByTicket from "../api/DeleteMessagesByTicket";
 
+// statusfilter to filter feeds 
+// searchparams to handle search bar
 interface FeedProps {
   statusFilter: string;
   searchParams: {
@@ -37,6 +39,8 @@ const Feed: React.FC<FeedProps> = ({ statusFilter, searchParams, refresh, setRef
   >(List());
 
   const [error, setError] = useState<string | null>(null);
+
+  // fetch the tickets and filter them based on appropriate status
   useEffect(() => {
     const fetchTickets = async () => {
       try {
@@ -58,7 +62,7 @@ const Feed: React.FC<FeedProps> = ({ statusFilter, searchParams, refresh, setRef
     fetchTickets();
   }, [searchParams, statusFilter, refresh]);
 
-
+  // if search bar is full handle the search
   useEffect(() => {
     if (Object.keys(searchParams).length > 0) {
       handleSearch(searchParams);
@@ -78,6 +82,7 @@ const Feed: React.FC<FeedProps> = ({ statusFilter, searchParams, refresh, setRef
     }
   };
 
+  // delete tickets
   const handleDeleteTicket = async (ticketId: string) => {
     try {
       await deleteMessagesByTicket(ticketId)
@@ -92,6 +97,7 @@ const Feed: React.FC<FeedProps> = ({ statusFilter, searchParams, refresh, setRef
 
   const { Title } = Typography;
 
+  // return the feed (this is one feed only, ie one column)
   return (
     <div className="feed">
       <Title level={2} style={{ color: '#1677ff', marginBottom: '16px', textAlign: 'center' }}>

@@ -22,8 +22,7 @@ import {
   EditOutlined,
   DeleteOutlined,
   CheckOutlined,
-  FileTextOutlined,
-  UserOutlined,
+  FileTextOutlined
 } from "@ant-design/icons";
 import { useStore } from "@nanostores/react";
 
@@ -77,6 +76,7 @@ const Ticket: React.FC<TicketProps> = ({
 
   const isLoggedIn = useStore($isLoggedIn);
 
+  // get the active user to check for ticket owner
   useEffect(() => {
     const userId = localStorage.getItem("activeUID");
     if (userId && userId === owner_id) {
@@ -84,6 +84,7 @@ const Ticket: React.FC<TicketProps> = ({
     }
   }, [owner_id]);
 
+  // get the active user to check for ticket assigned user
   useEffect(() => {
     const userId = localStorage.getItem("activeUID");
     if (userId && userId === assigneduser_id) {
@@ -115,6 +116,7 @@ const Ticket: React.FC<TicketProps> = ({
     fetchUsers();
   }, [owner_id, assigneduser_id]);
 
+  // confirm edit ticket
   const handleSubmit = async (form: EditTicketForm) => {
     const updatedTicket = {
       title: form.editTitle,
@@ -125,40 +127,42 @@ const Ticket: React.FC<TicketProps> = ({
     };
 
     try {
-      console.log("Updating ticket:", updatedTicket);
       await editTicket(id, updatedTicket);
       setIsEditModalVisible(false);
-      setRefresh((prev) => !prev); // trigger refresh
+      setRefresh((prev) => !prev);
     } catch (error) {
       console.error("Failed to update ticket:", error);
     }
   };
 
+  // assign users to tickets
   const handleAssign = async () => {
     const userId = localStorage.getItem("activeUID");
     if (userId) {
       try {
         await assignTicket(id, userId);
         setIsAssigning(false);
-        setRefresh((prev) => !prev); // trigger refresh
+        setRefresh((prev) => !prev);
       } catch (error) {
         console.error("Failed to assign ticket:", error);
       }
     }
   };
 
+  // change ticket status to done
   const handleMarkAsDone = async () => {
     const updatedTicket = {
       status: "Done",
     };
     try {
       await editTicket(id, updatedTicket);
-      setRefresh((prev) => !prev); // trigger refresh
+      setRefresh((prev) => !prev);
     } catch (error) {
       console.error("Failed to mark ticket as Done:", error);
     }
   };
 
+  // change ticket status to closed
   const handleConfirmPayment = async () => {
     const updatedTicket = {
       status: "Closed",
@@ -166,7 +170,7 @@ const Ticket: React.FC<TicketProps> = ({
     };
     try {
       await editTicket(id, updatedTicket);
-      setRefresh((prev) => !prev); // trigger refresh
+      setRefresh((prev) => !prev);
     } catch (error) {
       console.error("Failed to confirm ticket payment:", error);
     }
@@ -206,6 +210,7 @@ const Ticket: React.FC<TicketProps> = ({
     setIsMarkingAsDone(false);
   };
 
+  // get initials for avatars
   const getInitials = (name: string | null): string => {
     if (!name) {
       return "?";
@@ -457,8 +462,9 @@ const Ticket: React.FC<TicketProps> = ({
         title="Chat"
         open={isChatModalOpen}
         onCancel={handleChatModalClose}
-        footer={null} // Optional: remove default footer
-        width={400} // Adjust width as needed
+        footer={null}
+        width={400}
+
       >
         <Chat ticketId={id} ownerID={owner_id} assignedID={assigneduser_id || ""} ownerName={ownerName} assignedName={assignedUserName}/>
       </Modal>
