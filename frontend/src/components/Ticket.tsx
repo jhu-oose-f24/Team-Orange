@@ -76,6 +76,7 @@ const Ticket: React.FC<TicketProps> = ({
 
   const isLoggedIn = useStore($isLoggedIn);
 
+  // get the active user to check for ticket owner
   useEffect(() => {
     const userId = localStorage.getItem("activeUID");
     if (userId && userId === owner_id) {
@@ -83,6 +84,7 @@ const Ticket: React.FC<TicketProps> = ({
     }
   }, [owner_id]);
 
+  // get the active user to check for ticket assigned user
   useEffect(() => {
     const userId = localStorage.getItem("activeUID");
     if (userId && userId === assigneduser_id) {
@@ -114,6 +116,7 @@ const Ticket: React.FC<TicketProps> = ({
     fetchUsers();
   }, [owner_id, assigneduser_id]);
 
+  // confirm edit ticket
   const handleSubmit = async (form: EditTicketForm) => {
     const updatedTicket = {
       title: form.editTitle,
@@ -124,7 +127,6 @@ const Ticket: React.FC<TicketProps> = ({
     };
 
     try {
-      console.log("Updating ticket:", updatedTicket);
       await editTicket(id, updatedTicket);
       setIsEditModalVisible(false);
       setRefresh((prev) => !prev);
@@ -133,6 +135,7 @@ const Ticket: React.FC<TicketProps> = ({
     }
   };
 
+  // assign users to tickets
   const handleAssign = async () => {
     const userId = localStorage.getItem("activeUID");
     if (userId) {
@@ -146,6 +149,7 @@ const Ticket: React.FC<TicketProps> = ({
     }
   };
 
+  // change ticket status to done
   const handleMarkAsDone = async () => {
     const updatedTicket = {
       status: "Done",
@@ -158,6 +162,7 @@ const Ticket: React.FC<TicketProps> = ({
     }
   };
 
+  // change ticket status to closed
   const handleConfirmPayment = async () => {
     const updatedTicket = {
       status: "Closed",
@@ -205,6 +210,7 @@ const Ticket: React.FC<TicketProps> = ({
     setIsMarkingAsDone(false);
   };
 
+  // get initials for avatars
   const getInitials = (name: string | null): string => {
     if (!name) {
       return "?";
@@ -458,6 +464,7 @@ const Ticket: React.FC<TicketProps> = ({
         onCancel={handleChatModalClose}
         footer={null}
         width={400}
+
       >
         <Chat ticketId={id} ownerID={owner_id} assignedID={assigneduser_id || ""} ownerName={ownerName} assignedName={assignedUserName}/>
       </Modal>

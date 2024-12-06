@@ -11,6 +11,7 @@ interface SearchBarProps {
   }) => void;
 }
 
+// Generate a search bar
 const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
   const [searchTitle, setSearchTitle] = useState("");
   const [startDate, setStartDate] = useState<string | null>(null);
@@ -36,6 +37,8 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
       minPayment?: string;
     } = { title: trimmedTitle };
 
+
+    // handle each search paramater
     if (startDate) {
       searchParams.startDate = new Date(startDate).toISOString();
     }
@@ -55,6 +58,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
     onSearch(searchParams);
   };
 
+  // clear all info in the search bar back to empty
   const handleClearSearch = () => {
     setSearchTitle("");
     setStartDate(null);

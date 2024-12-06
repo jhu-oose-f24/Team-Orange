@@ -1,5 +1,6 @@
 const BASE_URL = "https://chorehop-cc7c0bf7a12c.herokuapp.com/tickets";
 
+// Sends a PUT request to the specified API endpoint with the provided ticket ID and userId for the assigned user.
 const assignTicket = async (id: string, assignedUserId: string | null) => {
   try {
     const response = await fetch(`${BASE_URL}/${id}`, {

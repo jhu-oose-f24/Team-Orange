@@ -1,4 +1,5 @@
 const BASE_URL = "https://chorehop-cc7c0bf7a12c.herokuapp.com";
+// Sends a POST request to the specified API endpoint to login a user based on their jhed, first and last name
 
 const loginUser = async (jhed: string, firstName: string, lastName: string) => {
   try {

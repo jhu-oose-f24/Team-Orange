@@ -1,5 +1,5 @@
 const BASE_URL = "https://chorehop-cc7c0bf7a12c.herokuapp.com/tickets";
-
+// Sends a PUT request to the specified API endpoint to update one or more field of the ticket
 const editTicket = async (
   id: string,
   updatedTicket: {

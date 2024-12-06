@@ -7,7 +7,7 @@ interface registerUserType {
   email: string;
   password: string;
 }
-
+// Sends a POST request to the specified API endpoint to register a new user based on first and last name, username, email, and password
 const registerUser = async (user: registerUserType) => {
   try {
     const response = await fetch(BASE_URL, {

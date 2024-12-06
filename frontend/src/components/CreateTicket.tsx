@@ -14,6 +14,7 @@ import { useNavigate } from "react-router-dom";
 
 const { Title } = Typography;
 
+// ticket props
 type CreateTicketForm = {
   title: string;
   description: string;
@@ -26,12 +27,14 @@ type CreateTicketForm = {
   priority: string;
 };
 
+// create a ticket 
 const CreateTicket: React.FC = () => {
   const [deadline, setDeadline] = useState("");
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const isLoggedIn = useStore($isLoggedIn);
 
+  // handle submit button to call the api for create
   const handleSubmit = async (formData: CreateTicketForm) => {
     try {
       const newTicket = {
@@ -55,6 +58,7 @@ const CreateTicket: React.FC = () => {
     }
   };
 
+  // don't let users create tickets if not logged in
   if (!isLoggedIn) {
     return (
       <div
@@ -72,6 +76,7 @@ const CreateTicket: React.FC = () => {
     );
   }
 
+  // generate the create ticket form
   return (
     <Row justify="center" style={{ padding: '24px' }}>
       <Col xs={24} sm={22} md={20} lg={18} xl={16}>

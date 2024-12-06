@@ -13,10 +13,12 @@ const ProfileFeedContainer: React.FC<ProfileFeedContainerProps> = ({
 }) => {
   const [showCompleted, setShowCompleted] = useState(false);
 
+  // handle button to show the completed tickets
   const toggleShowCompleted = () => {
     setShowCompleted((prev) => !prev);
   };
 
+  // return the feeds on the profile page
   return (
     <div>
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>

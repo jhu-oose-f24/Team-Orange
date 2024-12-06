@@ -1,3 +1,4 @@
+// user type
 interface User {
   id: string;
   username: string;

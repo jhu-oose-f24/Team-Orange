@@ -1,5 +1,5 @@
 const BASE_URL = "https://chorehop-cc7c0bf7a12c.herokuapp.com/messages";
-
+// Sends a DELETE request to the specified API endpoint to delete all messages for the provided ticket
 const deleteMessagesByTicket = async (ticketId: string) => {
   try {
     const response = await fetch(BASE_URL, {
