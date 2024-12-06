@@ -1,5 +1,5 @@
 import React from 'react';
-import { Avatar, Card, Typography, Row, Col } from 'antd';
+import { Avatar, Typography, Row, Col } from 'antd';
 
 interface ChatMessageProps {
   message: string;
@@ -26,8 +26,8 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, isUser, timestamp, a
           backgroundColor: isUser ? '#1890ff' : '#f0f2f5',
           color: isUser ? 'white' : 'inherit',
           borderRadius: '8px',
-          padding: '4px 8px', // Reduced padding
-          maxWidth: '200px', // You can control the max width here
+          padding: '4px 8px',
+          maxWidth: '200px',
           display: 'inline-block',
         }}
       >
