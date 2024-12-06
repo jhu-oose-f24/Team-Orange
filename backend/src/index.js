@@ -107,7 +107,6 @@ app.post(
   (req, res) => {
     // the user data is in req.user
     console.log("User profile from SAML response:", req.user);
-    // res.send(`welcome ${req.user}`);
     res.send(`welcome ${req.user.mail}`);
   }
 );
