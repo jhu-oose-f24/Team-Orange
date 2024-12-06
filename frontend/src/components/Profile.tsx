@@ -19,7 +19,7 @@ const Profile: React.FC = () => {
   const navigate = useNavigate();
   const isLoggedIn = useStore($isLoggedIn);
 
-
+// fetch the users to get user info of current user
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -49,23 +49,22 @@ const Profile: React.FC = () => {
     fetchUsers();
   }, []);
 
+  // remove id from storage and send to login screen
   const handleLogout = () => {
     localStorage.removeItem("activeUID"); 
     window.location.assign("/");
     setIsLoggedIn(false); 
   };
 
+  // get initials for avatar
   const getInitials = (user: User | null): string => {
     if (!user) return "";
     const { firstname, lastname } = user;
     return `${firstname.charAt(0)}${lastname.charAt(0)}`.toUpperCase();
   };
 
-  const bio = activeUser ? "I make cool apps" : "Loading bio...";
-  const avatarUrl = activeUser
-    ? "https://i.pravatar.cc/150?img=3" // A placeholder avatar URL
-    : "";
 
+    // prompt user to login if they are not
     if (!isLoggedIn) {
       return (
         <div
@@ -124,7 +123,6 @@ const Profile: React.FC = () => {
         {activeUser ? `${activeUser.firstname} ${activeUser.lastname}` : "Loading..."}
       </Title>
 
-      {/* <Text type="secondary">{bio}</Text> */}
 
       {/* Profile Stats */}
       <Row justify="center" gutter={16} style={{ marginTop: "20px" }}>

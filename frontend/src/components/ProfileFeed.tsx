@@ -7,6 +7,7 @@ import getTickets from "../api/GetTickets";
 import deleteTicket from "../api/DeleteTicket";
 import deleteMessagesByTicket from "../api/DeleteMessagesByTicket";
 
+// status filter used to filter the feeds
 interface ProfileFeedProps {
   statusFilter: string;
   refresh: boolean;
@@ -39,27 +40,34 @@ const ProfileFeed: React.FC<ProfileFeedProps> = ({
         // handle filters here
         const allTickets = await getTickets();
 
+        // show all users created tickets
         if (statusFilter === "My Created Tickets") {
           const filteredTickets = allTickets.filter(
             (ticket: TicketType) =>
               ticket.owner_id === localStorage.getItem("activeUID"),
           );
           setTickets(List(filteredTickets));
-        } else if (statusFilter === "My Tasks") {
+        } 
+        // show users picked up tickets
+        else if (statusFilter === "My Tasks") {
           const filteredTickets = allTickets.filter(
             (ticket: TicketType) =>
               ticket.assigneduser_id === localStorage.getItem("activeUID") &&
               ticket.status === "InProgress",
           );
           setTickets(List(filteredTickets));
-        } else if (statusFilter === "Awaiting Payment") {
+        } 
+        // show tickets the user is waiting to be paid for
+        else if (statusFilter === "Awaiting Payment") {
           const filteredTickets = allTickets.filter(
             (ticket: TicketType) =>
               ticket.assigneduser_id === localStorage.getItem("activeUID") &&
               ticket.status === "Done",
           );
           setTickets(List(filteredTickets));
-        } else if (statusFilter === "Closed") {
+        } 
+        // get all of the closed tickets a user has finished
+        else if (statusFilter === "Closed") {
           const filteredTickets = allTickets.filter(
             (ticket: TicketType) =>
               ticket.assigneduser_id === localStorage.getItem("activeUID") &&
@@ -75,6 +83,7 @@ const ProfileFeed: React.FC<ProfileFeedProps> = ({
     fetchTickets();
   }, [statusFilter, refresh]);
 
+  // delete tickets
   const handleDeleteTicket = async (ticketId: string) => {
     try {
       await deleteMessagesByTicket(ticketId);

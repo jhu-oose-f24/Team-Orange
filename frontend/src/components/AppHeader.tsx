@@ -18,11 +18,13 @@ const AppHeader: React.FC<AppHeaderProps> = ({ tabs }) => {
     setSelectedKey(currentTab ? currentTab.key : "feed");
   }, [location, tabs]);
 
+  // Change tab in app header
   const handleMenuClick = (e: { key: string }) => {
     const selectedTab = tabs.find((tab) => tab.key === e.key);
     if (selectedTab) navigate(selectedTab.path);
   };
 
+  // Returns the app header on top of screen
   return (
     <Header style={{ display: "flex", alignItems: "center" }}>
       <div

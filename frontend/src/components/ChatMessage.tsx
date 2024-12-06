@@ -8,11 +8,13 @@ interface ChatMessageProps {
   avatar: string;
 }
 
+// get timestamps for the messages
 const formatTimestamp = (timestamp: string): string => {
     const date = new Date(timestamp);
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
+// generate the text bubbles
 const ChatMessage: React.FC<ChatMessageProps> = ({ message, isUser, timestamp, avatar }) => (
   <Row justify={isUser ? 'end' : 'start'} style={{ marginBottom: '16px' }}>
     {!isUser && (

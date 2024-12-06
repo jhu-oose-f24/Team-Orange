@@ -2,12 +2,14 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PlusOutlined } from '@ant-design/icons';
 import { Button } from 'antd';
+
+// FAB on feed to bring user to create ticket page
+
 const FloatingActionButton: React.FC = () => {
     const navigate = useNavigate();
     const handleClick = () => {
-        navigate('/create-ticket'); // Change to the correct route
+        navigate('/create-ticket');
     };
-
 
     return (
         <Button
