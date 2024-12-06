@@ -1,5 +1,6 @@
 const BASE_URL = "https://chorehop-cc7c0bf7a12c.herokuapp.com/tickets";
 
+// Sends a POST request to the specified API endpoint to create ticket with all the necessary fields
 const createTicket = async (ticket: {
   title: string;
   description: string;

@@ -1,5 +1,5 @@
 const SEARCH_URL = "https://chorehop-cc7c0bf7a12c.herokuapp.com/tickets/search";
-
+// Sends a request to the specified API endpoint to search for all tickets that match the search parameters
 const searchTickets = async (searchParams = {}) => {
   try {
     const queryString = new URLSearchParams(searchParams).toString();

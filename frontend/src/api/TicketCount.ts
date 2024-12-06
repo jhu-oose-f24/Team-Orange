@@ -1,5 +1,5 @@
 const BASE_URL = "https://chorehop-cc7c0bf7a12c.herokuapp.com";
-
+// Sends a request to the specified API endpoint to get the number of tickets created by the specified user
 export const getCreatedTicketsCount = async (userId: string) => {
   try {
     const response = await fetch(`${BASE_URL}/created_tickets/${userId}`);
@@ -13,7 +13,7 @@ export const getCreatedTicketsCount = async (userId: string) => {
     throw error;
   }
 };
-
+// Sends a request to the specified API endpoint to get the number of tickets completed by the specified user
 export const getCompletedTicketsCount = async (userId: string) => {
   try {
     const response = await fetch(`${BASE_URL}/finished_tickets/${userId}`);

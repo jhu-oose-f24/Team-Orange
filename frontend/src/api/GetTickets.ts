@@ -1,5 +1,5 @@
 const BASE_URL = "https://chorehop-cc7c0bf7a12c.herokuapp.com/tickets";
-
+// Sends a request to the specified API endpoint to get all tickets
 const getTickets = async () => {
   try {
     const response = await fetch(BASE_URL);
