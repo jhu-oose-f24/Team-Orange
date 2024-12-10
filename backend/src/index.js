@@ -107,9 +107,10 @@ app.post(
   (req, res) => {
     // the user data is in req.user
     console.log("User profile from SAML response:", req.user);
-    res.send(`welcome ${req.user.mail}`);
-  }
+    res.send(`welcome ${req.user.mail} ${req.user.givenname} ${req.user.sn}`);
+}
 );
+
 // app.post(
 //     "/jhu/login/callback",
 //     (req, res, next) => {
@@ -120,14 +121,14 @@ app.post(
 //         failureFlash: "Authentication failed, please try again."
 //     }),
 //     (req, res) => {
-//        req.session.user = req.user; // Store the user in session
-//        res.send(`welcome ${req.user.first_name}`);
+//         console.log("User profile from SAML response:", req.user);
+//         res.send(`welcome ${req.user.mail} ${req.user.givenname} ${req.user.sn}`);
+
 //       // user login info
-//       console.log(`welcome ${req.user.first_name}`);
-//       const userName = req.user.jhed;
-//       const firstName = req.user.first_name;
-//       const lastName = req.user.last_name;
-//       const email = req.user.email;
+//       const userName = req.user.mail;
+//       const firstName = req.user.givenname;
+//       const lastName = req.user.sn;
+//       const email = req.user.mail;
       
 //       // check if user already in db
 //       const query = "SELECT id FROM users WHERE Email = $1";
