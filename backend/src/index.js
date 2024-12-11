@@ -107,13 +107,57 @@ app.post(
   (req, res) => {
     // the user data is in req.user
     console.log("User profile from SAML response:", req.user);
-    // res.send(`welcome ${req.user.mail} ${req.user.givenname} ${req.user.sn}`);
-    res.send(`welcome 
-      mail: ${req.user.mail}, 
-      nameID: ${req.user.nameID}, 
-      firstname: ${req.user["urn:oid:2.5.4.42"]},
-      Lastname: ${req.user["urn:oid:2.5.4.4"]},`);
-}
+    // res.send(`welcome 
+    //   mail: ${req.user.mail}, 
+    //   nameID: ${req.user.nameID}, 
+    //   firstname: ${req.user["urn:oid:2.5.4.42"]},
+    //   Lastname: ${req.user["urn:oid:2.5.4.4"]},`);
+
+      // user login info
+      const userName = req.user.nameID;
+      const firstName = req.user["urn:oid:2.5.4.42"];
+      const lastName = req.user["urn:oid:2.5.4.4"];
+      const email = req.user.mail;
+      
+      // check if user already in db
+      const checkUserExistQuery = "SELECT id FROM users WHERE email = $1";
+      
+      db.query(checkUserExistQuery, [email], (err, res)=>{
+        if (err) {
+            return res.status(500).json({ error: "Database query failed" });
+        }
+        if (res.rows.length==0){ // user not found : add the db 
+            const userId = uuidv4();
+
+            const addUserQuery = `
+            INSERT INTO users (id, username, lastname, firstname, email)
+            VALUES ($1, $2, $3, $4, $5)
+            RETURNING *; `;
+          db.query(addUserQuery, [userId, userName, lastName, firstName, email], (insertErr, insertResult) => {
+            if (insertErr) {
+              return res.status(500).json({ error: "Database insert failed" });
+            }
+            user = insertResult.rows[0];
+            console.log("New user created:", user);
+
+          });
+        }else{
+            // user in db 
+            const user = result.rows[0];
+            console.log("User already exists:", user);
+        }
+        // Return the newly created user
+        res.status(201).json({
+            message: "Welcome!",
+            user: {
+                email: email,
+                nameID: userName,
+                firstName: firstName,
+                lastName: lastName,
+            },
+            });
+      })
+    }
 );
 
 // app.post(
