@@ -109,18 +109,10 @@ app.post(
     console.log("User profile from SAML response:", req.user);
     // res.send(`welcome ${req.user.mail} ${req.user.givenname} ${req.user.sn}`);
     res.send(`welcome 
-      mail: ${req.user.mail || ''}, 
-      givenname: ${req.user.givenname || ''}, 
-      sn: ${req.user.sn || ''}, 
-      nameID: ${req.user.nameID || ''}, 
-      nameId: ${req.user.nameId || ''}, 
-      displayName: ${req.user.displayName || ''}, 
-      uid: ${req.user.uid || ''},
-      b2buidemail: ${req.user["b2buidemail"] || ''},
-      OID givenname (2.5.4.42): ${req.user["urn:oid:2.5.4.42"] || ''},
-      OID sn (2.5.4.4): ${req.user["urn:oid:2.5.4.4"] || ''},
-      userPrincipalName: ${req.user["userPrincipalName"] || ''}
-    `);
+      mail: ${req.user.mail}, 
+      nameID: ${req.user.nameID}, 
+      firstname: ${req.user["urn:oid:2.5.4.42"]},
+      Lastname: ${req.user["urn:oid:2.5.4.4"]},`);
 }
 );
 
