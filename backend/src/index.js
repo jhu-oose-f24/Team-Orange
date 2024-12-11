@@ -108,36 +108,7 @@ app.post(
     // the user data is in req.user
     console.log("User profile from SAML response:", req.user);
     // res.send(`welcome ${req.user.mail} ${req.user.givenname} ${req.user.sn}`);
-    res.send(`welcome 
-    	${req.user.mail} 
-    	${req.user.givenname} 
-    	${req.givenname} 
-    	${req.user.sn}
-    	${req.sn} 
-    	${req.user.nameID} 
-    	${req.nameID} 
-    	${req.user.nameId} 
-    	${req.nameId} 
-    	${req.user.displayName} 
-    	${req.displayName} 
-    	${req.user.uid} 
-    	${req.uid} 
-    	${req.user.urn:oid:2.5.4.42} 
-    	${req.urn:oid:2.5.4.42} 
-    	${req.user.urn:oid:2.5.4.4} 
-    	${req.urn:oid:2.5.4.4} 	
-    	${req.user.oid:2.5.4.42} 
-    	${req.oid:2.5.4.42} 	
-    	${req.user.2.5.4.42} 
-    	${req.2.5.4.42} 	
-    	${urn:oid:2.5.4.42 } 
-    	${req.urn:oid:2.5.4.42 } 	
-    	${req.user.["urn:oid:2.5.4.42"]} 
-    	${req.user["urn:oid:2.5.4.42"]} 	
-    	${req.user["b2buidemail"]} 
-    	${req.user["uid"]} 
-    	${req.user["userPrincipalName"]} 
-    `);
+    res.send(`welcome ${req.user.mail} ${req.user.givenname} ${req.givenname} ${req.user.sn} ${req.sn} ${req.user.nameID} ${req.nameID} ${req.user.nameId} ${req.nameId} ${req.user.displayName} ${req.displayName} ${req.user.uid} ${req.uid} ${req.user.urn:oid:2.5.4.42} ${req.urn:oid:2.5.4.42} ${req.user.urn:oid:2.5.4.4} ${req.urn:oid:2.5.4.4} ${req.user.oid:2.5.4.42} ${req.oid:2.5.4.42} ${req.user.2.5.4.42} ${req.2.5.4.42} ${urn:oid:2.5.4.42 } ${req.urn:oid:2.5.4.42} ${req.user.["urn:oid:2.5.4.42"]} ${req.user["urn:oid:2.5.4.42"]} ${req.user["b2buidemail"]} ${req.user["uid"]} ${req.user["userPrincipalName"]}`);
 }
 );
 
