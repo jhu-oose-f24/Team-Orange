@@ -143,7 +143,7 @@ app.post(
           });
         }else{
             // user in db 
-            const user = result.rows[0];
+            const user = res.rows[0];
             console.log("User already exists:", user);
         }
         // Return the newly created user
