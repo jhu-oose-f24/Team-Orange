@@ -133,7 +133,7 @@ app.post(
           console.log("New user created:", user);
 
           return res.status(201).json({
-            message: "Welcome!",
+            message: "New User, Welcome!",
             user: {
               email: email,
               nameID: userName,
@@ -147,7 +147,7 @@ app.post(
         console.log("User already exists:", user);
         
         return res.status(201).json({
-          message: "Welcome!",
+          message: "Existing User, Welcome!",
           user: {
             email: email,
             nameID: userName,
