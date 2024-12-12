@@ -18,6 +18,7 @@ import FloatingActionButton from "./components/FloatingActionButton";
 import ProfileFeedContainer from "./components/ProfileFeedsContainer";
 import { $isLoggedIn } from "./store/store";
 import { useStore } from "@nanostores/react";
+import LoginScreen from "./components/LoginScreen";
 
 const { Header, Content, Footer } = Layout;
 
@@ -48,7 +49,7 @@ const App: React.FC = () => {
       <Layout>
         <Content>
           <Routes>
-            <Route path="/" element={<Login />} />
+            <Route path="/" element={<LoginScreen />} />
             <Route
               path="/create-ticket"
               element={

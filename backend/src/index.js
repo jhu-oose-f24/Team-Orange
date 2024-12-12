@@ -99,65 +99,55 @@ app.get(
 
 // Callback routes: JHU SSO authenticate user and send 1. assertion and 2. POST request
 app.post(
-  "/jhu/login/callback",
-  (req, res, next) => {
-    next();
-  },
-  passport.authenticate("samlStrategy"),
-  (req, res) => {
-    console.log("User profile from SAML response:", req.user);
+    "/jhu/login/callback",
+    (req, res, next) => {
+        next();
+    },
+    passport.authenticate("samlStrategy"),
+    (req, res) => {
+        console.log("User profile from SAML response:", req.user);
 
-    const userName = req.user.nameID;
-    const firstName = req.user["urn:oid:2.5.4.42"];
-    const lastName = req.user["urn:oid:2.5.4.4"];
-    const email = req.user.mail;
+        const userName = req.user.nameID;
+        const firstName = req.user["urn:oid:2.5.4.42"];
+        const lastName = req.user["urn:oid:2.5.4.4"];
+        const email = req.user.mail;
 
-    const checkUserExistQuery = "SELECT id FROM users WHERE email = $1";
-    db.query(checkUserExistQuery, [email], (err, queryRes) => {
-      if (err) {
-        return res.status(500).json({ error: "Database query failed" });
-      }
+        const checkUserExistQuery = "SELECT id FROM users WHERE email = $1";
+        db.query(checkUserExistQuery, [email], (err, queryRes) => {
+            if (err) {
+                console.error("Database query failed:", err);
+                return res.status(500).send("Database query failed");
+            }
 
-      if (queryRes.rows.length === 0) {
-        const userId = uuidv4();
-        const addUserQuery = `
-            INSERT INTO users (id, username, lastname, firstname, email)
-            VALUES ($1, $2, $3, $4, $5)
-            RETURNING *; `;
-        
-        db.query(addUserQuery, [userId, userName, lastName, firstName, email], (insertErr, insertResult) => {
-          if (insertErr) {
-            return res.status(500).json({ error: "Database insert failed" });
-          }
-          const user = insertResult.rows[0];
-          console.log("New user created:", user);
-
-          return res.status(201).json({
-            message: "New User, Welcome!",
-            user: {
-              email: email,
-              nameID: userName,
-              firstName: firstName,
-              lastName: lastName,
-            },
-          });
+            if (queryRes.rows.length === 0) {
+                const userId = uuidv4();
+                const addUserQuery = `
+          INSERT INTO users (id, username, lastname, firstname, email)
+          VALUES ($1, $2, $3, $4, $5)
+          RETURNING *;
+        `;
+                db.query(
+                    addUserQuery,
+                    [userId, userName, lastName, firstName, email],
+                    (insertErr) => {
+                        if (insertErr) {
+                            console.error("Database insert failed:", insertErr);
+                            return res.status(500).send("Database insert failed");
+                        }
+                        console.log("New user created:", { email, firstName, lastName });
+                        return res.redirect(
+                            `https://team-orange-66uk.vercel.app?email=${encodeURIComponent(email)}`
+                        );
+                    }
+                );
+            } else {
+                console.log("User already exists:", queryRes.rows[0]);
+                return res.redirect(
+                    `https://team-orange-66uk.vercel.app?email=${encodeURIComponent(email)}`
+                );
+            }
         });
-      } else {
-        const user = queryRes.rows[0];
-        console.log("User already exists:", user);
-        
-        return res.status(201).json({
-          message: "Existing User, Welcome!",
-          user: {
-            email: email,
-            nameID: userName,
-            firstName: firstName,
-            lastName: lastName,
-          },
-        });
-      }
-    });
-  }
+    }
 );
 
 
